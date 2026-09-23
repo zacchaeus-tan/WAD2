@@ -19,28 +19,18 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       this.error = null
 
+      // The profiles row is created by the on_auth_user_created trigger, which
+      // reads display_name out of this metadata.
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: { data: { display_name: displayName } },
       })
 
       if (error) {
         this.error = error.message
         this.loading = false
         return { success: false, error: error.message }
-      }
-
-      // create the matching profiles row
-      if (data.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({ id: data.user.id, display_name: displayName, is_admin: false })
-
-        if (profileError) {
-          this.error = profileError.message
-          this.loading = false
-          return { success: false, error: profileError.message }
-        }
       }
 
       this.user = data.user
@@ -74,6 +64,30 @@ export const useAuthStore = defineStore('auth', {
       await supabase.auth.signOut()
       this.user = null
       this.profile = null
+    },
+
+    // fitness_score is computed by a trigger, so we save the answers and read back.
+    async saveQuiz(answers) {
+      if (!this.user) return { success: false, error: 'Not signed in' }
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          experience_level: answers.experienceLevel,
+          longest_distance_km: answers.longestDistanceKm,
+          max_elevation_gain_m: answers.maxElevationGainM,
+          highest_altitude_m: answers.highestAltitudeM,
+          goals_text: answers.goalsText,
+        })
+        .eq('id', this.user.id)
+
+      if (error) {
+        this.error = error.message
+        return { success: false, error: error.message }
+      }
+
+      await this.fetchProfile()
+      return { success: true }
     },
 
     async fetchProfile() {
