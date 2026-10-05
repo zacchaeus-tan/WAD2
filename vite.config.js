@@ -10,6 +10,12 @@ export default defineConfig({
     vue(),
     vueDevTools(),
   ],
+  // MapLibre ships its worker as a separate module. Leaving it out of
+  // Vite's dependency pre-bundling avoids stale/missing worker files in
+  // node_modules/.vite during development.
+  optimizeDeps: {
+    exclude: ['maplibre-gl'],
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

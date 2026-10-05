@@ -16,6 +16,7 @@ onMounted(() => {
       <RouterLink class="navbar-brand" to="/">Trek Prep</RouterLink>
       <ul class="navbar-nav me-auto">
         <li class="nav-item"><RouterLink class="nav-link" to="/routes">Routes</RouterLink></li>
+        <li class="nav-item"><RouterLink class="nav-link" to="/globe">Globe</RouterLink></li>
         <li class="nav-item"><RouterLink class="nav-link" to="/quiz">My profile</RouterLink></li>
         <li v-if="auth.isAdmin" class="nav-item">
           <RouterLink class="nav-link" to="/admin">Admin</RouterLink>
