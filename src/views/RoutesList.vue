@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoutesStore } from '@/stores/routes'
 import { useRouter } from 'vue-router'
+import { difficultyLabel, difficultyClass } from '@/lib/format'
 
 const routesStore = useRoutesStore()
 const router = useRouter()
@@ -23,7 +24,7 @@ const countries = computed(() => {
 })
 
 const difficulties = computed(() => {
-  const unique = new Set(routesStore.routes.map((r) => r.technical_rating))
+  const unique = new Set(routesStore.routes.map((r) => difficultyLabel(r.effective_difficulty)))
   return ['all', ...unique]
 })
 
@@ -31,7 +32,7 @@ const difficulties = computed(() => {
 const filteredRoutes = computed(() => {
   return routesStore.routes.filter((route) => {
     if (countryFilter.value !== 'all' && route.country !== countryFilter.value) return false
-    if (difficultyFilter.value !== 'all' && route.technical_rating !== difficultyFilter.value) return false
+    if (difficultyFilter.value !== 'all' && difficultyLabel(route.effective_difficulty) !== difficultyFilter.value) return false
     if (multidayOnly.value && !route.is_multiday) return false
     return true
   })
@@ -112,15 +113,15 @@ function goToRoute(id) {
               <li>🗓️ {{ route.duration_days }} day{{ route.duration_days > 1 ? 's' : '' }}</li>
             </ul>
 
+            <span class="badge" :class="difficultyClass(route.effective_difficulty)">
+              {{ difficultyLabel(route.effective_difficulty) }}
+            </span>
+
             <span
-              class="badge"
-              :class="{
-                'bg-success': route.technical_rating === 'moderate',
-                'bg-warning text-dark': route.technical_rating === 'hard',
-                'bg-danger': route.technical_rating === 'very_hard',
-              }"
+              v-if="Number(route.effective_difficulty) !== Number(route.official_difficulty)"
+              class="badge bg-light text-dark border ms-2"
             >
-              {{ route.technical_rating }}
+              community adjusted
             </span>
 
             <span
@@ -129,6 +130,10 @@ function goToRoute(id) {
             >
               {{ route.safety_status }}
             </span>
+
+            <div v-if="route.review_count" class="small text-muted mt-2">
+              {{ route.avg_rating }}★ · {{ route.review_count }} review(s)
+            </div>
           </div>
         </div>
       </div>
