@@ -2,9 +2,20 @@
 import { createClient } from '@supabase/supabase-js'
 import fs from 'fs'
 import path from 'path'
+import { fileURLToPath } from 'url'
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SERVICE_ROLE_KEY)
-const dir = './public/geojson' // <- your actual folder
+const projectDir = path.dirname(fileURLToPath(import.meta.url))
+const geojsonDirectories = [
+  path.join(projectDir, 'public', 'geojson'),
+  path.join(projectDir, 'dist', 'geojson'),
+]
+const dir = geojsonDirectories.find((candidate) => fs.existsSync(candidate))
+if (!dir) {
+  throw new Error(
+    `GeoJSON directory not found. Expected one of: ${geojsonDirectories.join(', ')}`,
+  )
+}
 
 const countryNames = {
   indonesia: 'Indonesia', malaysia: 'Malaysia', phillipines: 'Philippines',
@@ -14,7 +25,8 @@ const countryNames = {
 const EARTH_RADIUS_KM = 6371
 const ELEVATION_API_URL = process.env.ELEVATION_API_URL ?? 'https://api.opentopodata.org/v1/srtm90m'
 const ELEVATION_SAMPLES = Number(process.env.ELEVATION_SAMPLES ?? 50)
-const ELEVATION_DELAY_MS = Number(process.env.ELEVATION_DELAY_MS ?? 250)
+const ELEVATION_DELAY_MS = Number(process.env.ELEVATION_DELAY_MS ?? 1500)
+const ELEVATION_MAX_RETRIES = 5
 
 function haversineKm([lon1, lat1], [lon2, lat2]) {
   const toRadians = (degrees) => (degrees * Math.PI) / 180
@@ -66,11 +78,23 @@ async function elevationStats(geometry) {
   const elevations = []
 
   for (const locations of pathForElevation(geometry)) {
-    const response = await fetch(ELEVATION_API_URL, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ locations, samples: ELEVATION_SAMPLES }),
-    })
+    let response
+    for (let attempt = 0; attempt <= ELEVATION_MAX_RETRIES; attempt += 1) {
+      response = await fetch(ELEVATION_API_URL, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ locations, samples: ELEVATION_SAMPLES }),
+      })
+
+      if (response.status !== 429 || attempt === ELEVATION_MAX_RETRIES) break
+
+      const retryAfter = Number(response.headers.get('retry-after'))
+      const backoff = Number.isFinite(retryAfter) && retryAfter > 0
+        ? retryAfter * 1000
+        : ELEVATION_DELAY_MS * 2 ** attempt
+      console.warn(`Elevation API rate limit reached; retrying in ${Math.ceil(backoff / 1000)}s`)
+      await wait(backoff)
+    }
 
     if (!response.ok) throw new Error(`Elevation API returned ${response.status}`)
     const payload = await response.json()

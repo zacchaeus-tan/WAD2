@@ -16,7 +16,6 @@ const mapReady = ref(false)
 const selectedCountry = ref('all')
 const showAllTrails = ref(false)
 const trailsLoading = ref(false)
-const selectedCountry = ref('all')
 
 const mappableRoutes = computed(() => routesStore.routes.filter((route) => route.geometry))
 
@@ -292,7 +291,7 @@ onMounted(() => {
     mapReady.value = true
     applyCountryFilter()
   })
-})
+
 
 onBeforeUnmount(() => map.value?.remove())
 </script>
