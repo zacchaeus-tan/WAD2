@@ -1,138 +1,127 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import * as maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
+import { useRoutesStore } from '@/stores/routes'
+
+const router = useRouter()
+const routesStore = useRoutesStore()
 
 const mapContainer = ref(null)
-const map = ref(null)
-const loading = ref(true)
-const error = ref(null)
+const map = shallowRef(null)
+const mapReady = ref(false)
 const selectedCountry = ref('all')
-const routeCount = ref(0)
 
-const routeFiles = [
-  ['Indonesia', 'indonesia-routes.geojson'],
-  ['Malaysia', 'malaysia-routes.geojson'],
-  ['Philippines', 'phillipines-routes.geojson'],
-  ['Singapore', 'singapore-routes.geojson'],
-  ['Thailand', 'thailand-routes.geojson'],
-  ['Vietnam', 'vietnam-routes.geojson'],
-]
+const mappableRoutes = computed(() => routesStore.routes.filter((route) => route.geometry))
 
-const countries = computed(() => ['all', ...routeFiles.map(([country]) => country)])
+const countries = computed(() => {
+  const unique = new Set(mappableRoutes.value.map((route) => route.country).filter(Boolean))
+  return ['all', ...[...unique].sort()]
+})
 
-async function loadRoutes() {
-  const collections = await Promise.all(
-    routeFiles.map(async ([country, filename]) => {
-      const response = await fetch(`/geojson/${filename}`)
-      if (!response.ok) throw new Error(`Could not load ${filename}`)
+const geojson = computed(() => ({
+  type: 'FeatureCollection',
+  features: mappableRoutes.value.map((route) => ({
+    type: 'Feature',
+    geometry: route.geometry,
+    properties: { id: route.id, name: route.name, country: route.country },
+  })),
+}))
 
-      const collection = await response.json()
-      return {
-        ...collection,
-        features: collection.features
-          .filter((feature) => ['LineString', 'MultiLineString'].includes(feature.geometry?.type))
-          .map((feature) => ({
-            ...feature,
-            properties: { ...feature.properties, country },
-          })),
-      }
-    }),
-  )
-
-  return {
-    type: 'FeatureCollection',
-    features: collections.flatMap((collection) => collection.features),
-  }
-}
+const routeCount = computed(() => geojson.value.features.length)
 
 function applyCountryFilter() {
   if (!map.value?.getLayer('route-lines')) return
-
   map.value.setFilter(
     'route-lines',
-    selectedCountry.value === 'all'
-      ? null
-      : ['==', ['get', 'country'], selectedCountry.value],
+    selectedCountry.value === 'all' ? null : ['==', ['get', 'country'], selectedCountry.value],
   )
 }
 
-function addRoutePopup(event) {
-  const feature = event.features?.[0]
-  if (!feature) return
+function showRoutePopup(event) {
+  const properties = event.features?.[0]?.properties
+  if (!properties) return
 
-  const name = feature.properties?.name || 'Unnamed hiking route'
-  const country = feature.properties?.country || 'Unknown country'
-  const osmId = feature.properties?.['@id'] || 'Not available'
+  const element = document.createElement('div')
+  const title = document.createElement('strong')
+  title.textContent = properties.name || 'Unnamed route'
+  const country = document.createElement('div')
+  country.textContent = properties.country || ''
+  const link = document.createElement('a')
+  link.textContent = 'View route details →'
+  link.href = router.resolve({ name: 'route-detail', params: { id: properties.id } }).href
+  link.addEventListener('click', (clickEvent) => {
+    clickEvent.preventDefault()
+    router.push({ name: 'route-detail', params: { id: properties.id } })
+  })
+  element.append(title, country, link)
 
   new maplibregl.Popup({ closeButton: true })
     .setLngLat(event.lngLat)
-    .setHTML(
-      `<strong>${name}</strong><br><span>${country}</span><br><small>OpenStreetMap: ${osmId}</small>`,
-    )
+    .setDOMContent(element)
     .addTo(map.value)
 }
 
-async function initialiseMap() {
-  try {
-    const geojson = await loadRoutes()
-    routeCount.value = geojson.features.length
+watch([mapReady, geojson], () => {
+  if (!mapReady.value) return
+  map.value.getSource('route-data')?.setData(geojson.value)
+  applyCountryFilter()
+})
 
-    map.value = new maplibregl.Map({
-      container: mapContainer.value,
-      style: 'https://demotiles.maplibre.org/style.json',
-      center: [112, 8],
-      zoom: 2.2,
-      minZoom: 1.3,
-      maxZoom: 16,
-      dragRotate: true,
-      touchZoomRotate: true,
+onMounted(() => {
+  routesStore.fetchRoutes()
+
+  map.value = new maplibregl.Map({
+    container: mapContainer.value,
+    style: 'https://tiles.openfreemap.org/styles/liberty',
+    center: [112, 8],
+    zoom: 2.2,
+    minZoom: 1.3,
+    maxZoom: 16,
+    dragRotate: true,
+    touchZoomRotate: true,
+  })
+
+  map.value.addControl(new maplibregl.NavigationControl(), 'top-right')
+  map.value.addControl(new maplibregl.GlobeControl(), 'top-right')
+
+  map.value.on('load', () => {
+    map.value.setProjection({ type: 'globe' })
+    map.value.addSource('route-data', { type: 'geojson', data: geojson.value })
+    map.value.addLayer({
+      id: 'route-lines',
+      type: 'line',
+      source: 'route-data',
+      paint: {
+        'line-color': [
+          'match', ['get', 'country'],
+          'Indonesia', '#ef476f',
+          'Malaysia', '#118ab2',
+          'Philippines', '#f78c6b',
+          'Singapore', '#06d6a0',
+          'Thailand', '#ffd166',
+          'Vietnam', '#9b5de5',
+          '#ffffff',
+        ],
+        'line-width': ['interpolate', ['linear'], ['zoom'], 1, 0.7, 8, 2.5, 14, 5],
+        'line-opacity': 0.82,
+      },
     })
 
-    map.value.addControl(new maplibregl.NavigationControl(), 'top-right')
-    map.value.addControl(new maplibregl.GlobeControl(), 'top-right')
-
-    map.value.on('load', () => {
-      map.value.setProjection({ type: 'globe' })
-      map.value.addSource('route-data', { type: 'geojson', data: geojson })
-      map.value.addLayer({
-        id: 'route-lines',
-        type: 'line',
-        source: 'route-data',
-        paint: {
-          'line-color': [
-            'match',
-            ['get', 'country'],
-            'Indonesia', '#ef476f',
-            'Malaysia', '#118ab2',
-            'Philippines', '#f78c6b',
-            'Singapore', '#06d6a0',
-            'Thailand', '#ffd166',
-            'Vietnam', '#9b5de5',
-            '#ffffff',
-          ],
-          'line-width': ['interpolate', ['linear'], ['zoom'], 1, 0.7, 8, 2.5, 14, 5],
-          'line-opacity': 0.82,
-        },
-      })
-
-      map.value.on('click', 'route-lines', addRoutePopup)
-      map.value.on('mouseenter', 'route-lines', () => {
-        map.value.getCanvas().style.cursor = 'pointer'
-      })
-      map.value.on('mouseleave', 'route-lines', () => {
-        map.value.getCanvas().style.cursor = ''
-      })
-
-      loading.value = false
+    map.value.on('click', 'route-lines', showRoutePopup)
+    map.value.on('mouseenter', 'route-lines', () => {
+      map.value.getCanvas().style.cursor = 'pointer'
     })
-  } catch (loadError) {
-    error.value = loadError.message
-    loading.value = false
-  }
-}
+    map.value.on('mouseleave', 'route-lines', () => {
+      map.value.getCanvas().style.cursor = ''
+    })
 
-onMounted(initialiseMap)
+    mapReady.value = true
+    applyCountryFilter()
+  })
+})
+
 onBeforeUnmount(() => map.value?.remove())
 </script>
 
@@ -154,16 +143,16 @@ onBeforeUnmount(() => map.value?.remove())
         </div>
       </div>
 
-      <div v-if="error" class="alert alert-danger">Unable to load route data: {{ error }}</div>
+      <div v-if="routesStore.error" class="alert alert-danger">
+        Unable to load route data: {{ routesStore.error }}
+      </div>
       <div v-else class="globe-card position-relative">
         <div ref="mapContainer" class="globe-map"></div>
-        <div v-if="loading" class="map-status">Loading {{ routeCount || 'route' }} routes…</div>
+        <div v-if="routesStore.loading || !mapReady" class="map-status">Loading routes…</div>
         <div v-else class="map-count">{{ routeCount }} routes · Scroll to zoom · Drag to rotate</div>
       </div>
 
-      <p class="small text-muted mt-2 mb-0">
-        Route data © OpenStreetMap contributors. Click a route to view its source details.
-      </p>
+      <p class="small text-muted mt-2 mb-0">Click a route to open its details page.</p>
     </div>
   </main>
 </template>

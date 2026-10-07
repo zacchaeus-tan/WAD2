@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { markRaw } from 'vue'
 import { supabase } from '@/lib/supabase'
 
 export const useRoutesStore = defineStore('routes', {
@@ -19,13 +20,22 @@ export const useRoutesStore = defineStore('routes', {
 
   actions: {
     async fetchRoutes() {
+      // Both /routes and /globe use this store. Avoid a second request when
+      // navigation between the pages happens during the same session.
+      if (this.routes.length || this.loading) return
+
       this.loading = true
       this.error = null
       const { data, error } = await supabase.from('routes').select('*').order('name')
       if (error) {
         this.error = error.message
       } else {
-        this.routes = data
+        this.routes = data.map((route) => ({
+          ...route,
+          // GeoJSON coordinate arrays can be large; they do not need Vue
+          // reactivity once they have been fetched.
+          geometry: route.geometry ? markRaw(route.geometry) : null,
+        }))
       }
       this.loading = false
     },

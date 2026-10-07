@@ -19,12 +19,16 @@ onMounted(() => {
 // derive filter options from the actual data, so this doesn't drift out of sync
 // with what's really in the routes table
 const countries = computed(() => {
-  const unique = new Set(routesStore.routes.map((r) => r.country))
+  const unique = new Set(routesStore.routes.map((route) => route.country).filter(Boolean))
   return ['all', ...unique]
 })
 
 const difficulties = computed(() => {
-  const unique = new Set(routesStore.routes.map((r) => difficultyLabel(r.effective_difficulty)))
+  const unique = new Set(
+    routesStore.routes
+      .filter((route) => route.effective_difficulty != null)
+      .map((route) => difficultyLabel(route.effective_difficulty)),
+  )
   return ['all', ...unique]
 })
 
@@ -32,7 +36,11 @@ const difficulties = computed(() => {
 const filteredRoutes = computed(() => {
   return routesStore.routes.filter((route) => {
     if (countryFilter.value !== 'all' && route.country !== countryFilter.value) return false
-    if (difficultyFilter.value !== 'all' && difficultyLabel(route.effective_difficulty) !== difficultyFilter.value) return false
+    if (
+      difficultyFilter.value !== 'all' &&
+      (route.effective_difficulty == null ||
+        difficultyLabel(route.effective_difficulty) !== difficultyFilter.value)
+    ) return false
     if (multidayOnly.value && !route.is_multiday) return false
     return true
   })
@@ -108,24 +116,30 @@ function goToRoute(id) {
             <h6 class="card-subtitle mb-2 text-muted">{{ route.country }}</h6>
 
             <ul class="list-unstyled small mb-3">
-              <li>📏 {{ route.distance_km }} km</li>
-              <li>⛰️ {{ route.elevation_gain_m }} m gain</li>
-              <li>🗓️ {{ route.duration_days }} day{{ route.duration_days > 1 ? 's' : '' }}</li>
+              <li v-if="route.distance_km != null">📏 {{ route.distance_km }} km</li>
+              <li v-if="route.elevation_gain_m != null">⛰️ {{ route.elevation_gain_m }} m gain</li>
+              <li v-if="route.duration_days != null">
+                🗓️ {{ route.duration_days }} day{{ route.duration_days > 1 ? 's' : '' }}
+              </li>
             </ul>
 
-            <span class="badge" :class="difficultyClass(route.effective_difficulty)">
+            <span
+              v-if="route.effective_difficulty != null"
+              class="badge"
+              :class="difficultyClass(route.effective_difficulty)"
+            >
               {{ difficultyLabel(route.effective_difficulty) }}
             </span>
 
             <span
-              v-if="Number(route.effective_difficulty) !== Number(route.official_difficulty)"
+              v-if="route.effective_difficulty != null && Number(route.effective_difficulty) !== Number(route.official_difficulty)"
               class="badge bg-light text-dark border ms-2"
             >
               community adjusted
             </span>
 
             <span
-              v-if="route.safety_status !== 'open'"
+              v-if="route.safety_status && route.safety_status !== 'open'"
               class="badge bg-secondary ms-2"
             >
               {{ route.safety_status }}
