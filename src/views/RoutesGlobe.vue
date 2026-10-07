@@ -16,6 +16,7 @@ const mapReady = ref(false)
 const selectedCountry = ref('all')
 const showAllTrails = ref(false)
 const trailsLoading = ref(false)
+const error = ref(null)
 
 const mappableRoutes = computed(() => routesStore.routes.filter((route) => route.geometry))
 
@@ -220,78 +221,47 @@ onMounted(() => {
 
   map.value.on('load', () => {
     map.value.setProjection({ type: 'globe' })
-    map.value.addSource('route-data', { type: 'geojson', data: geojson.value })
+    const { lines, points } = buildRouteData()
+
+    map.value.addSource('route-lines', { type: 'geojson', data: lines })
     map.value.addLayer({
       id: 'route-lines',
       type: 'line',
-      source: 'route-data',
+      source: 'route-lines',
       paint: {
-        'line-color': [
-          'match', ['get', 'country'],
-          'Indonesia', '#ef476f',
-          'Malaysia', '#118ab2',
-          'Philippines', '#f78c6b',
-          'Singapore', '#06d6a0',
-          'Thailand', '#ffd166',
-          'Vietnam', '#9b5de5',
-          '#ffffff',
-        ],
-        'line-width': ['interpolate', ['linear'], ['zoom'], 1, 0.7, 8, 2.5, 14, 5],
-        'line-opacity': 0.82,
+        'line-color': difficultyPaint,
+        'line-width': ['interpolate', ['linear'], ['zoom'], 1, 1.5, 8, 3, 14, 5],
+        'line-opacity': 0.9,
       },
     })
 
-    map.value.addControl(new maplibregl.NavigationControl(), 'top-right')
-    map.value.addControl(new maplibregl.GlobeControl(), 'top-right')
-
-    map.value.on('load', () => {
-      map.value.setProjection({ type: 'globe' })
-
-      map.value.addSource('route-lines', { type: 'geojson', data: lines })
-      map.value.addLayer({
-        id: 'route-lines',
-        type: 'line',
-        source: 'route-lines',
-        paint: {
-          'line-color': difficultyPaint,
-          'line-width': ['interpolate', ['linear'], ['zoom'], 1, 1.5, 8, 3, 14, 5],
-          'line-opacity': 0.9,
-        },
-      })
-
-      map.value.addSource('route-points', { type: 'geojson', data: points })
-      map.value.addLayer({
-        id: 'route-points',
-        type: 'circle',
-        source: 'route-points',
-        paint: {
-          'circle-color': difficultyPaint,
-          'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 4, 8, 7, 14, 9],
-          'circle-stroke-color': '#ffffff',
-          'circle-stroke-width': 1.5,
-        },
-      })
-
-      ROUTE_LAYERS.forEach((layer) => {
-        map.value.on('click', layer, showRoutePopup)
-        map.value.on('mouseenter', layer, () => {
-          map.value.getCanvas().style.cursor = 'pointer'
-        })
-        map.value.on('mouseleave', layer, () => {
-          map.value.getCanvas().style.cursor = ''
-        })
-      })
-
-      loading.value = false
+    map.value.addSource('route-points', { type: 'geojson', data: points })
+    map.value.addLayer({
+      id: 'route-points',
+      type: 'circle',
+      source: 'route-points',
+      paint: {
+        'circle-color': difficultyPaint,
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 4, 8, 7, 14, 9],
+        'circle-stroke-color': '#ffffff',
+        'circle-stroke-width': 1.5,
+      },
     })
 
-    mapReady.value = true
+    ROUTE_LAYERS.forEach((layer) => {
+      map.value.on('click', layer, showRoutePopup)
+      map.value.on('mouseenter', layer, () => {
+        map.value.getCanvas().style.cursor = 'pointer'
+      })
+      map.value.on('mouseleave', layer, () => {
+        map.value.getCanvas().style.cursor = ''
+      })
     })
 
     mapReady.value = true
     applyCountryFilter()
   })
-
+})
 
 onBeforeUnmount(() => map.value?.remove())
 </script>
@@ -311,7 +281,7 @@ onBeforeUnmount(() => map.value?.remove())
               v-model="showAllTrails"
               class="form-check-input"
               type="checkbox"
-              :disabled="loading || trailsLoading"
+              :disabled="routesStore.loading || trailsLoading"
               @change="toggleAllTrails"
             />
             <label class="form-check-label small text-muted" for="all-trails">
@@ -329,12 +299,12 @@ onBeforeUnmount(() => map.value?.remove())
         </div>
       </div>
 
-      <div v-if="routesStore.error" class="alert alert-danger">
-        Unable to load route data: {{ routesStore.error }}
+      <div v-if="routesStore.error || error" class="alert alert-danger">
+        Unable to load route data: {{ routesStore.error || error }}
       </div>
       <div v-else class="globe-card position-relative">
         <div ref="mapContainer" class="globe-map"></div>
-        <div v-if="routesStore.loading || loading || !mapReady" class="map-status">Loading routes…</div>
+        <div v-if="routesStore.loading || !mapReady" class="map-status">Loading routes…</div>
         <div v-else class="map-count">
           {{ routeCount }} routes · Scroll to zoom · Drag to rotate
         </div>
