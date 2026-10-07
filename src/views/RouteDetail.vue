@@ -19,7 +19,12 @@ const checklistStore = useChecklistStore()
 
 const weather = ref(null)
 const weatherError = ref('')
-const customItem = ref('')
+const customItem = ref({
+  label:'',
+  category:'other',
+  quantity:'',
+  reason:''
+})
 const saving = ref(false)
 const formError = ref('')
 
@@ -119,6 +124,46 @@ async function deleteReview() {
 async function generateChecklist() {
   await checklistStore.generate(route.value, weather.value, auth.profile)
 }
+
+const showAddForm = ref(false)
+const editingId = ref(null)
+function startEdit(item) {
+  customItem.value = {
+    label: item.label,
+    category: item.category || 'other',
+    quantity: item.quantity || '',
+    reason: item.reason || '',
+  }
+  editingId.value = item.id
+  checklistStore.error = null
+  showAddForm.value = true
+}
+
+function resetCustomItem(){
+  customItem.value = {
+      label: '',
+      category: 'other',
+      quantity: '',
+      reason: '',
+    }
+}
+
+function cancelAdd() {
+  resetCustomItem()
+  checklistStore.error=null
+  editingId.value=null
+  showAddForm.value = false
+}
+
+async function addCustomItem() {
+  const ok = editingId.value
+    ? await checklistStore.updateItem(editingId.value, customItem.value)
+    : await checklistStore.addCustom(customItem.value)
+  if (ok){
+    cancelAdd()
+  }
+}
+
 </script>
 
 <template>
@@ -223,6 +268,7 @@ async function generateChecklist() {
             {{ checklistStore.items.length ? 'Regenerate' : 'Generate checklist' }}
           </button>
 
+          <!-- existing checklist items -->
           <ul v-if="checklistStore.items.length" class="list-group mb-2">
             <li v-for="item in checklistStore.items" :key="item.id" class="list-group-item d-flex align-items-start gap-2">
               <input class="form-check-input mt-1" type="checkbox" :checked="item.is_checked" @change="checklistStore.toggle(item)" />
@@ -232,14 +278,52 @@ async function generateChecklist() {
                 </span>
                 <div v-if="item.reason" class="small text-muted">{{ item.reason }}</div>
               </div>
+              <button class="btn btn-sm btn-link text-primary p-0" @click="startEdit(item)">edit</button>
               <button class="btn btn-sm btn-link text-danger p-0" @click="checklistStore.removeItem(item.id)">remove</button>
             </li>
           </ul>
 
-          <form v-if="checklistStore.checklist" class="d-flex gap-2" @submit.prevent="checklistStore.addCustom(customItem); customItem = ''">
-            <input v-model="customItem" class="form-control form-control-sm" placeholder="Add your own item" required />
-            <button class="btn btn-sm btn-secondary" type="submit">Add</button>
-          </form>
+        
+          <div v-if="checklistStore.checklist" class="mt-3">
+            <button v-if="!showAddForm" class="btn btn-sm btn-outline-secondary"
+              @click="showAddForm = true">Add item</button>
+
+            <!-- add custom item form -->
+            <form v-else class="card card-body" @submit.prevent="addCustomItem">
+              <h3 class="h6">{{ editingId ? 'Edit item' : 'Add an item' }}</h3>
+              <div class="col-sm-6">
+                <label class="form-label small" for="item-label">Item name</label>
+                <input v-model="customItem.label" class="form-control form-control-sm" placeholder="Item name">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label small" for="item-category">Category</label>
+                <select v-model="customItem.category" class="form-select mb-2">
+                  <option value="clothing">Clothing</option>
+                  <option value="safety">Safety</option>
+                  <option value="navigation">Navigation</option>
+                  <option value="water_food">Water & Food</option>
+                  <option value="shelter">Shelter</option>
+                  <option value="documents">Documents</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label small" for="item-qty">Quantity</label>
+                <input v-model="customItem.quantity" class="form-control mb-2" placeholder="Quantity (e.g. 2, 3L, 1 pair)">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label small" for="item-reason">Reason (optional)</label>
+                <input v-model="customItem.reason" class="form-control mb-2" placeholder="Reason (optional)">
+              </div>
+              <div v-if="checklistStore.error" class="alert alert-danger py-2 small">
+                {{ checklistStore.error }}
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-secondary" type="submit">{{ editingId ? 'Save changes' : 'Add' }}</button>
+                <button class="btn btn-sm btn-outline-secondary" type="button" @click="cancelAdd">Cancel</button>
+              </div>
+            </form>
+          </div>
         </div>
       </section>
 

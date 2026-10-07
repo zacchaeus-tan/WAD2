@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { supabase } from '@/lib/supabase'
+// import { er } from 'vue-router/dist/index-D7ja2BKs'
 
 // Rules-based generator: route profile + forecast + the user's experience.
 // An LLM call would replace this function and keep the same output shape.
@@ -52,6 +53,7 @@ function generateItems(route, weather, profile) {
   return items.map((item, index) => ({ ...item, sort_order: index }))
 }
 
+
 export const useChecklistStore = defineStore('checklist', {
   state: () => ({
     checklist: null,
@@ -78,6 +80,7 @@ export const useChecklistStore = defineStore('checklist', {
         this.items = (data.checklist_items || []).sort((a, b) => a.sort_order - b.sort_order)
       }
     },
+
 
     async generate(route, weather, profile) {
       this.loading = true
@@ -112,6 +115,39 @@ export const useChecklistStore = defineStore('checklist', {
       this.loading = false
     },
 
+
+    // here
+    async updateItem(itemId,updates){
+      this.error =null
+      if (!updates.label?.trim()) {
+        this.error = 'Item name cannot be blank.'
+        return false
+      }
+
+      const {data,error} = await supabase.from('checklist_items')
+        .update({
+          label:updates.label,
+          quantity:updates.quantity||null,
+          reason:updates.reason||null,
+          category:updates.category||'other'
+        })
+        .eq('id', itemId)
+        .select().single()
+
+      if (error){
+        this.error = error.message
+        return false
+      }
+
+      // update if exists
+      const index = this.items.findIndex((item)=> item.id === itemId)
+      if (index !== -1){
+        this.items[index] = data
+      }
+      return true
+    },
+
+
     async toggle(item) {
       const { error } = await supabase
         .from('checklist_items')
@@ -120,19 +156,39 @@ export const useChecklistStore = defineStore('checklist', {
       if (!error) item.is_checked = !item.is_checked
     },
 
-    async addCustom(label) {
-      if (!this.checklist) return
+
+    async addCustom(item) {
+      this.error = null
+      if (!this.checklist){
+        return false
+      }
+      if (!item.label?.trim()) {
+        this.error = 'Item name cannot be blank.'
+        return false
+      }
+
       const { data, error } = await supabase
         .from('checklist_items')
         .insert({
           checklist_id: this.checklist.id,
-          label,
+          label:item.label,
+          quantity:item.quantity||null,
+          reason:item.reason||null,
+          category:item.category||'other',
           is_custom: true,
+          is_checked:false,
           sort_order: this.items.length,
         })
         .select()
         .single()
-      if (!error) this.items.push(data)
+
+      if (error){
+        this.error = error.message
+        return false
+      }else{
+        this.items.push(data)
+        return true
+      }
     },
 
     async removeItem(itemId) {
@@ -141,3 +197,4 @@ export const useChecklistStore = defineStore('checklist', {
     },
   },
 })
+
