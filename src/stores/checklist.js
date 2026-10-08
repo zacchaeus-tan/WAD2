@@ -58,6 +58,7 @@ export const useChecklistStore = defineStore('checklist', {
   state: () => ({
     checklist: null,
     items: [],
+    allChecklists:[],
     loading: false,
     error: null,
   }),
@@ -80,6 +81,43 @@ export const useChecklistStore = defineStore('checklist', {
         this.items = (data.checklist_items || []).sort((a, b) => a.sort_order - b.sort_order)
       }
     },
+
+    // all the saved checklists for profile page
+    async loadAll(userId) {
+      this.error = null
+      if (!userId) return
+
+      const { data, error } = await supabase
+        .from('checklists')
+        .select('id, route_id, generated_at, routes(name, country), checklist_items(id, is_checked)')
+        .eq('user_id', userId)
+        .order('generated_at', { ascending: false })
+
+      if (error) {
+        this.error = error.message
+        return
+      }
+
+      this.allChecklists = (data || []).map((c) => ({
+        id: c.id,
+        routeId: c.route_id,
+        routeName: c.routes?.name ?? 'Unknown route',
+        country: c.routes?.country ?? '',
+        generatedAt: c.generated_at,
+        total: c.checklist_items.length,
+        packed: c.checklist_items.filter((i) => i.is_checked).length,
+      }))
+    },
+
+    // delete a whole checklist from the profile page
+    async deleteChecklist(checklistId) {
+      const { error } = await supabase.from('checklists').delete().eq('id', checklistId)
+      if (error) {
+        this.error = error.message
+        return
+      }
+      this.allChecklists = this.allChecklists.filter((c) => c.id !== checklistId)
+    },    
 
 
     async generate(route, weather, profile) {
@@ -116,7 +154,6 @@ export const useChecklistStore = defineStore('checklist', {
     },
 
 
-    // here
     async updateItem(itemId,updates){
       this.error =null
       if (!updates.label?.trim()) {

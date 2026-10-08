@@ -262,7 +262,9 @@ async function addCustomItem() {
       <!-- Feature 2: checklist -->
       <section class="mb-4">
         <h2 class="h5">Gear checklist</h2>
-        <div v-if="!auth.isLoggedIn" class="alert alert-secondary">Sign in to generate a checklist.</div>
+        <div v-if="!auth.isLoggedIn" class="alert alert-secondary">
+          <RouterLink to="/auth">Sign in</RouterLink> to make a new checklist.
+        </div>
         <div v-else>
           <button class="btn btn-sm btn-outline-primary mb-2" :disabled="checklistStore.loading" @click="generateChecklist">
             {{ checklistStore.items.length ? 'Regenerate' : 'Generate checklist' }}
