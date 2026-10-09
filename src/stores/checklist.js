@@ -91,6 +91,7 @@ export const useChecklistStore = defineStore('checklist', {
         .from('checklists')
         .select('id, route_id, generated_at, routes(name, country), checklist_items(id, is_checked)')
         .eq('user_id', userId)
+        .eq('is_saved',true)
         .order('generated_at', { ascending: false })
 
       if (error) {
@@ -117,10 +118,39 @@ export const useChecklistStore = defineStore('checklist', {
         return
       }
       this.allChecklists = this.allChecklists.filter((c) => c.id !== checklistId)
-    },    
+      if (this.checklist?.id === checklistId) {
+        this.checklist = null
+        this.items = []
+      }
+    },   
+    
+    // bookmark / un-bookmark the checklist currently being viewed
+    async toggleSaved() {
+      if (!this.checklist) return
+      this.error = null
+
+      const next = !this.checklist.is_saved
+      const { data, error } = await supabase
+        .from('checklists')
+        .update({ is_saved: next })
+        .eq('id', this.checklist.id)
+        .select('id, is_saved')
+        .single()
+
+      if (error) {
+        this.error = error.message
+        return
+      }
+      this.checklist.is_saved = data.is_saved
+    },
 
 
     async generate(route, weather, profile) {
+      if (this.checklist?.is_saved) {
+        this.error = 'Unsave this checklist before regenerating it.'
+        return
+      }
+ 
       this.loading = true
       this.error = null
 
@@ -156,6 +186,10 @@ export const useChecklistStore = defineStore('checklist', {
 
     async updateItem(itemId,updates){
       this.error =null
+      if (!this.checklist?.is_saved) {
+        this.error = 'Save this checklist before editing it.'
+        return false
+      }
       if (!updates.label?.trim()) {
         this.error = 'Item name cannot be blank.'
         return false
@@ -196,7 +230,8 @@ export const useChecklistStore = defineStore('checklist', {
 
     async addCustom(item) {
       this.error = null
-      if (!this.checklist){
+      if (!this.checklist?.is_saved) {
+        this.error = 'Save this checklist before editing it.'
         return false
       }
       if (!item.label?.trim()) {
@@ -229,8 +264,17 @@ export const useChecklistStore = defineStore('checklist', {
     },
 
     async removeItem(itemId) {
+      if (!this.checklist?.is_saved) {
+        this.error = 'Save this checklist before editing it.'
+        return false
+      }
       const { error } = await supabase.from('checklist_items').delete().eq('id', itemId)
-      if (!error) this.items = this.items.filter((i) => i.id !== itemId)
+      if (error){
+        this.error = error.message
+        return false
+      }
+      this.items = this.items.filter((i) => i.id !== itemId)
+      return true
     },
   },
 })
