@@ -5,11 +5,8 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SERVICE_ROLE_KEY)
-const projectDir = path.dirname(fileURLToPath(import.meta.url))
-const geojsonDirectories = [
-  path.join(projectDir, 'public', 'geojson'),
-  path.join(projectDir, 'dist', 'geojson'),
-]
+const projectDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
+const geojsonDirectories = [path.join(projectDir, 'data', 'geojson')]
 const dir = geojsonDirectories.find((candidate) => fs.existsSync(candidate))
 if (!dir) {
   throw new Error(

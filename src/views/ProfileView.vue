@@ -4,7 +4,8 @@ import { RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useChecklistStore } from '@/stores/checklist'
 import { formatDate } from '@/lib/format'
-import ChecklistForm from '@/components/ChecklistForm.vue'
+import ChecklistForm from '@/components/checklist/ChecklistForm.vue'
+import ChecklistTable from '@/components/checklist/ChecklistTable.vue'
 
 const auth = useAuthStore()
 const checklistStore = useChecklistStore()
@@ -20,16 +21,6 @@ const openId = ref(null)       // which checklist is expanded
 const loadingId = ref(null)    // which one is still loading its items
 const showForm = ref(false)    // is the add/edit form visible
 const editingItem = ref(null)  // null = add mode, item = edit mode
-
-const categoryLabels = {
-  clothing: 'Clothing',
-  safety: 'Safety',
-  navigation: 'Navigation',
-  water_food: 'Water & Food',
-  shelter: 'Shelter',
-  documents: 'Documents',
-  other: 'Other',
-}
 
 function openForm(item = null) {
   editingItem.value = item
@@ -122,45 +113,7 @@ const packedCount = (c) =>
                     {{ checklistStore.error }}
                     </div>
 
-                    <div class="table-responsive">
-                    <table class="table table-sm align-middle mb-0">
-                        <thead>
-                        <tr>
-                            <th style="width: 2rem"><span class="visually-hidden">Packed</span></th>
-                            <th>Item</th>
-                            <th>Quantity</th>
-                            <th>Category</th>
-                            <th>Reason</th>
-                            <th><span class="visually-hidden">Actions</span></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr v-if="loadingId === c.id">
-                            <td colspan="6" class="text-center text-muted small">Loading…</td>
-                        </tr>
-                        <tr v-else-if="!checklistStore.items.length">
-                            <td colspan="6" class="text-center text-muted small">No items yet. Add one below.</td>
-                        </tr>
-                        <tr v-for="item in checklistStore.items" :key="item.id">
-                            <td>
-                            <input class="form-check-input" type="checkbox"
-                                    :aria-label="`Packed: ${item.label}`"
-                                    :checked="item.is_checked"
-                                    @change="checklistStore.toggle(item)" />
-                            </td>
-                            <td :class="{ 'text-decoration-line-through text-muted': item.is_checked }">{{ item.label }}</td>
-                            <td>{{ item.quantity || '—' }}</td>
-                            <td>{{ categoryLabels[item.category] ?? item.category }}</td>
-                            <td class="text-muted">{{ item.reason || '—' }}</td>
-                            <td class="text-nowrap">
-                            <button type="button" class="btn btn-sm btn-link p-0 me-2" @click="openForm(item)">edit</button>
-                            <button type="button" class="btn btn-sm btn-link text-danger p-0"
-                                    @click="checklistStore.removeItem(item.id)">remove</button>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    </div>
+                    <ChecklistTable :loading="loadingId === c.id" @edit="openForm" />
                 <button v-if="!showForm" type="button" class="btn btn-sm btn-outline-secondary mt-3" @click="openForm()">
                 + Add item
                 </button>

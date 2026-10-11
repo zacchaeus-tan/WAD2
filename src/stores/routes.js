@@ -1,35 +1,7 @@
 import { defineStore } from 'pinia'
 import { markRaw } from 'vue'
-import { supabase } from '@/lib/supabase'
-
-const ROUTE_LIST_COLUMNS = [
-  'id',
-  'name',
-  'country',
-  'distance_km',
-  'elevation_gain_m',
-  'duration_days',
-  'is_multiday',
-  'technical_rating',
-  'altitude_m',
-  'latitude',
-  'longitude',
-  'permit_required',
-  'guide_required',
-  'safety_status',
-  'safety_status_note',
-  'created_at',
-  'official_difficulty',
-  'avg_rating',
-  'avg_perceived_difficulty',
-  'review_count',
-  'completion_rate',
-  'effective_difficulty',
-  'community_hazard_level',
-  'community_hazard_note',
-  'stats_updated_at',
-  'osm_id',
-].join(',')
+import * as routesService from '@/services/routes.service'
+import * as adminService from '@/services/admin.service'
 
 export const useRoutesStore = defineStore('routes', {
   state: () => ({
@@ -55,7 +27,7 @@ export const useRoutesStore = defineStore('routes', {
 
       this.loading = true
       this.error = null
-      const { data, error } = await supabase.from('routes').select(ROUTE_LIST_COLUMNS).order('name')
+      const { data, error } = await routesService.listRoutes()
       if (error) {
         this.error = error.message
       } else {
@@ -70,7 +42,7 @@ export const useRoutesStore = defineStore('routes', {
 
       this.loading = true
       this.error = null
-      const { data, error } = await supabase.from('routes').select('id, geometry').order('name')
+      const { data, error } = await routesService.listRouteGeometries()
       if (error) {
         this.error = error.message
       } else {
@@ -92,11 +64,7 @@ export const useRoutesStore = defineStore('routes', {
       this.loading = true
       this.error = null
 
-      const { data: route, error: routeError } = await supabase
-        .from('routes')
-        .select('*')
-        .eq('id', id)
-        .single()
+      const { data: route, error: routeError } = await routesService.getRoute(id)
 
       if (routeError) {
         this.error = routeError.message
@@ -105,9 +73,9 @@ export const useRoutesStore = defineStore('routes', {
       }
 
       const [days, points, warnings] = await Promise.all([
-        supabase.from('itinerary_days').select('*').eq('route_id', id).order('day_number'),
-        supabase.from('route_points').select('*').eq('route_id', id).order('sequence'),
-        supabase.from('route_point_warnings').select('*').eq('route_id', id),
+        routesService.listItineraryDays(id),
+        routesService.listRoutePoints(id),
+        routesService.listRouteWarnings(id),
       ])
 
       this.currentRoute = route
@@ -120,25 +88,15 @@ export const useRoutesStore = defineStore('routes', {
     // Called after a review changes so the page shows the recalculated figures.
     async refreshCurrentRouteStats() {
       if (!this.currentRoute) return
-      const { data } = await supabase
-        .from('routes')
-        .select('*')
-        .eq('id', this.currentRoute.id)
-        .single()
+      const { data } = await routesService.getRoute(this.currentRoute.id)
       if (data) this.currentRoute = data
 
-      const { data: warnings } = await supabase
-        .from('route_point_warnings')
-        .select('*')
-        .eq('route_id', this.currentRoute.id)
+      const { data: warnings } = await routesService.listRouteWarnings(this.currentRoute.id)
       this.warnings = warnings || []
     },
 
     async updateSafetyStatus(routeId, status, note) {
-      const { error } = await supabase
-        .from('routes')
-        .update({ safety_status: status, safety_status_note: note })
-        .eq('id', routeId)
+      const { error } = await adminService.updateSafetyStatus(routeId, status, note)
       if (error) {
         this.error = error.message
         return { success: false, error: error.message }

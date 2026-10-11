@@ -1,4 +1,4 @@
-// Builds supabase/migrations/0010_route_geometry_data.sql from the raw
+// Builds data/route-geometry.sql from the raw
 // OpenStreetMap exports in the public route-geojson storage bucket.
 //
 //   node --env-file=.env.local scripts/build-route-geometry.mjs
@@ -16,7 +16,7 @@ const FILES = [
   'thailand-routes.geojson',
   'vietnam-routes.geojson',
 ]
-const OUTPUT = 'supabase/migrations/0010_route_geometry_data.sql'
+const OUTPUT = 'data/route-geometry.sql'
 
 // routes.name -> OSM "@id" of the trail in the exports.
 const MATCHES = {
