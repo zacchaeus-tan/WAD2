@@ -24,6 +24,7 @@ export function upsertReview({ routeId, userId, rating, perceivedDifficulty, com
         perceived_difficulty: perceivedDifficulty,
         completed,
         review_text: reviewText,
+        updated_at: new Date().toISOString(),
       },
       { onConflict: 'route_id,user_id' },
     )

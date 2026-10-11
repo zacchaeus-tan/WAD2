@@ -574,6 +574,7 @@ drop trigger if exists reviews_recalc_stats          on public.reviews;
 drop trigger if exists review_incidents_recalc_stats on public.review_incidents;
 drop trigger if exists review_incidents_set_route    on public.review_incidents;
 drop trigger if exists routes_default_difficulty     on public.routes;
+drop trigger if exists reviews_touch_updated_at      on public.reviews;
 
 drop function if exists public.profiles_score_quiz();
 drop function if exists public.handle_new_user();
@@ -589,6 +590,7 @@ drop function if exists public.calc_effective_difficulty(numeric, integer[], boo
 drop function if exists public.calc_hazard_score(integer[], integer);
 drop function if exists public.calc_hazard_level(numeric);
 drop function if exists public.difficulty_from_text(text);
+drop function if exists public.touch_updated_at();
 ```
 
 Keep the `route_point_warnings` view: it is a saved query, not app logic, and the itinerary reads it.
