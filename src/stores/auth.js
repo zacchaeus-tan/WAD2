@@ -1,10 +1,10 @@
-import { defineStore } from 'pinia'
+import { defineStore, acceptHMRUpdate } from 'pinia'
 import { supabase } from '@/lib/supabase'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,       // Supabase auth user object (id, email, etc.)
-    profile: null,     // row from `profiles` table (display_name, is_admin)
+    profile: null,     // row from `profiles` table (display_name, age, gender, country, about, is_admin)
     loading: false,
     error: null,
   }),
@@ -15,16 +15,24 @@ export const useAuthStore = defineStore('auth', {
   },
 
   actions: {
-    async register(email, password, displayName) {
+    async register({ email, password, name, age, gender, country, about }) {
       this.loading = true
       this.error = null
 
       // The profiles row is created by the on_auth_user_created trigger, which
-      // reads display_name out of this metadata.
+      // reads the profile fields out of this metadata.
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { display_name: displayName } },
+        options: {
+          data: {
+            display_name: name.trim(),
+            age: Number(age),
+            gender,
+            country,
+            about: about?.trim() || null,
+          },
+        },
       })
 
       if (error) {
@@ -126,3 +134,8 @@ export const useAuthStore = defineStore('auth', {
     },
   },
 })
+
+// swap in edited actions during dev without needing a page refresh
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useAuthStore, import.meta.hot))
+}
