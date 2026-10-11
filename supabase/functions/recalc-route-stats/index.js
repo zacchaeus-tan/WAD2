@@ -8,13 +8,13 @@
 // Called by src/services/reviews.service.js after a review or incident note
 // is saved or deleted.
 import { createClient } from 'npm:@supabase/supabase-js@2'
-import { corsHeaders } from '../_shared/cors.ts'
-import { computeRouteStats } from '../_shared/route-stats.ts'
+import { corsHeaders } from '../_shared/cors.js'
+import { computeRouteStats } from '../_shared/route-stats.js'
 
 // Incident notes older than this no longer count towards the hazard level.
 const INCIDENT_WINDOW_MONTHS = 24
 
-const json = (body: unknown, status = 200) =>
+const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
   if (typeof routeId !== 'string') return json({ error: 'routeId is required' }, 400)
 
   // Injected automatically by Supabase; never sent to the browser.
-  const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
+  const admin = createClient(Deno.env.get('SUPABASE_URL'), Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'))
 
   const { data: route, error: routeError } = await admin
     .from('routes')

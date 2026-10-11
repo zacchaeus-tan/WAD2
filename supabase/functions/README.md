@@ -7,7 +7,7 @@ server in this project; Edge Functions fill that role.
 ```
 Vue component → store → src/services/*.service.js
                           └─ supabase.functions.invoke('<name>', { body })
-                                └─ supabase/functions/<name>/index.ts  (reads LLM_API_KEY)
+                                └─ supabase/functions/<name>/index.js  (reads LLM_API_KEY)
                                       └─ LLM API
 ```
 
@@ -16,7 +16,7 @@ Vue component → store → src/services/*.service.js
 | `recalc-route-stats/` | 4. Community ratings | Writes shared stats on `routes` with the service-role key, so users never get write access to `routes` | `reviews.service.js` → `recalcRouteStats()` after every review/incident change | **Written, needs deploying** |
 | `match-explain/` | 1. Automated difficulty matching | Holds the LLM key; replaces `explainMatch()` in `matching.service.js` | `matching.service.js` | Skeleton |
 | `generate-checklist/` | 2. Auto-generated gear checklist | Holds the LLM key; replaces `generateChecklistItems()` in `checklist.service.js` | `checklist.service.js` | Skeleton |
-| `_shared/` | — | — | `cors.ts` (CORS headers), `route-stats.ts` (feature 4 maths) | — |
+| `_shared/` | — | — | `cors.js` (CORS headers), `route-stats.js` (feature 4 maths) | — |
 
 `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are injected into every function
 automatically; you only set your own secrets (e.g. `LLM_API_KEY`).
@@ -25,7 +25,7 @@ automatically; you only set your own secrets (e.g. `LLM_API_KEY`).
 
 1. Install the [Supabase CLI](https://supabase.com/docs/guides/cli) and run `supabase login`.
 2. Link the project once: `supabase link --project-ref <project-ref>`.
-3. Create the entry point, e.g. `supabase/functions/generate-checklist/index.ts`.
+3. Create the entry point, e.g. `supabase/functions/generate-checklist/index.js`, and declare it in `supabase/config.toml` (the CLI looks for `index.ts` unless told otherwise).
 4. Store the key as a secret (never in `.env` or a `VITE_` variable):
    `supabase secrets set LLM_API_KEY=...`
 5. Run locally: `supabase functions serve generate-checklist`

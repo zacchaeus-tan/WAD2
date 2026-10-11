@@ -50,7 +50,7 @@ so you can jump straight to it.
 | 1 | **Automated difficulty matching** | An onboarding quiz produces a 0–100 fitness score (weighted formula). Each route has a 0–100 demand score from distance, elevation gain, altitude, duration and effective difficulty. The gap between the two gives the verdict (*comfortable / good match / stretch / not ready*). An explanation and up to three tips are layered on top; the LLM will write these later, but it never changes the verdict. | `views/QuizView.vue`, `components/matching/`, `stores/match.js`, `services/matching.service.js` (`calcFitnessScore`, `calcRouteDemand`, `calcMatchVerdict`), `supabase/functions/match-explain/` |
 | 2 | **Auto-generated gear checklist** | Builds a packing list from the route, the forecast and the user's experience, with quantities and a reason for each item. Users save it to their profile, then add, edit, remove and tick off items. | `components/checklist/`, `stores/checklist.js`, `services/checklist.service.js`, `supabase/functions/generate-checklist/` |
 | 3 | **Live weather and safety flags** | Current conditions and a 5-day forecast at the trailhead coordinates, from the Open-Meteo public API. Each route also has an admin-curated status (*open / caution / closed*) with a reason. | `components/weather/`, `services/weather.service.js`, `components/admin/SafetyStatusTable.vue` |
-| 4 | **Community ratings feeding recommendations** | Star rating, written review, completion flag and a "how hard did it actually feel" rating, plus up to three structured incident notes pinned to a checkpoint. After every review change, the `recalc-route-stats` Edge Function recomputes the route's averages, *effective difficulty* and *community hazard level*, and feature 1 uses these. | `components/reviews/`, `stores/reviews.js`, `services/reviews.service.js`, `supabase/functions/recalc-route-stats/`, `supabase/functions/_shared/route-stats.ts` |
+| 4 | **Community ratings feeding recommendations** | Star rating, written review, completion flag and a "how hard did it actually feel" rating, plus up to three structured incident notes pinned to a checkpoint. After every review change, the `recalc-route-stats` Edge Function recomputes the route's averages, *effective difficulty* and *community hazard level*, and feature 1 uses these. | `components/reviews/`, `stores/reviews.js`, `services/reviews.service.js`, `supabase/functions/recalc-route-stats/`, `supabase/functions/_shared/route-stats.js` |
 | 5 | **Day-by-day itinerary** | Breaks a trek into daily segments: distance, gain/loss, hours, overnight stop, altitude and facilities. Community warnings appear on the day they apply to. | `components/itinerary/`, `routes.service.js` (`itinerary_days`, `route_points`) |
 | – | **Routes globe** | Interactive 3D globe (MapLibre) with every route coloured by difficulty, filters, and an optional layer of all mapped OpenStreetMap trails. | `views/RoutesGlobe.vue`, `routes.service.js` |
 | – | **Admin console** | Admins set safety status and moderate reviews and incident notes. | `views/AdminView.vue`, `components/admin/`, `services/admin.service.js` |
@@ -189,7 +189,8 @@ WAD2/
 ├── supabase/
 │   ├── schema.sql              # Read-only record of the database (exported from the dashboard)
 │   ├── migrations/             # Legacy SQL history; delete once schema.sql is exported
-│   └── functions/              # Edge Functions (JS/TS running on Supabase's servers)
+│   ├── config.toml             # Supabase CLI settings (declares each function's index.js)
+│   └── functions/              # Edge Functions (JavaScript running on Supabase's servers)
 │       ├── _shared/  recalc-route-stats/  match-explain/  generate-checklist/
 │
 ├── scripts/                    # One-off Node scripts for data import (service-role key)
@@ -289,7 +290,7 @@ New feature UI goes in that feature's folder (e.g. the hourly weather drop-down 
 
 ### `supabase/functions/`
 **Purpose:** Supabase Edge Functions, JS/TS code that runs on **Supabase's servers** instead of the browser. Use one for logic that writes shared data, or that needs a secret key.
-**Belongs:** one folder per function with an `index.ts` entry point; shared helpers in `_shared/`.
+**Belongs:** one folder per function with an `index.js` entry point, declared in `supabase/config.toml`; shared helpers in `_shared/`.
 
 | Function | Does | Feature | Status |
 |---|---|---|---|
@@ -345,7 +346,7 @@ recorded in `supabase/schema.sql`.
 |---|---|---|
 | Fitness score from quiz answers | `src/services/matching.service.js` → `calcFitnessScore` (saved by `stores/auth.js`) | SQL `calc_fitness_score` + trigger |
 | Route demand, match verdict | `src/services/matching.service.js` → `calcRouteDemand`, `calcMatchVerdict` | SQL `calc_route_demand`, `calc_match_verdict` |
-| Effective difficulty, hazard score/level, averages | `supabase/functions/_shared/route-stats.ts`, run by `recalc-route-stats` | SQL `recalc_route_stats` + triggers |
+| Effective difficulty, hazard score/level, averages | `supabase/functions/_shared/route-stats.js`, run by `recalc-route-stats` | SQL `recalc_route_stats` + triggers |
 | Create profile on first sign-in | `src/stores/auth.js` → `fetchProfile` | SQL `handle_new_user` trigger |
 
 The JS versions were checked against the original SQL functions on the live data, with 0 mismatches.
