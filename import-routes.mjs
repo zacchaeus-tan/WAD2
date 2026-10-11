@@ -19,7 +19,7 @@ if (!dir) {
 
 const countryNames = {
   indonesia: 'Indonesia', malaysia: 'Malaysia', phillipines: 'Philippines',
-  singapore: 'Singapore', thailand: 'Thailand', vietnam: 'Vietnam',
+  singapore: 'Singapore', thailand: 'Thailand', vietnam: 'Vietnam', newzealand: 'New Zealand', australia: 'Australia',
 }
 
 const EARTH_RADIUS_KM = 6371
@@ -27,10 +27,11 @@ const EARTH_RADIUS_KM = 6371
 function estimateDifficulty({ distance_km }) {
   const distance = Number(distance_km)
   if (!Number.isFinite(distance) || distance <= 0) return 2
-  if (distance >= 25) return 4
-  if (distance >= 15) return 3
-  if (distance >= 5) return 2
-  return 1
+  if (distance >= 35) return 4
+  if (distance >= 25) return 3
+  if (distance >= 15) return 2
+  if (distance >= 5) return 1
+  return 2
 }
 
 function haversineKm([lon1, lat1], [lon2, lat2]) {
