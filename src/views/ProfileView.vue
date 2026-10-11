@@ -1,9 +1,10 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useChecklistStore } from '@/stores/checklist'
 import { formatDate } from '@/lib/format'
+import { genderLabels } from '@/lib/countries'
 import ChecklistForm from '@/components/ChecklistForm.vue'
 
 const auth = useAuthStore()
@@ -14,6 +15,14 @@ onMounted(() => {
 })
 watch(() => auth.user, (user) => {
   if (user) checklistStore.loadAll(user.id)
+})
+
+// "Singapore · 21 · Female", skipping anything not filled in
+const profileDetails = computed(() => {
+  const p = auth.profile
+  if (!p) return ''
+  const gender = p.gender === 'prefer_not_to_say' ? null : genderLabels[p.gender]
+  return [p.country, p.age, gender].filter(Boolean).join(' · ')
 })
 
 const openId = ref(null)       // which checklist is expanded
@@ -177,6 +186,8 @@ const packedCount = (c) =>
                 <div class="d-flex justify-content-between align-items-start gap-2">
                     <div>
                         <h2 class="h5 mb-1">{{ auth.profile?.display_name || auth.user.email }}</h2>
+                        <p v-if="profileDetails" class="small text-muted mb-2">{{ profileDetails }}</p>
+                        <p v-if="auth.profile?.about" class="mb-2" style="white-space: pre-line">{{ auth.profile.about }}</p>
                         <p class="small text-muted mb-2">
                             Experience: {{ auth.profile?.experience_level || 'not set' }}
                         </p>
