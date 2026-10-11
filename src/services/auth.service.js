@@ -47,8 +47,9 @@ export function updateQuizAnswers(userId, answers, fitnessScore, quizCompletedAt
     .from('profiles')
     .update({
       experience_level: answers.experienceLevel,
+      hiking_duration: answers.hikingDuration,
+      hike_types: answers.hikeTypes,
       longest_distance_km: answers.longestDistanceKm,
-      max_elevation_gain_m: answers.maxElevationGainM,
       highest_altitude_m: answers.highestAltitudeM,
       goals_text: answers.goalsText,
       fitness_score: fitnessScore,

@@ -1,20 +1,25 @@
 import { supabase } from '@/lib/supabase'
 import { difficultyLabel } from '@/lib/format'
 
-const EXPERIENCE_POINTS = { beginner: 0, occasional: 8, regular: 16, experienced: 25 }
+// Keys match the option lists in QuizView.vue.
+const EXPERIENCE_POINTS = { beginner: 0, occasional: 7, regular: 14, experienced: 20 }
+const DURATION_POINTS = { new: 0, under1: 4, '1to3': 8, '3to5': 12, over5: 15 }
+const HIKE_TYPE_POINTS = { day: 3, overnight: 4, multiday: 4, summit: 4 }
 
 const round1 = (value) => Math.round(value * 10) / 10
 // Share of a benchmark reached, capped at 1 (e.g. 45 km against 30 km → 1).
 const capped = (value, benchmark) => Math.min((Number(value) || 0) / benchmark, 1)
 
 // 0-100 from the onboarding quiz answers.
-//   experience 25 + longest distance 25 + elevation gain 30 + altitude 20
-export function calcFitnessScore({ experienceLevel, longestDistanceKm, maxElevationGainM, highestAltitudeM }) {
+//   frequency 20 + years hiking 15 + hike types 15 + longest distance 25 + altitude 25
+export function calcFitnessScore({ experienceLevel, hikingDuration, hikeTypes, longestDistanceKm, highestAltitudeM }) {
+  const typePoints = [...new Set(hikeTypes || [])].reduce((sum, type) => sum + (HIKE_TYPE_POINTS[type] ?? 0), 0)
   return round1(
     (EXPERIENCE_POINTS[String(experienceLevel || '').toLowerCase()] ?? 0) +
+      (DURATION_POINTS[hikingDuration] ?? 0) +
+      typePoints +
       capped(longestDistanceKm, 30) * 25 +
-      capped(maxElevationGainM, 2000) * 30 +
-      capped(highestAltitudeM, 3500) * 20,
+      capped(highestAltitudeM, 3500) * 25,
   )
 }
 
@@ -73,11 +78,13 @@ function buildExplanation(route, profile, demand) {
       `topping out at ${route.altitude_m} m.`,
   )
 
-  if (profile.longest_distance_km || profile.max_elevation_gain_m) {
-    parts.push(
-      `Your longest hike so far is ${profile.longest_distance_km || 0} km with ` +
-        `${profile.max_elevation_gain_m || 0} m of gain.`,
-    )
+  if (profile.longest_distance_km) {
+    parts.push(`Your longest hike so far is ${profile.longest_distance_km} km.`)
+  }
+
+  const hikeTypes = profile.hike_types || []
+  if (route.duration_days > 1 && !hikeTypes.includes('multiday') && !hikeTypes.includes('overnight')) {
+    parts.push('You have not done an overnight or multi-day hike yet, which adds carrying your kit and back-to-back days.')
   }
 
   if (gap < -20) {
@@ -106,13 +113,17 @@ function buildExplanation(route, profile, demand) {
 
 function buildTips(route, profile) {
   const tips = []
-  if (Number(route.elevation_gain_m) > Number(profile.max_elevation_gain_m || 0) * 1.5) {
-    tips.push(`Build up to a ${Math.round(route.elevation_gain_m / (route.duration_days || 1))} m gain day with a loaded pack.`)
+  const hikeTypes = profile.hike_types || []
+  const dailyGain = Math.round(route.elevation_gain_m / (route.duration_days || 1))
+  if (dailyGain > 1000 && !hikeTypes.includes('summit')) {
+    tips.push(`Build up to a ${dailyGain} m gain day with a loaded pack — a few summit hikes are good training.`)
   }
   if (Number(route.altitude_m) > 2500 && Number(profile.highest_altitude_m || 0) < 2500) {
     tips.push('You have not been this high before — plan for a slow first day and watch for altitude symptoms.')
   }
-  if (route.duration_days > 1) {
+  if (route.duration_days > 1 && !hikeTypes.includes('overnight') && !hikeTypes.includes('multiday')) {
+    tips.push('Do an overnight hike first to test your kit and how you sleep on the trail.')
+  } else if (route.duration_days > 1 && !hikeTypes.includes('multiday')) {
     tips.push('Practise at least one back-to-back weekend so consecutive days are not a surprise.')
   }
   if (route.guide_required) tips.push('A guide is mandatory on this route — book before you travel.')

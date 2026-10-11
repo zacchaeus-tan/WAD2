@@ -6,10 +6,33 @@ import { useAuthStore } from '@/stores/auth'
 const auth = useAuthStore()
 const saved = ref(false)
 
+const hikingDuration = [
+  { lvl: 'new', desc: 'Not yet — I haven\'t started hiking' },
+  { lvl: 'under1', desc: 'Less than a year' },
+  { lvl: '1to3', desc: '1–3 years' },
+  { lvl: '3to5', desc: '3–5 years' },
+  { lvl: 'over5', desc: 'More than 5 years' },
+]
+
+const hikingFrequency = [
+  { lvl: 'beginner', desc: 'Beginner — this would be my first real hike' },
+  { lvl: 'occasional', desc: 'Occasional — a few times a year' },
+  { lvl: 'regular', desc: 'Regular — monthly or more' },
+  { lvl: 'experienced', desc: 'Experienced — multi-day treks regularly' },
+]
+
+const hikeTypes = [
+  { lvl: 'day', desc: 'Day hikes' },
+  { lvl: 'overnight', desc: 'Overnight hikes' },
+  { lvl: 'multiday', desc: 'Multi-day treks' },
+  { lvl: 'summit', desc: 'Summit hikes' },
+]
+
 const answers = ref({
+  hikingDuration: 'under1',
+  hikeTypes: [],
   experienceLevel: 'occasional',
   longestDistanceKm: 10,
-  maxElevationGainM: 500,
   highestAltitudeM: 1000,
   goalsText: '',
 })
@@ -17,9 +40,10 @@ const answers = ref({
 function loadFromProfile() {
   if (!auth.profile) return
   answers.value = {
+    hikingDuration: auth.profile.hiking_duration || 'under1',
+    hikeTypes: auth.profile.hike_types || [],
     experienceLevel: auth.profile.experience_level || 'occasional',
     longestDistanceKm: auth.profile.longest_distance_km ?? 10,
-    maxElevationGainM: auth.profile.max_elevation_gain_m ?? 500,
     highestAltitudeM: auth.profile.highest_altitude_m ?? 1000,
     goalsText: auth.profile.goals_text || '',
   }
@@ -45,23 +69,34 @@ async function submit() {
 
     <form v-else @submit.prevent="submit">
       <div class="mb-3">
-        <label class="form-label" for="experience">How often do you hike?</label>
-        <select id="experience" v-model="answers.experienceLevel" class="form-select">
-          <option value="beginner">Beginner — this would be my first real hike</option>
-          <option value="occasional">Occasional — a few times a year</option>
-          <option value="regular">Regular — monthly or more</option>
-          <option value="experienced">Experienced — multi-day treks regularly</option>
+        <label class="form-label" for="duration">How long have you been hiking?</label>
+        <select id="duration" v-model="answers.hikingDuration" class="form-select">
+          <option v-for="option in hikingDuration" :key="option.lvl" :value="option.lvl">
+            {{ option.desc }}
+          </option>
         </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" for="frequency">How often do you hike?</label>
+        <select id="frequency" v-model="answers.experienceLevel" class="form-select">
+          <option v-for="option in hikingFrequency" :key="option.lvl" :value="option.lvl">
+            {{ option.desc }}
+          </option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <span class="form-label d-block">What types of hikes do you do?</span>
+        <div v-for="option in hikeTypes" :key="option.lvl" class="form-check">
+          <input :id="`type-${option.lvl}`" v-model="answers.hikeTypes" :value="option.lvl" type="checkbox" class="form-check-input" />
+          <label class="form-check-label" :for="`type-${option.lvl}`">{{ option.desc }}</label>
+        </div>
       </div>
 
       <div class="mb-3">
         <label class="form-label" for="distance">Longest hike so far (km)</label>
         <input id="distance" v-model.number="answers.longestDistanceKm" type="number" min="0" step="0.1" class="form-control" />
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label" for="gain">Most elevation gained in one day (m)</label>
-        <input id="gain" v-model.number="answers.maxElevationGainM" type="number" min="0" class="form-control" />
       </div>
 
       <div class="mb-3">
