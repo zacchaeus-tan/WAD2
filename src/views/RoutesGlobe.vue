@@ -3,8 +3,8 @@ import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vu
 import { useRouter } from 'vue-router'
 import * as maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { supabase } from '@/lib/supabase'
 import { useRoutesStore } from '@/stores/routes'
+import { fetchAllTrails } from '@/services/routes.service'
 import { difficultyLabel } from '@/lib/format'
 
 const routesStore = useRoutesStore()
@@ -39,16 +39,6 @@ const geojson = computed(() => ({
 }))
 
 const routeCount = computed(() => geojson.value.features.length)
-
-const TRAIL_BUCKET = 'route-geojson'
-const TRAIL_FILES = [
-  'indonesia-routes.geojson',
-  'malaysia-routes.geojson',
-  'phillipines-routes.geojson',
-  'singapore-routes.geojson',
-  'thailand-routes.geojson',
-  'vietnam-routes.geojson',
-]
 
 const DIFFICULTY_COLOURS = { 1: '#198754', 2: '#0dcaf0', 3: '#ffc107', 4: '#dc3545' }
 const difficultyPaint = [
@@ -141,24 +131,6 @@ function showRoutePopup(event) {
     .addTo(map.value)
 }
 
-async function loadAllTrails() {
-  const collections = await Promise.all(
-    TRAIL_FILES.map(async (filename) => {
-      const { data } = supabase.storage.from(TRAIL_BUCKET).getPublicUrl(filename)
-      const response = await fetch(data.publicUrl)
-      if (!response.ok) throw new Error(`Could not load ${filename}`)
-      return response.json()
-    }),
-  )
-
-  return {
-    type: 'FeatureCollection',
-    features: collections
-      .flatMap((collection) => collection.features)
-      .filter((feature) => ['LineString', 'MultiLineString'].includes(feature.geometry?.type)),
-  }
-}
-
 async function toggleAllTrails() {
   if (!map.value) return
 
@@ -166,7 +138,7 @@ async function toggleAllTrails() {
     if (!showAllTrails.value) return
     trailsLoading.value = true
     try {
-      const geojson = await loadAllTrails()
+      const geojson = await fetchAllTrails()
       map.value.addSource('all-trails', { type: 'geojson', data: geojson })
       map.value.addLayer(
         {
@@ -203,7 +175,7 @@ watch([mapReady, geojson], () => {
 })
 
 onMounted(() => {
-  routesStore.fetchRoutes()
+  routesStore.fetchRouteGeometries()
 
   map.value = new maplibregl.Map({
     container: mapContainer.value,

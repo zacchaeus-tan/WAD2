@@ -1,12 +1,16 @@
 {
-  "name": "trek-prep-app",
+  "name": "cairn-app",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "routes:list": "node scripts/list-geojson.mjs",
+    "routes:import": "node --env-file=.env.local scripts/import-routes.mjs",
+    "routes:elevation": "node --env-file=.env.local scripts/fill-elevation.mjs",
+    "routes:geometry": "node --env-file=.env.local scripts/build-route-geometry.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",

@@ -1,7 +1,8 @@
 import fs from 'fs'
 import path from 'path'
+import { fileURLToPath } from 'url'
 
-const dir = './public/geojson'
+const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'data', 'geojson')
 for (const file of fs.readdirSync(dir).filter(f => f.endsWith('.geojson') || f.endsWith('.json'))) {
   const fc = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'))
   for (const f of fc.features) {

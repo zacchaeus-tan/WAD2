@@ -3,6 +3,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoutesStore } from '@/stores/routes'
 import { useRouter } from 'vue-router'
 import { difficultyLabel, difficultyClass } from '@/lib/format'
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
+import RouteFilters from '@/components/routes/RouteFilters.vue'
 
 const routesStore = useRoutesStore()
 const router = useRouter()
@@ -55,45 +57,16 @@ function goToRoute(id) {
   <div class="container py-4">
     <h1 class="mb-4">Trekking Routes</h1>
 
-    <!-- Filters -->
-    <div class="row g-3 mb-4 align-items-end">
-      <div class="col-12 col-md-4">
-        <label for="country-select" class="form-label">Country</label>
-        <select id="country-select" v-model="countryFilter" class="form-select">
-          <option v-for="c in countries" :key="c" :value="c">
-            {{ c === 'all' ? 'All countries' : c }}
-          </option>
-        </select>
-      </div>
-
-      <div class="col-12 col-md-4">
-        <label for="difficulty-select" class="form-label">Difficulty</label>
-        <select id="difficulty-select" v-model="difficultyFilter" class="form-select">
-          <option v-for="d in difficulties" :key="d" :value="d">
-            {{ d === 'all' ? 'All difficulties' : d }}
-          </option>
-        </select>
-      </div>
-
-      <div class="col-12 col-md-4">
-        <div class="form-check">
-          <input
-            id="multiday-check"
-            v-model="multidayOnly"
-            class="form-check-input"
-            type="checkbox"
-          />
-          <label class="form-check-label" for="multiday-check">
-            Multi-day treks only
-          </label>
-        </div>
-      </div>
-    </div>
+    <RouteFilters
+      v-model:country="countryFilter"
+      v-model:difficulty="difficultyFilter"
+      v-model:multidayOnly="multidayOnly"
+      :countries="countries"
+      :difficulties="difficulties"
+    />
 
     <!-- Loading / error states -->
-    <div v-if="routesStore.loading" class="text-center py-5">
-      <div class="spinner-border" role="status"></div>
-    </div>
+    <LoadingSpinner v-if="routesStore.loading" />
 
     <div v-else-if="routesStore.error" class="alert alert-danger">
       Failed to load routes: {{ routesStore.error }}

@@ -1,0 +1,16 @@
+# Supabase CLI settings for this repo. project_id is only a local label;
+# deploys target the project given with --project-ref.
+project_id = "cairn"
+
+# Our Edge Functions are plain JavaScript. The CLI looks for index.ts by
+# default, so each function's index.js is declared here (paths are relative
+# to this file). Add an entry like these for every new function.
+
+[functions.recalc-route-stats]
+entrypoint = "./functions/recalc-route-stats/index.js"
+
+# [functions.match-explain]
+# entrypoint = "./functions/match-explain/index.js"
+
+# [functions.generate-checklist]
+# entrypoint = "./functions/generate-checklist/index.js"

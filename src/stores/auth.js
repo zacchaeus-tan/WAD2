@@ -1,5 +1,6 @@
-import { defineStore, acceptHMRUpdate } from 'pinia'
-import { supabase } from '@/lib/supabase'
+import { defineStore } from 'pinia'
+import * as authService from '@/services/auth.service'
+import { calcFitnessScore } from '@/services/matching.service'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -19,21 +20,7 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       this.error = null
 
-      // The profiles row is created by the on_auth_user_created trigger, which
-      // reads the profile fields out of this metadata.
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            display_name: name.trim(),
-            age: Number(age),
-            gender,
-            country,
-            about: about?.trim() || null,
-          },
-        },
-      })
+      const { data, error } = await authService.signUp(email, password, displayName)
 
       if (error) {
         this.error = error.message
@@ -51,10 +38,7 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       this.error = null
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+      const { data, error } = await authService.signIn(email, password)
 
       if (error) {
         this.error = error.message
@@ -69,25 +53,20 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout() {
-      await supabase.auth.signOut()
+      await authService.signOut()
       this.user = null
       this.profile = null
     },
 
-    // fitness_score is computed by a trigger, so we save the answers and read back.
     async saveQuiz(answers) {
       if (!this.user) return { success: false, error: 'Not signed in' }
 
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          experience_level: answers.experienceLevel,
-          longest_distance_km: answers.longestDistanceKm,
-          max_elevation_gain_m: answers.maxElevationGainM,
-          highest_altitude_m: answers.highestAltitudeM,
-          goals_text: answers.goalsText,
-        })
-        .eq('id', this.user.id)
+      const { error } = await authService.updateQuizAnswers(
+        this.user.id,
+        answers,
+        calcFitnessScore(answers),
+        this.profile?.quiz_completed_at ?? new Date().toISOString(),
+      )
 
       if (error) {
         this.error = error.message
@@ -101,19 +80,23 @@ export const useAuthStore = defineStore('auth', {
     async fetchProfile() {
       if (!this.user) return
 
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', this.user.id)
-        .single()
+      const { data, error } = await authService.getProfile(this.user.id)
+      if (error) return
 
-      if (!error) this.profile = data
+      if (data) {
+        this.profile = data
+        return
+      }
+
+      // First sign-in: no profile row yet, so create it.
+      const { data: created, error: createError } = await authService.createProfile(this.user)
+      if (!createError) this.profile = created
     },
 
     // call this once on app load to restore session (e.g. in App.vue's onMounted)
     async initSession() {
       this.loading = true
-      const { data } = await supabase.auth.getSession()
+      const { data } = await authService.getSession()
 
       if (data.session?.user) {
         this.user = data.session.user
@@ -123,7 +106,7 @@ export const useAuthStore = defineStore('auth', {
       this.loading = false
 
       // keep store in sync if the session changes (login/logout in another tab, token refresh, etc.)
-      supabase.auth.onAuthStateChange((_event, session) => {
+      authService.onAuthStateChange((_event, session) => {
         this.user = session?.user ?? null
         if (this.user) {
           this.fetchProfile()
@@ -134,8 +117,3 @@ export const useAuthStore = defineStore('auth', {
     },
   },
 })
-
-// swap in edited actions during dev without needing a page refresh
-if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useAuthStore, import.meta.hot))
-}

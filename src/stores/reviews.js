@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
-import { supabase } from '@/lib/supabase'
+import * as reviewsService from '@/services/reviews.service'
+import * as adminService from '@/services/admin.service'
 
 export const useReviewsStore = defineStore('reviews', {
   state: () => ({
@@ -16,10 +17,7 @@ export const useReviewsStore = defineStore('reviews', {
   actions: {
     async fetchCategories() {
       if (this.categories.length) return
-      const { data } = await supabase
-        .from('incident_categories')
-        .select('*')
-        .order('sort_order')
+      const { data } = await reviewsService.listIncidentCategories()
       this.categories = data || []
     },
 
@@ -27,90 +25,81 @@ export const useReviewsStore = defineStore('reviews', {
       this.loading = true
       this.error = null
 
-      const { data, error } = await supabase
-        .from('reviews')
-        .select('*, profiles(display_name), review_incidents(*, route_points(name))')
-        .eq('route_id', routeId)
-        .order('created_at', { ascending: false })
+      const { data, error } = await reviewsService.listReviewsForRoute(routeId)
 
       if (error) this.error = error.message
       this.reviews = data || []
       this.loading = false
     },
 
-    // One review per user per route, so this upserts on that pair. Incidents are
-    // replaced wholesale — simpler than diffing, and there are at most three.
+    // Incidents are replaced wholesale — simpler than diffing, and there are at most three.
     async save({ routeId, userId, rating, perceivedDifficulty, completed, reviewText, incidents }) {
       this.error = null
 
-      const { data: review, error } = await supabase
-        .from('reviews')
-        .upsert(
-          {
-            route_id: routeId,
-            user_id: userId,
-            rating,
-            perceived_difficulty: perceivedDifficulty,
-            completed,
-            review_text: reviewText,
-          },
-          { onConflict: 'route_id,user_id' },
-        )
-        .select()
-        .single()
+      const { data: review, error } = await reviewsService.upsertReview({
+        routeId,
+        userId,
+        rating,
+        perceivedDifficulty,
+        completed,
+        reviewText,
+      })
 
       if (error) {
         this.error = error.message
         return { success: false, error: error.message }
       }
 
-      await supabase.from('review_incidents').delete().eq('review_id', review.id)
+      await reviewsService.deleteIncidentsForReview(review.id)
 
       if (incidents.length) {
-        const { error: incidentError } = await supabase.from('review_incidents').insert(
-          incidents.map((i) => ({
-            review_id: review.id,
-            route_id: routeId,
-            point_id: i.pointId || null,
-            category: i.category,
-            note: i.note,
-          })),
-        )
+        const { error: incidentError } = await reviewsService.insertIncidents(review.id, routeId, incidents)
         if (incidentError) {
           this.error = incidentError.message
+          await this.recalcStats(routeId)
           return { success: false, error: incidentError.message }
         }
       }
 
+      await this.recalcStats(routeId)
       await this.fetchForRoute(routeId)
       return { success: true }
     },
 
     async remove(reviewId, routeId) {
-      const { error } = await supabase.from('reviews').delete().eq('id', reviewId)
+      const { error } = await reviewsService.deleteReview(reviewId)
       if (error) {
         this.error = error.message
         return { success: false, error: error.message }
       }
+      await this.recalcStats(routeId)
       await this.fetchForRoute(routeId)
       return { success: true }
     },
 
+    // The review itself is already saved, so a failure here only leaves the
+    // route's averages stale until the next review; it does not fail the save.
+    async recalcStats(routeId) {
+      const { error } = await reviewsService.recalcRouteStats(routeId)
+      if (error) console.warn(`Could not refresh stats for route ${routeId}:`, error.message)
+    },
+
     async fetchAllForModeration() {
       this.loading = true
-      const { data, error } = await supabase
-        .from('reviews')
-        .select('*, profiles(display_name), routes(name), review_incidents(*)')
-        .order('created_at', { ascending: false })
+      const { data, error } = await adminService.listReviewsForModeration()
       if (error) this.error = error.message
       this.reviews = data || []
       this.loading = false
     },
 
-    async removeIncident(incidentId) {
-      const { error } = await supabase.from('review_incidents').delete().eq('id', incidentId)
-      if (error) this.error = error.message
-      return !error
+    async removeIncident(incidentId, routeId) {
+      const { error } = await adminService.deleteIncident(incidentId)
+      if (error) {
+        this.error = error.message
+        return false
+      }
+      await this.recalcStats(routeId)
+      return true
     },
   },
 })
