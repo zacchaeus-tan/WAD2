@@ -203,7 +203,7 @@ watch([mapReady, geojson], () => {
 })
 
 onMounted(() => {
-  routesStore.fetchRoutes()
+  routesStore.fetchRouteGeometries()
 
   map.value = new maplibregl.Map({
     container: mapContainer.value,

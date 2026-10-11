@@ -294,7 +294,7 @@ watch(isSaved, (saved) => {
         
           <div v-if="checklistStore.checklist && isSaved" class="mt-3">
             <button v-if="!showForm" class="btn btn-sm btn-outline-secondary"
-              @click="openForm() = true">+ Add item</button>
+              @click="openForm()">+ Add item</button>
             <ChecklistForm v-else :key="editingItem?.id ?? 'new'" :item="editingItem" @done="closeForm" />
           </div>
         </div>

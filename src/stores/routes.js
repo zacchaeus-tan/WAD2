@@ -2,6 +2,35 @@ import { defineStore } from 'pinia'
 import { markRaw } from 'vue'
 import { supabase } from '@/lib/supabase'
 
+const ROUTE_LIST_COLUMNS = [
+  'id',
+  'name',
+  'country',
+  'distance_km',
+  'elevation_gain_m',
+  'duration_days',
+  'is_multiday',
+  'technical_rating',
+  'altitude_m',
+  'latitude',
+  'longitude',
+  'permit_required',
+  'guide_required',
+  'safety_status',
+  'safety_status_note',
+  'created_at',
+  'official_difficulty',
+  'avg_rating',
+  'avg_perceived_difficulty',
+  'review_count',
+  'completion_rate',
+  'effective_difficulty',
+  'community_hazard_level',
+  'community_hazard_note',
+  'stats_updated_at',
+  'osm_id',
+].join(',')
+
 export const useRoutesStore = defineStore('routes', {
   state: () => ({
     routes: [],
@@ -26,15 +55,34 @@ export const useRoutesStore = defineStore('routes', {
 
       this.loading = true
       this.error = null
-      const { data, error } = await supabase.from('routes').select('*').order('name')
+      const { data, error } = await supabase.from('routes').select(ROUTE_LIST_COLUMNS).order('name')
       if (error) {
         this.error = error.message
       } else {
-        this.routes = data.map((route) => ({
+        this.routes = data || []
+      }
+      this.loading = false
+    },
+
+    async fetchRouteGeometries() {
+      await this.fetchRoutes()
+      if (this.error || this.routes.every((route) => route.geometry !== undefined)) return
+
+      this.loading = true
+      this.error = null
+      const { data, error } = await supabase.from('routes').select('id, geometry').order('name')
+      if (error) {
+        this.error = error.message
+      } else {
+        const geometryById = new Map(
+          (data || []).map((route) => [
+            route.id,
+            route.geometry ? markRaw(route.geometry) : null,
+          ]),
+        )
+        this.routes = this.routes.map((route) => ({
           ...route,
-          // GeoJSON coordinate arrays can be large; they do not need Vue
-          // reactivity once they have been fetched.
-          geometry: route.geometry ? markRaw(route.geometry) : null,
+          geometry: geometryById.get(route.id) ?? null,
         }))
       }
       this.loading = false

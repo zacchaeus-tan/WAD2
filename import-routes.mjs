@@ -24,6 +24,15 @@ const countryNames = {
 
 const EARTH_RADIUS_KM = 6371
 
+function estimateDifficulty({ distance_km }) {
+  const distance = Number(distance_km)
+  if (!Number.isFinite(distance) || distance <= 0) return 2
+  if (distance >= 25) return 4
+  if (distance >= 15) return 3
+  if (distance >= 5) return 2
+  return 1
+}
+
 function haversineKm([lon1, lat1], [lon2, lat2]) {
   const toRadians = (degrees) => (degrees * Math.PI) / 180
   const latDelta = toRadians(lat2 - lat1)
@@ -64,11 +73,15 @@ for (const file of fs.readdirSync(dir).filter(f => f.endsWith('.geojson'))) {
     if (!['LineString', 'MultiLineString'].includes(f.geometry?.type)) continue
     const osmId = f.properties['@id']
     const stats = routeStats(f.geometry)
+    if (stats.distance_km != null && stats.distance_km < 3) continue
+    const difficulty = estimateDifficulty(stats)
     byId.set(osmId, {
       osm_id: osmId,
       name: f.properties.name || `Unnamed route ${osmId}`,
       country,
       geometry: f.geometry,
+      official_difficulty: difficulty,
+      effective_difficulty: difficulty,
       ...stats,
     })
   }
@@ -76,23 +89,31 @@ for (const file of fs.readdirSync(dir).filter(f => f.endsWith('.geojson'))) {
 
 // 2. split into existing vs new
 const { data: existing, error: e1 } = await supabase
-  .from('routes').select('osm_id').not('osm_id', 'is', null)
+  .from('routes').select('osm_id, review_count').not('osm_id', 'is', null)
 if (e1) throw e1
-const existingIds = new Set(existing.map(r => r.osm_id))
+const existingByOsmId = new Map(existing.map(r => [r.osm_id, r]))
 
-const toUpdate = [...byId.values()].filter(r => existingIds.has(r.osm_id))
-const toInsert = [...byId.values()].filter(r => !existingIds.has(r.osm_id))
+const toUpdate = [...byId.values()].filter(r => existingByOsmId.has(r.osm_id))
+const toInsert = [...byId.values()].filter(r => !existingByOsmId.has(r.osm_id))
 
 // 3. update existing (calculated fields + geometry + country, names untouched)
 for (const r of toUpdate) {
+  const existingRoute = existingByOsmId.get(r.osm_id)
+  const update = {
+    geometry: r.geometry,
+    country: r.country,
+    distance_km: r.distance_km,
+    latitude: r.latitude,
+    longitude: r.longitude,
+    official_difficulty: r.official_difficulty,
+  }
+
+  if (!existingRoute?.review_count) {
+    update.effective_difficulty = r.effective_difficulty
+  }
+
   const { error } = await supabase.from('routes')
-    .update({
-      geometry: r.geometry,
-      country: r.country,
-      distance_km: r.distance_km,
-      latitude: r.latitude,
-      longitude: r.longitude,
-    })
+    .update(update)
     .eq('osm_id', r.osm_id)
   if (error) throw error
 }
