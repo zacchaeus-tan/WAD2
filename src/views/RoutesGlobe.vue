@@ -240,13 +240,14 @@ onBeforeUnmount(() => map.value?.remove())
 
 <template>
   <main class="globe-page">
-    <div class="container py-4">
-      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+    <div class="container py-4 py-lg-5">
+      <div class="globe-heading d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div>
-          <h1 class="mb-1">Routes Globe</h1>
-          <p class="text-muted mb-0">Explore hiking routes across Southeast Asia.</p>
+          <p class="globe-eyebrow mb-2">Your next trail is out there</p>
+          <h1 class="mb-2">Explore the globe</h1>
+          <p class="globe-intro mb-0">Discover hiking routes across Southeast Asia, one landscape at a time.</p>
         </div>
-        <div class="d-flex flex-wrap align-items-center gap-3">
+        <div class="globe-controls d-flex flex-wrap align-items-center gap-3">
           <div class="form-check form-switch mb-0">
             <input
               id="all-trails"
@@ -261,7 +262,7 @@ onBeforeUnmount(() => map.value?.remove())
             </label>
           </div>
           <div class="d-flex align-items-center gap-2">
-            <label for="country-filter" class="small text-muted">Country</label>
+            <label for="country-filter" class="small">Country</label>
             <select id="country-filter" v-model="selectedCountry" class="form-select" @change="applyCountryFilter">
               <option v-for="country in countries" :key="country" :value="country">
                 {{ country === 'all' ? 'All countries' : country }}
@@ -278,18 +279,18 @@ onBeforeUnmount(() => map.value?.remove())
         <div ref="mapContainer" class="globe-map"></div>
         <div v-if="routesStore.loading || !mapReady" class="map-status">Loading routes…</div>
         <div v-else class="map-count">
-          {{ routeCount }} routes · Scroll to zoom · Drag to rotate
+          <strong>{{ routeCount }}</strong> routes <span aria-hidden="true">·</span> Scroll to zoom <span aria-hidden="true">·</span> Drag to rotate
         </div>
       </div>
 
-      <div class="d-flex flex-wrap align-items-center gap-3 small text-muted mt-2">
+      <div class="globe-legend d-flex flex-wrap align-items-center gap-3 small mt-3">
         <span v-for="(colour, level) in DIFFICULTY_COLOURS" :key="level">
           <span class="legend-dot" :style="{ background: colour }"></span>
           {{ difficultyLabel(level) }}
         </span>
       </div>
 
-      <p class="small text-muted mt-2 mb-0">
+      <p class="map-attribution small mt-3 mb-0">
         Trail lines © OpenStreetMap contributors. Click a route to open its details.
       </p>
     </div>
@@ -297,18 +298,68 @@ onBeforeUnmount(() => map.value?.remove())
 </template>
 
 <style scoped>
+.globe-page {
+  min-height: calc(100vh - 4rem);
+  background:
+    radial-gradient(ellipse at 88% 0%, rgb(218 231 215 / 42%), transparent 34rem),
+    #f7f8f5;
+}
+
+.globe-heading h1 {
+  color: #1e3026;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 750;
+  letter-spacing: -0.045em;
+}
+
+.globe-eyebrow {
+  color: #64815d;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.globe-intro {
+  color: #69746b;
+}
+
+.globe-controls {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e3e9df;
+  border-radius: 0.9rem;
+  background: rgb(255 255 255 / 85%);
+  box-shadow: 0 8px 24px rgb(34 54 39 / 4%);
+}
+
+.globe-controls label {
+  color: #58675a;
+}
+
+.globe-controls .form-select {
+  min-width: 10rem;
+  border-color: #dce4d8;
+  border-radius: 0.65rem;
+}
+
+.globe-controls .form-check-input:checked {
+  border-color: #52704f;
+  background-color: #52704f;
+}
+
 .globe-card {
   overflow: hidden;
   min-height: 620px;
-  border: 1px solid #dee2e6;
-  border-radius: 0.75rem;
-  background: #101820;
-  box-shadow: 0 0.25rem 1rem rgb(0 0 0 / 8%);
+  border: 1px solid #dce4d8;
+  border-radius: 1.1rem;
+  background: #dce8e2;
+  box-shadow: 0 16px 40px rgb(33 52 39 / 12%);
 }
 
 .globe-map {
   width: 100%;
   height: 620px;
+  background: #dce8e2;
 }
 
 .map-status,
@@ -316,22 +367,62 @@ onBeforeUnmount(() => map.value?.remove())
   position: absolute;
   left: 1rem;
   bottom: 1rem;
-  padding: 0.45rem 0.7rem;
-  border-radius: 0.35rem;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 0.65rem;
   color: #fff;
-  background: rgb(0 0 0 / 72%);
+  background: rgb(26 43 33 / 84%);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 16%);
   font-size: 0.85rem;
+  backdrop-filter: blur(8px);
+}
+
+.map-count strong {
+  color: #d8ead0;
+}
+
+.map-count span {
+  margin: 0 0.2rem;
+  color: #afc0b2;
+}
+
+.globe-legend {
+  padding: 0.9rem 1rem;
+  border: 1px solid #e5eae2;
+  border-radius: 0.85rem;
+  background: rgb(255 255 255 / 80%);
+  color: #5e6b60;
+}
+
+.globe-legend > span {
+  display: inline-flex;
+  align-items: center;
 }
 
 .legend-dot {
   display: inline-block;
   width: 0.7rem;
   height: 0.7rem;
-  margin-right: 0.25rem;
+  margin-right: 0.4rem;
   border-radius: 50%;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 3px rgb(38 57 45 / 12%);
+}
+
+.map-attribution {
+  color: #7a857b;
 }
 
 @media (max-width: 576px) {
+  .globe-controls {
+    width: 100%;
+    align-items: flex-start !important;
+  }
+
+  .globe-controls > div:last-child {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .globe-card,
   .globe-map {
     min-height: 500px;
