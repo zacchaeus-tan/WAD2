@@ -7,29 +7,29 @@ const auth = useAuthStore()
 const saved = ref(false)
 
 const hikingDuration = [
-  { lvl: 'new', desc: 'Not yet — I haven\'t started hiking' },
-  { lvl: 'under1', desc: 'Less than a year' },
-  { lvl: '1to3', desc: '1–3 years' },
-  { lvl: '3to5', desc: '3–5 years' },
-  { lvl: 'over5', desc: 'More than 5 years' },
+  { val: '0', desc: 'Not yet — I haven\'t started hiking' },
+  { val: '<1', desc: 'Less than a year' },
+  { val: '1-3', desc: '1–3 years' },
+  { val: '3-5', desc: '3–5 years' },
+  { val: '>5', desc: 'More than 5 years' },
 ]
 
 const hikingFrequency = [
-  { lvl: 'beginner', desc: 'Beginner — this would be my first real hike' },
-  { lvl: 'occasional', desc: 'Occasional — a few times a year' },
-  { lvl: 'regular', desc: 'Regular — monthly or more' },
-  { lvl: 'experienced', desc: 'Experienced — multi-day treks regularly' },
+  { val: 'beginner', desc: 'Beginner — this would be my first real hike' },
+  { val: 'occasional', desc: 'Occasional — a few times a year' },
+  { val: 'regular', desc: 'Regular — monthly or more' },
+  { val: 'experienced', desc: 'Experienced — multi-day treks regularly' },
 ]
 
 const hikeTypes = [
-  { lvl: 'day', desc: 'Day hikes' },
-  { lvl: 'overnight', desc: 'Overnight hikes' },
-  { lvl: 'multiday', desc: 'Multi-day treks' },
-  { lvl: 'summit', desc: 'Summit hikes' },
+  { val: 'day', desc: 'Day hikes' },
+  { val: 'overnight', desc: 'Overnight hikes' },
+  { val: 'multiday', desc: 'Multi-day treks' },
+  { val: 'summit', desc: 'Summit hikes' },
 ]
 
 const answers = ref({
-  hikingDuration: 'under1',
+  hikingDuration: '<1',
   hikeTypes: [],
   experienceLevel: 'occasional',
   longestDistanceKm: 10,
@@ -40,7 +40,7 @@ const answers = ref({
 function loadFromProfile() {
   if (!auth.profile) return
   answers.value = {
-    hikingDuration: auth.profile.hiking_duration || 'under1',
+    hikingDuration: auth.profile.hiking_duration || '<1',
     hikeTypes: auth.profile.hike_types || [],
     experienceLevel: auth.profile.experience_level || 'occasional',
     longestDistanceKm: auth.profile.longest_distance_km ?? 10,
@@ -71,7 +71,7 @@ async function submit() {
       <div class="mb-3">
         <label class="form-label" for="duration">How long have you been hiking?</label>
         <select id="duration" v-model="answers.hikingDuration" class="form-select">
-          <option v-for="option in hikingDuration" :key="option.lvl" :value="option.lvl">
+          <option v-for="option in hikingDuration" :key="option.val" :value="option.val">
             {{ option.desc }}
           </option>
         </select>
@@ -80,7 +80,7 @@ async function submit() {
       <div class="mb-3">
         <label class="form-label" for="frequency">How often do you hike?</label>
         <select id="frequency" v-model="answers.experienceLevel" class="form-select">
-          <option v-for="option in hikingFrequency" :key="option.lvl" :value="option.lvl">
+          <option v-for="option in hikingFrequency" :key="option.val" :value="option.val">
             {{ option.desc }}
           </option>
         </select>
@@ -88,9 +88,9 @@ async function submit() {
 
       <div class="mb-3">
         <span class="form-label d-block">What types of hikes do you do?</span>
-        <div v-for="option in hikeTypes" :key="option.lvl" class="form-check">
-          <input :id="`type-${option.lvl}`" v-model="answers.hikeTypes" :value="option.lvl" type="checkbox" class="form-check-input" />
-          <label class="form-check-label" :for="`type-${option.lvl}`">{{ option.desc }}</label>
+        <div v-for="option in hikeTypes" :key="option.val" class="form-check">
+          <input :id="`type-${option.val}`" v-model="answers.hikeTypes" :value="option.val" type="checkbox" class="form-check-input" />
+          <label class="form-check-label" :for="`type-${option.val}`">{{ option.desc }}</label>
         </div>
       </div>
 
