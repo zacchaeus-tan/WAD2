@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { markRaw } from 'vue'
+import { markRaw, ref } from 'vue'
 import { supabase } from '@/lib/supabase'
 
 const ROUTE_LIST_COLUMNS = [
@@ -31,119 +31,142 @@ const ROUTE_LIST_COLUMNS = [
   'osm_id',
 ].join(',')
 
-export const useRoutesStore = defineStore('routes', {
-  state: () => ({
-    routes: [],
-    currentRoute: null,
-    itineraryDays: [],
-    points: [],
-    warnings: [],
-    loading: false,
-    error: null,
-  }),
+export const useRoutesStore = defineStore('routes', () => {
+  const routes = ref([])
+  const currentRoute = ref(null)
+  const itineraryDays = ref([])
+  const points = ref([])
+  const warnings = ref([])
+  const loading = ref(false)
+  const error = ref(null)
 
-  getters: {
-    warningsForDay: (state) => (dayNumber) =>
-      state.warnings.filter((w) => w.day_number === dayNumber),
-  },
+  const warningsForDay = (dayNumber) =>
+    warnings.value.filter((warning) => warning.day_number === dayNumber)
 
-  actions: {
-    async fetchRoutes() {
-      // Both /routes and /globe use this store. Avoid a second request when
-      // navigation between the pages happens during the same session.
-      if (this.routes.length || this.loading) return
+  async function fetchRoutes() {
+    if (routes.value.length || loading.value) return
 
-      this.loading = true
-      this.error = null
-      const { data, error } = await supabase.from('routes').select(ROUTE_LIST_COLUMNS).order('name')
-      if (error) {
-        this.error = error.message
-      } else {
-        this.routes = data || []
-      }
-      this.loading = false
-    },
+    loading.value = true
+    error.value = null
+    const { data, error: routesError } = await supabase
+      .from('routes')
+      .select(ROUTE_LIST_COLUMNS)
+      .order('name')
 
-    async fetchRouteGeometries() {
-      await this.fetchRoutes()
-      if (this.error || this.routes.every((route) => route.geometry !== undefined)) return
+    if (routesError) {
+      error.value = routesError.message
+    } else {
+      routes.value = data || []
+    }
 
-      this.loading = true
-      this.error = null
-      const { data, error } = await supabase.from('routes').select('id, geometry').order('name')
-      if (error) {
-        this.error = error.message
-      } else {
-        const geometryById = new Map(
-          (data || []).map((route) => [
-            route.id,
-            route.geometry ? markRaw(route.geometry) : null,
-          ]),
-        )
-        this.routes = this.routes.map((route) => ({
-          ...route,
-          geometry: geometryById.get(route.id) ?? null,
-        }))
-      }
-      this.loading = false
-    },
+    loading.value = false
+  }
 
-    async fetchRouteById(id) {
-      this.loading = true
-      this.error = null
+  async function fetchRouteGeometries() {
+    await fetchRoutes()
+    if (error.value || routes.value.every((route) => route.geometry !== undefined)) return
 
-      const { data: route, error: routeError } = await supabase
-        .from('routes')
-        .select('*')
-        .eq('id', id)
-        .single()
+    loading.value = true
+    error.value = null
+    const { data, error: geometriesError } = await supabase
+      .from('routes')
+      .select('id, geometry')
+      .order('name')
 
-      if (routeError) {
-        this.error = routeError.message
-        this.loading = false
-        return
-      }
+    if (geometriesError) {
+      error.value = geometriesError.message
+    } else {
+      const geometryById = new Map(
+        (data || []).map((route) => [
+          route.id,
+          route.geometry ? markRaw(route.geometry) : null,
+        ]),
+      )
 
-      const [days, points, warnings] = await Promise.all([
-        supabase.from('itinerary_days').select('*').eq('route_id', id).order('day_number'),
-        supabase.from('route_points').select('*').eq('route_id', id).order('sequence'),
-        supabase.from('route_point_warnings').select('*').eq('route_id', id),
-      ])
+      routes.value = routes.value.map((route) => ({
+        ...route,
+        geometry: geometryById.get(route.id) ?? null,
+      }))
+    }
 
-      this.currentRoute = route
-      this.itineraryDays = days.data || []
-      this.points = points.data || []
-      this.warnings = warnings.data || []
-      this.loading = false
-    },
+    loading.value = false
+  }
 
-    // Called after a review changes so the page shows the recalculated figures.
-    async refreshCurrentRouteStats() {
-      if (!this.currentRoute) return
-      const { data } = await supabase
-        .from('routes')
-        .select('*')
-        .eq('id', this.currentRoute.id)
-        .single()
-      if (data) this.currentRoute = data
+  async function fetchRouteById(id) {
+    loading.value = true
+    error.value = null
 
-      const { data: warnings } = await supabase
-        .from('route_point_warnings')
-        .select('*')
-        .eq('route_id', this.currentRoute.id)
-      this.warnings = warnings || []
-    },
+    const { data: route, error: routeError } = await supabase
+      .from('routes')
+      .select('*')
+      .eq('id', id)
+      .single()
 
-    async updateSafetyStatus(routeId, status, note) {
-      const { error } = await supabase
-        .from('routes')
-        .update({ safety_status: status, safety_status_note: note })
-        .eq('id', routeId)
-      if (error) {
-        this.error = error.message
-        return { success: false, error: error.message }
-      }
-      return { success: true }
-    },
-  },
+    if (routeError) {
+      error.value = routeError.message
+      loading.value = false
+      return
+    }
+
+    const [days, routePoints, routeWarnings] = await Promise.all([
+      supabase.from('itinerary_days').select('*').eq('route_id', id).order('day_number'),
+      supabase.from('route_points').select('*').eq('route_id', id).order('sequence'),
+      supabase.from('route_point_warnings').select('*').eq('route_id', id),
+    ])
+
+    currentRoute.value = route
+    itineraryDays.value = days.data || []
+    points.value = routePoints.data || []
+    warnings.value = routeWarnings.data || []
+    loading.value = false
+  }
+
+  async function refreshCurrentRouteStats() {
+    if (!currentRoute.value) return
+
+    const { data } = await supabase
+      .from('routes')
+      .select('*')
+      .eq('id', currentRoute.value.id)
+      .single()
+
+    if (data) currentRoute.value = data
+
+    const { data: routeWarnings } = await supabase
+      .from('route_point_warnings')
+      .select('*')
+      .eq('route_id', currentRoute.value.id)
+
+    warnings.value = routeWarnings || []
+  }
+
+  async function updateSafetyStatus(routeId, status, note) {
+    const { error: updateError } = await supabase
+      .from('routes')
+      .update({ safety_status: status, safety_status_note: note })
+      .eq('id', routeId)
+
+    if (updateError) {
+      error.value = updateError.message
+      return { success: false, error: updateError.message }
+    }
+
+    return { success: true }
+  }
+
+  return {
+    routes,
+    currentRoute,
+    itineraryDays,
+    points,
+    warnings,
+    loading,
+    error,
+    warningsForDay,
+    fetchRoutes,
+    fetchRouteGeometries,
+    fetchRouteById,
+    refreshCurrentRouteStats,
+    updateSafetyStatus,
+  }
 })
