@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { withEstimatedRouteDuration } from '@/lib/route-duration'
 
 const ROUTE_LIST_COLUMNS = [
   'id',
@@ -39,16 +40,18 @@ const TRAIL_FILES = [
   'vietnam-routes.geojson',
 ]
 
-export function listRoutes() {
-  return supabase.from('routes').select(ROUTE_LIST_COLUMNS).order('name')
+export async function listRoutes() {
+  const { data, error } = await supabase.from('routes').select(ROUTE_LIST_COLUMNS).order('name')
+  return { data: data?.map(withEstimatedRouteDuration) ?? data, error }
 }
 
 export function listRouteGeometries() {
   return supabase.from('routes').select('id, geometry').order('name')
 }
 
-export function getRoute(id) {
-  return supabase.from('routes').select('*').eq('id', id).single()
+export async function getRoute(id) {
+  const { data, error } = await supabase.from('routes').select('*').eq('id', id).single()
+  return { data: data ? withEstimatedRouteDuration(data) : data, error }
 }
 
 export function listItineraryDays(routeId) {

@@ -15,8 +15,8 @@ defineProps({
       <strong>{{ route.elevation_gain_m != null ? `${route.elevation_gain_m} m` : 'Not available' }}</strong>
     </div></div>
     <div class="col-6 col-md-3"><div class="card text-center p-2">
-      <small class="text-muted">Duration</small>
-      <strong>{{ route.duration_days != null ? `${route.duration_days} day(s)` : 'Not available' }}</strong>
+      <small class="text-muted">Estimated duration</small>
+      <strong>{{ route.duration_days != null ? `${route.duration_days} ${route.duration_days === 1 ? 'day' : 'days'}` : 'Not available' }}</strong>
     </div></div>
     <div class="col-6 col-md-3"><div class="card text-center p-2">
       <small class="text-muted">Max altitude</small>

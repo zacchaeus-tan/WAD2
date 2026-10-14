@@ -92,7 +92,7 @@ function goToRoute(id) {
               <li v-if="route.distance_km != null">📏 {{ route.distance_km }} km</li>
               <li v-if="route.elevation_gain_m != null">⛰️ {{ route.elevation_gain_m }} m gain</li>
               <li v-if="route.duration_days != null">
-                🗓️ {{ route.duration_days }} day{{ route.duration_days > 1 ? 's' : '' }}
+                🗓️ Est. {{ route.duration_days }} day{{ route.duration_days > 1 ? 's' : '' }}
               </li>
             </ul>
 

@@ -223,13 +223,13 @@ contains today. If you are unsure where a new file goes, read the "does not belo
 
 ### `src/services/`
 **Purpose:** the **data-access layer**, the only code that talks to Supabase or an external API.
-**Belongs:** one `<feature>.service.js` per feature, exporting small named functions (`listRoutes`, `getRoute`, `upsertReview`). Supabase calls return the client's `{ data, error }` unchanged so stores decide how to handle errors. Rules-based generators that an Edge Function will replace also live here, so the swap touches one file.
+**Belongs:** one `<feature>.service.js` per feature, exporting small named functions (`listRoutes`, `getRoute`, `upsertReview`). Supabase calls return the client's `{ data, error }` so stores decide how to handle errors; route reads also add a hiking-time-based duration estimate from distance and elevation when the stored duration is only the default one day. Rules-based generators that an Edge Function will replace also live here, so the swap touches one file.
 **Does not belong:** Vue imports, reactive state, DOM code.
 
 | File | Covers | Feature |
 |---|---|---|
 | `auth.service.js` | sign up/in/out, session, profile, quiz answers | 1 |
-| `routes.service.js` | route list, detail, geometry, itinerary, checkpoints, warnings, trail files in Storage | globe, 5 |
+| `routes.service.js` | route list, detail, geometry, itinerary, checkpoints, warnings, trail files in Storage; estimates route days from distance and elevation | globe, 5 |
 | `matching.service.js` | fitness score, route demand, match verdict, explanation and tips; saves `match_results` | 1 |
 | `checklist.service.js` | checklist and item CRUD, item generator | 2 |
 | `weather.service.js` | Open-Meteo forecast (external API) | 3 |
