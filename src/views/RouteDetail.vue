@@ -78,7 +78,7 @@ watch(() => auth.profile, async (profile) => {
       <ChecklistPanel :route="route" :weather="weather" />
 
       <!-- Feature 5: itinerary -->
-      <ItineraryDays />
+      <ItineraryDays :route="route" :weather="weather" />
 
       <!-- Feature 4: reviews -->
       <section>

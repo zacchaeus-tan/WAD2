@@ -18,8 +18,9 @@ Vue component → store → src/services/*.service.js
 | `generate-checklist/` | 2. Auto-generated gear checklist | Holds the LLM key; replaces `generateChecklistItems()` in `checklist.service.js` | `checklist.service.js` | Skeleton |
 | `_shared/` | — | — | `cors.js` (CORS headers), `route-stats.js` (feature 4 maths) | — |
 
-`SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are injected into every function
-automatically; you only set your own secrets (e.g. `LLM_API_KEY`).
+`SUPABASE_URL`, `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` are injected
+into every function automatically; future LLM functions should keep their
+provider keys in server-side function secrets.
 
 ## Working on a function
 
