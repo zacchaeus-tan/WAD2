@@ -1,0 +1,16 @@
+# Edge functions are written in plain JavaScript, so point the CLI at index.js
+# (it looks for index.ts by default). verify_jwt is left on, so only
+# signed-in users can call the function.
+[functions.generate-itinerary]
+entrypoint = "./functions/generate-itinerary/index.js"
+verify_jwt = true
+
+[functions.generate-checklist]
+entrypoint = "./functions/generate-checklist/index.js"
+verify_jwt = true
+
+# Recomputes a route's community stats after a review changes. Only signed-in
+# users can leave reviews, so verify_jwt stays on here too.
+[functions.recalc-route-stats]
+entrypoint = "./functions/recalc-route-stats/index.js"
+verify_jwt = true
