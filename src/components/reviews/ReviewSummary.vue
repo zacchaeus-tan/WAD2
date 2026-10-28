@@ -14,7 +14,7 @@ const divergence = computed(() => {
 </script>
 
 <template>
-  <p v-if="divergence !== 0" class="alert alert-info small">
+  <p v-if="divergence !== 0" class="review-summary">
     Hikers rate this route
     {{ divergence > 0 ? 'harder' : 'easier' }} than its official
     {{ difficultyLabel(route.official_difficulty) }} grade. Effective difficulty is now
@@ -22,3 +22,12 @@ const divergence = computed(() => {
     difficulty match uses.
   </p>
 </template>
+
+<style scoped>
+.review-summary {
+  max-width: 52ch;
+  color: var(--granite-700);
+  font-size: 15px;
+  line-height: 23px;
+}
+</style>

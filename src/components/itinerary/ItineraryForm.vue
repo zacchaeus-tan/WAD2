@@ -41,56 +41,110 @@ function submit() {
 </script>
 
 <template>
-  <form class="row g-3 align-items-end" @submit.prevent="submit">
-    <div class="col-12 col-md-4">
-      <label for="itinerary-start" class="form-label">Start date</label>
-      <input
-        id="itinerary-start"
-        v-model="startDate"
-        type="date"
-        class="form-control"
-        :min="today"
-        required
-      />
-    </div>
+  <form class="itinerary-form" @submit.prevent="submit">
+    <label class="itinerary-field" for="itinerary-start">
+      <span class="cairn-label">Start date</span>
+      <input id="itinerary-start" v-model="startDate" type="date" class="cairn-input" :min="today" required />
+    </label>
 
-    <div class="col-6 col-md-3">
-      <label for="itinerary-days" class="form-label">Number of days</label>
+    <label class="itinerary-field" for="itinerary-days">
+      <span class="cairn-label">Number of days</span>
       <input
         id="itinerary-days"
         v-model.number="days"
         type="number"
-        class="form-control"
+        class="cairn-input"
         min="1"
         :max="maxDays"
         required
       />
-    </div>
+    </label>
 
-    <div class="col-6 col-md-3">
-      <label for="itinerary-pace" class="form-label">Pace</label>
-      <select id="itinerary-pace" v-model="pace" class="form-select">
-        <option v-for="p in PACES" :key="p" :value="p">
+    <div class="itinerary-field">
+      <span id="itinerary-pace" class="cairn-label">Pace</span>
+      <div class="itinerary-pace" role="group" aria-labelledby="itinerary-pace">
+        <button
+          v-for="p in PACES"
+          :key="p"
+          type="button"
+          :aria-pressed="pace === p ? 'true' : 'false'"
+          @click="pace = p"
+        >
           {{ p.charAt(0).toUpperCase() + p.slice(1) }}
-        </option>
-      </select>
+        </button>
+      </div>
     </div>
 
-    <div class="col-12 col-md-2 d-grid">
-      <button type="submit" class="btn btn-primary" :disabled="!isValid || loading">
-        <span
-          v-if="loading"
-          class="spinner-border spinner-border-sm me-1"
-          aria-hidden="true"
-        ></span>
-        {{ loading ? 'Generating' : 'Generate' }}
-      </button>
-    </div>
+    <button type="submit" class="cairn-btn is-blaze" :disabled="!isValid || loading">
+      {{ loading ? 'Generating...' : 'Generate plan' }}
+    </button>
 
-    <p class="col-12 form-text mt-2 mb-0">
+    <p class="itinerary-hint cairn-fine">
       <template v-if="route.duration_days">Usually {{ route.duration_days }} days · </template>
       up to {{ maxDays }} days
       <template v-if="isLong"> · longer itineraries can take up to a minute to generate</template>
     </p>
   </form>
 </template>
+
+<style scoped>
+.itinerary-form {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr auto auto;
+  align-items: end;
+  gap: 16px 20px;
+}
+
+.itinerary-field {
+  display: grid;
+  gap: 8px;
+}
+
+.itinerary-field .cairn-label {
+  color: var(--granite-700);
+}
+
+.itinerary-pace {
+  display: inline-flex;
+  width: max-content;
+  border: 2px solid var(--ink);
+}
+
+.itinerary-pace button {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  background: var(--white);
+  color: var(--ink);
+  font: 700 13px var(--font);
+  cursor: pointer;
+}
+
+.itinerary-pace button + button {
+  border-left: 1px solid var(--ink);
+}
+
+.itinerary-pace button[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--ground);
+}
+
+.itinerary-pace button:focus-visible {
+  outline: 3px solid var(--lake);
+  outline-offset: 2px;
+}
+
+.itinerary-hint {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 900px) {
+  .itinerary-form {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .itinerary-form .cairn-btn {
+    grid-column: 1 / -1;
+  }
+}
+</style>

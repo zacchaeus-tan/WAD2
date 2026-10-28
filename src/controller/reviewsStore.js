@@ -1,13 +1,21 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import * as reviewsModel from '@/model/reviewsModel'
 
+// Reviews load this many at a time; "Show more" loads the next page.
+export const REVIEWS_PAGE_SIZE = 5
+
 export const useReviewsStore = defineStore('reviews', () => {
-  const reviews = ref([])
+  const reviews = ref([]) // the pages loaded so far, newest first
+  const totalReviews = ref(0) // all of the route's reviews, loaded or not
+  const ownReview = ref(null) // the signed-in user's review on this route, loaded separately
   const categories = ref([])
   const error = ref(null) // saving, deleting or checking the form: shown by ReviewForm
   const loadError = ref(null) // loading the route's reviews: shown by the page
   const loading = ref(false)
+  const loadingMore = ref(false)
+
+  const hasMore = computed(() => reviews.value.length < totalReviews.value)
 
   function clearError() {
     error.value = null
@@ -54,23 +62,68 @@ export const useReviewsStore = defineStore('reviews', () => {
     return true
   }
 
+  // Loads the first page again, e.g. when the page opens or after a review changes.
   async function fetchForRoute(routeId) {
     loading.value = true
     loadError.value = null
-    const { data, error: err } = await reviewsModel.listReviewsForRoute(routeId)
+    const { data, count, error: err } = await reviewsModel.listReviewsForRoute(
+      routeId,
+      0,
+      REVIEWS_PAGE_SIZE - 1,
+    )
     loading.value = false
     if (err) {
       loadError.value = err.message
       reviews.value = []
+      totalReviews.value = 0
       return false
     }
     reviews.value = data
+    totalReviews.value = count ?? data.length
+    return true
+  }
+
+  // Adds the next page to the end of the list.
+  async function loadMore(routeId) {
+    if (!hasMore.value || loadingMore.value) {
+      return false
+    }
+    loadingMore.value = true
+    const from = reviews.value.length
+    const { data, count, error: err } = await reviewsModel.listReviewsForRoute(
+      routeId,
+      from,
+      from + REVIEWS_PAGE_SIZE - 1,
+    )
+    loadingMore.value = false
+    if (err) {
+      loadError.value = err.message
+      return false
+    }
+    reviews.value = [...reviews.value, ...data]
+    totalReviews.value = count ?? totalReviews.value
+    return true
+  }
+
+  // Loads the signed-in user's review on this route (or clears it when signed out).
+  async function fetchMyReview(routeId, userId) {
+    if (!userId) {
+      ownReview.value = null
+      return true
+    }
+    const { data, error: err } = await reviewsModel.getMyReview(routeId, userId)
+    if (err) {
+      console.warn('Could not load your review for this route:', err.message)
+      ownReview.value = null
+      return false
+    }
+    ownReview.value = data
     return true
   }
 
   // The signed-in user's own review on this route, or null.
   function myReview(userId) {
-    return reviews.value.find((r) => r.user_id === userId) || null
+    return ownReview.value && ownReview.value.user_id === userId ? ownReview.value : null
   }
 
   async function save({
@@ -116,7 +169,7 @@ export const useReviewsStore = defineStore('reviews', () => {
     }
 
     await recalcStats(routeId)
-    await fetchForRoute(routeId)
+    await Promise.all([fetchForRoute(routeId), fetchMyReview(routeId, userId)])
     return true
   }
 
@@ -127,6 +180,7 @@ export const useReviewsStore = defineStore('reviews', () => {
       error.value = err.message
       return false
     }
+    ownReview.value = null
     await recalcStats(routeId)
     await fetchForRoute(routeId)
     return true
@@ -143,13 +197,19 @@ export const useReviewsStore = defineStore('reviews', () => {
 
   return {
     reviews,
+    totalReviews,
+    ownReview,
+    hasMore,
     categories,
     error,
     loadError,
     loading,
+    loadingMore,
     clearError,
     fetchCategories,
     fetchForRoute,
+    loadMore,
+    fetchMyReview,
     myReview,
     save,
     remove,

@@ -78,72 +78,131 @@ async function deleteReview() {
 </script>
 
 <template>
-  <div class="card mb-3">
-    <div class="card-body">
-      <form @submit.prevent="submitReview">
-        <h3 class="h6">{{ myReview ? 'Edit your review' : 'Write a review' }}</h3>
+  <form class="review-form" @submit.prevent="submitReview">
+    <h3 class="review-form-title">{{ myReview ? 'Edit your review' : 'Write a review' }}</h3>
 
-        <div class="row g-2 mb-2">
-          <div class="col-sm-4">
-            <label class="form-label small" for="rating">Quality (1–5)</label>
-            <select id="rating" v-model.number="form.rating" class="form-select form-select-sm">
-              <option :value="null" disabled>Select rating</option>
-              <option v-for="n in 5" :key="n" :value="n">{{ n }}</option>
-            </select>
-          </div>
+    <div class="review-form-row">
+      <label class="review-form-field" for="rating">
+        <span class="cairn-label">Quality (1–5)</span>
+        <select id="rating" v-model.number="form.rating" class="cairn-input">
+          <option :value="null" disabled>Select rating</option>
+          <option v-for="n in 5" :key="n" :value="n">{{ n }}</option>
+        </select>
+      </label>
 
-          <div class="col-sm-4">
-            <label class="form-label small" for="felt">How hard did it feel?</label>
-            <select id="felt" v-model.number="form.perceivedDifficulty" class="form-select form-select-sm">
-              <option :value="null" disabled>Select difficulty</option>
-              <option :value="1">Easy</option>
-              <option :value="2">Moderate</option>
-              <option :value="3">Hard</option>
-              <option :value="4">Strenuous</option>
-            </select>
-          </div>
+      <label class="review-form-field" for="felt">
+        <span class="cairn-label">How hard did it feel?</span>
+        <select id="felt" v-model.number="form.perceivedDifficulty" class="cairn-input">
+          <option :value="null" disabled>Select difficulty</option>
+          <option :value="1">Easy</option>
+          <option :value="2">Moderate</option>
+          <option :value="3">Hard</option>
+          <option :value="4">Strenuous</option>
+        </select>
+      </label>
 
-          <div class="col-sm-4">
-            <label class="form-label small" for="completed">Did you finish?</label>
-            <select id="completed" v-model="form.completed" class="form-select form-select-sm">
-              <option :value="null" disabled>Select an answer</option>
-              <option :value="true">Completed</option>
-              <option :value="false">Did not complete</option>
-            </select>
-          </div>
-        </div>
-
-        <textarea
-          v-model="form.reviewText"
-          class="form-control form-control-sm mb-2"
-          rows="3"
-          placeholder="How was it?"
-        ></textarea>
-
-        <IncidentFields
-          v-for="(incident, index) in form.incidents"
-          :key="index"
-          v-model="form.incidents[index]"
-          :categories="reviewsStore.categories"
-          @remove="form.incidents.splice(index, 1)"
-        />
-
-        <div class="d-flex flex-wrap gap-2">
-          <button type="button" class="btn btn-sm btn-outline-secondary" @click="addIncident">
-            Flag an incident
-          </button>
-          <button :disabled="saving" type="submit" class="btn btn-sm btn-success">
-            {{ myReview ? 'Update review' : 'Submit review' }}
-          </button>
-          <button v-if="myReview" type="button" class="btn btn-sm btn-outline-danger" @click="deleteReview">
-            Delete
-          </button>
-        </div>
-      </form>
-
-      <div v-if="reviewsStore.error" class="alert alert-danger mt-2 mb-0 small" role="alert">
-        {{ reviewsStore.error }}
-      </div>
+      <label class="review-form-field" for="completed">
+        <span class="cairn-label">Did you finish?</span>
+        <select id="completed" v-model="form.completed" class="cairn-input">
+          <option :value="null" disabled>Select an answer</option>
+          <option :value="true">Completed</option>
+          <option :value="false">Did not complete</option>
+        </select>
+      </label>
     </div>
-  </div>
+
+    <label class="review-form-field" for="review-text">
+      <span class="cairn-label">Your review</span>
+      <textarea
+        id="review-text"
+        v-model="form.reviewText"
+        class="cairn-input review-form-text"
+        rows="3"
+        placeholder="How was it?"
+      ></textarea>
+    </label>
+
+    <IncidentFields
+      v-for="(incident, index) in form.incidents"
+      :key="index"
+      v-model="form.incidents[index]"
+      :categories="reviewsStore.categories"
+      @remove="form.incidents.splice(index, 1)"
+    />
+
+    <div class="review-form-actions">
+      <button type="button" class="cairn-btn is-ghost is-small" @click="addIncident">Flag an incident</button>
+      <button :disabled="saving" type="submit" class="cairn-btn is-small">
+        {{ myReview ? 'Update review' : 'Submit review' }}
+      </button>
+      <button v-if="myReview" type="button" class="cairn-link review-form-delete" @click="deleteReview">
+        Delete
+      </button>
+    </div>
+
+    <p v-if="reviewsStore.error" class="review-form-error" role="alert">
+      {{ reviewsStore.error }}
+    </p>
+  </form>
 </template>
+
+<style scoped>
+.review-form {
+  display: grid;
+  gap: 16px;
+  padding: 24px;
+  border: 2px solid var(--ink);
+  background: var(--white);
+}
+
+.review-form-title {
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.review-form-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.review-form-field {
+  display: grid;
+  gap: 6px;
+}
+
+.review-form-field .cairn-label {
+  color: var(--granite-700);
+}
+
+.review-form-text {
+  min-height: 96px;
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.review-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.review-form-delete {
+  margin-left: 6px;
+  color: #b42318;
+}
+
+.review-form-error {
+  padding: 10px 12px;
+  background: #fdecea;
+  color: #b42318;
+  font-size: 14px;
+}
+
+@media (max-width: 700px) {
+  .review-form-row {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

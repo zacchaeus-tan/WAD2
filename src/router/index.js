@@ -4,6 +4,15 @@ import { useAuthStore } from '@/controller/authStore'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  // A route's page always opens at its banner, not wherever the previous page was scrolled to.
+  // Back and forward still return to where you were; other pages keep their current behaviour.
+  scrollBehavior(to, from, savedPosition) {
+    // Section links (#weather) on the same route keep their own scrolling
+    if (to.name === 'route-detail' && to.params.id !== from.params.id) {
+      return savedPosition ?? { top: 0 }
+    }
+    return false
+  },
   routes: [
     { path: '/', name: 'home', component: Homepage },
     { path: '/routes', name: 'routes-list', component: () => import('@/views/RoutesList.vue') },

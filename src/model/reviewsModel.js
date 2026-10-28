@@ -4,12 +4,28 @@ export function listIncidentCategories() {
   return supabase.from('incident_categories').select('*').order('sort_order')
 }
 
-export function listReviewsForRoute(routeId) {
+const REVIEW_FIELDS = '*, profiles(display_name), review_incidents(*, route_points(name))'
+
+// One page of a route's reviews, newest first. from and to are row positions
+// (inclusive, starting at 0); count is the route's total number of reviews.
+export function listReviewsForRoute(routeId, from, to) {
   return supabase
     .from('reviews')
-    .select('*, profiles(display_name), review_incidents(*, route_points(name))')
+    .select(REVIEW_FIELDS, { count: 'exact' })
     .eq('route_id', routeId)
     .order('created_at', { ascending: false })
+    .range(from, to)
+}
+
+// The signed-in user's own review on a route, or null. Loaded on its own because
+// it may not be on the page of reviews that is showing.
+export function getMyReview(routeId, userId) {
+  return supabase
+    .from('reviews')
+    .select(REVIEW_FIELDS)
+    .eq('route_id', routeId)
+    .eq('user_id', userId)
+    .maybeSingle()
 }
 
 // One review per user per route, so this upserts on that pair.
