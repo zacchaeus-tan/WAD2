@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAIRN · Routes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Montserrat:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../home/cairn.css">
+<link rel="stylesheet" href="browse.css">
+<link rel="stylesheet" href="d-shared.css">
+<link rel="stylesheet" href="../landing/landing.css">
+<link rel="stylesheet" href="d6.css">
+<style>
+/* Parallax banner: sky, title, then the mountain and cairn in front, each moving at its own speed.
+   The title starts in the sky and sinks behind the ridge as you scroll; the banner fades into the pine bar. */
+.statement { position: relative; height: clamp(600px, 88vh, 800px); overflow: hidden; background: linear-gradient(#2a5bbd, #3a72d4 60%); color: var(--white); isolation: isolate; }
+.px-layer { position: absolute; left: 0; right: 0; top: 0; height: 100%; will-change: transform; pointer-events: none; }
+.px-sky, .px-front { background: url('img/cairn1.jpg') 50% 8% / cover no-repeat; }
+.px-front { -webkit-mask: url('img/cairn1-mask.png') 50% 8% / cover no-repeat; mask: url('img/cairn1-mask.png') 50% 8% / cover no-repeat; z-index: 3; }
+.px-title { z-index: 2; display: flex; justify-content: center; padding-top: clamp(140px, 20vh, 210px); }
+.px-title h1 { font-size: clamp(48px, 8vw, 124px); line-height: 0.95; font-weight: 900; letter-spacing: -0.04em; text-align: center; max-width: 12ch; text-wrap: balance; text-shadow: 0 4px 24px rgb(0 0 0 / 0.22); }
+.px-shade { position: absolute; inset: 0; z-index: 4; pointer-events: none; background: linear-gradient(to bottom, transparent 45%, rgb(14 28 22 / 0.55) 82%, var(--pine) 100%); }
+.px-content { position: absolute; left: 0; right: 0; bottom: clamp(56px, 9vh, 96px); z-index: 5; text-align: center; will-change: transform, opacity; }
+.px-content p { margin: 0 auto; max-width: 46ch; font-size: 17px; line-height: 26px; font-weight: 700; color: rgb(255 255 255 / 0.95); text-shadow: 0 1px 12px rgb(0 0 0 / 0.4); text-wrap: pretty; }
+.px-content .search { width: min(560px, 100%); margin: 28px auto 0; }
+.px-content .input { min-height: 56px; border: 0; border-bottom: 2px solid var(--white); border-radius: 0; background: transparent; color: var(--white); caret-color: var(--white); font-size: 18px; padding-left: 40px; }
+.px-content .input::placeholder { color: var(--white); opacity: 1; text-shadow: 0 1px 8px rgb(0 0 0 / 0.45); }
+.px-content .input:focus { box-shadow: none; border-bottom-color: var(--glacier); }
+.px-content .search .ico { left: 4px; color: var(--white); width: 22px; height: 22px; }
+@media (prefers-reduced-motion: reduce) { .px-layer, .px-content { transform: none !important; opacity: 1 !important; } }
+@media (max-width: 640px) {
+  .statement { height: 620px; }
+  .px-sky, .px-front { background-position: 50% 4%; }
+  .px-front { -webkit-mask-position: 50% 4%; mask-position: 50% 4%; }
+  .px-title { padding-top: 48px; }
+}
+
+/* Filter bar: one pine row of dropdowns, each showing its current value */
+.dbar { position: sticky; top: 0; z-index: 10; background: var(--pine); color: var(--paper); }
+.dbar .wrap { position: relative; display: flex; align-items: stretch; gap: 0; }
+.dd { position: relative; border-right: 1px solid rgb(242 239 234 / 0.18); }
+.dd:first-child { border-left: 1px solid rgb(242 239 234 / 0.18); }
+.dd-btn { display: grid; grid-template-columns: auto auto; column-gap: 10px; align-items: center; height: 100%; min-height: 64px; padding: 10px 20px; border: 0; background: transparent; color: var(--paper); text-align: left; cursor: pointer; transition: background-color 0.2s var(--ease); }
+.dd-btn:hover, .dd-btn[aria-expanded='true'] { background: var(--pine-700); }
+.dd-btn:focus-visible { outline: 3px solid var(--glacier); outline-offset: -3px; }
+.dd-btn .k { grid-column: 1; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #b9d3c6; }
+.dd-btn .v { grid-column: 1; font-size: 15px; font-weight: 700; color: var(--white); white-space: nowrap; max-width: 18ch; overflow: hidden; text-overflow: ellipsis; }
+.dd-btn .v.on { color: var(--sand); }
+.dd-btn svg { grid-column: 2; grid-row: 1 / 3; width: 18px; height: 18px; transition: rotate 0.25s var(--ease); }
+.dd-btn[aria-expanded='true'] svg { rotate: 180deg; }
+.dd-panel { position: absolute; top: 100%; left: 0; z-index: 2; min-width: 300px; padding: 18px; background: var(--white); color: var(--ink); box-shadow: var(--elev-3); display: grid; gap: 14px; }
+.dd-panel[hidden] { display: none; }
+.dd-panel .chips { flex-direction: column; align-items: stretch; gap: 6px; }
+.dd-panel .chip > span { width: 100%; justify-content: flex-start; border-radius: 0; min-height: 40px; }
+.dd-panel .chip > span .count { margin-left: auto; }
+.dd-panel .chip input:checked + span { background: var(--ink); border-color: var(--ink); }
+.dd-panel .select { border-radius: 0; }
+.dd-panel .dual input::-webkit-slider-thumb { border-radius: 0; border-color: var(--ink); width: 18px; height: 18px; }
+.dd-panel .dual .fill { background: var(--ink); }
+.dd-panel .panel-foot { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--g200); font-size: 13px; color: var(--g700); }
+.dd-panel .panel-foot button { border: 0; background: none; padding: 0; font: 700 13px var(--font); color: var(--ink); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.dbar .spacer { flex: 1; }
+.dbar .total { display: flex; align-items: center; padding: 0 20px; font-family: var(--font-data); font-weight: 600; font-size: 14px; white-space: nowrap; }
+.dbar .sort { display: flex; align-items: center; gap: 10px; padding-left: 20px; border-left: 1px solid rgb(242 239 234 / 0.18); }
+.dbar .sort .k { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #b9d3c6; }
+.dbar .sort .select { width: auto; min-height: 40px; border: 0; border-radius: 0; background-color: transparent; color: var(--white); font-weight: 700; padding: 0 28px 0 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f2efea' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-position: right 0 center; }
+.dbar .sort .select option { color: var(--ink); }
+.dbar .sort .select:focus { box-shadow: none; outline: 3px solid var(--glacier); outline-offset: 2px; }
+
+@media (max-width: 960px) {
+  .dbar { position: static; }
+  .dbar .wrap { flex-wrap: wrap; }
+  .dd { position: static; flex: 1 1 33%; border: 0 !important; border-bottom: 1px solid rgb(242 239 234 / 0.18) !important; }
+  .dd-btn { width: 100%; min-height: 56px; padding: 8px 12px; }
+  .dd-panel { left: var(--gutter); right: var(--gutter); min-width: 0; }
+  .dbar .spacer { display: none; }
+  .dbar .total { padding: 12px; }
+  .dbar .sort { border: 0; padding: 0 12px; margin-left: auto; }
+}
+@media (max-width: 480px) { .dd { flex-basis: 50%; } }
+/* Difficulty key, top right of the results: line colour on a dark chip (as on the tiles) plus the label shape */
+.index-top .dkey { margin-left: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; list-style: none; padding: 0; font-size: 13px; font-weight: 700; color: var(--ink); }
+.dkey li { display: inline-flex; align-items: center; gap: 7px; }
+.dkey .sw { width: 26px; height: 14px; background: #101814; position: relative; }
+.dkey .sw::after { content: ''; position: absolute; left: 4px; right: 4px; top: 50%; height: 3px; margin-top: -1.5px; background: var(--c); border-radius: 2px; }
+.dkey svg { width: 10px; height: 10px; }
+@media (max-width: 700px) { .index-top .dkey { margin-left: 0; width: 100%; } }
+</style>
+</head>
+<body data-tiles="dark" class="mode-inline">
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="nav-brand" href="../landing/l1-summit.html"><span class="mark"><svg class="ico" style="color:#fbfaf7"><use href="#i-cairn"/></svg></span>CAIRN</a>
+    <nav class="nav-links" aria-label="Main">
+      <a class="nav-pill" href="#" aria-current="page">Routes</a>
+      <a class="nav-pill" href="#">Globe</a>
+      <a class="nav-pill is-solid" href="#">Sign in</a>
+      <button class="nav-menu" type="button" aria-label="Open menu"><svg class="ico"><use href="#i-menu"/></svg></button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="statement" aria-labelledby="px-title">
+    <div class="px-layer px-sky" data-speed="0.6" role="img" aria-label="A cairn of flat stones on a grassy ridge below a snow-covered peak"></div>
+    <div class="px-layer px-title" data-speed="0.45"><h1 id="px-title">Find the line you'll walk.</h1></div>
+    <div class="px-layer px-front" data-speed="0.05" aria-hidden="true"></div>
+    <div class="px-shade" aria-hidden="true"></div>
+    <div class="px-content wrap">
+      <p>Every route here is drawn from the path people actually walked, mapped in OpenStreetMap.</p>
+      <label class="field search">
+        <span class="visually-hidden">Search routes by name</span>
+        <svg class="ico"><use href="#i-search"/></svg>
+        <input class="input" type="search" data-f="q" placeholder="Search a route, like Kinabalu">
+      </label>
+    </div>
+  </section>
+
+  <div class="dbar" aria-label="Filter routes">
+    <div class="wrap">
+      <div class="dd">
+        <button class="dd-btn" type="button" aria-expanded="false" aria-controls="p-country"><span class="k">Country</span><span class="v" data-sum="country">All countries</span><svg class="ico"><use href="#i-arrow-down"/></svg></button>
+        <div class="dd-panel" id="p-country" hidden><label class="field"><span class="t-label">Country</span><select class="select" data-f="country"></select></label></div>
+      </div>
+      <div class="dd">
+        <button class="dd-btn" type="button" aria-expanded="false" aria-controls="p-grade"><span class="k">Difficulty</span><span class="v" data-sum="grade">Any</span><svg class="ico"><use href="#i-arrow-down"/></svg></button>
+        <div class="dd-panel" id="p-grade" hidden><fieldset style="border:0;padding:0;margin:0"><legend class="visually-hidden">Difficulty</legend><div class="chips" data-slot="grades"></div></fieldset><div class="panel-foot"><span>Community-adjusted grade</span><button type="button" data-reset="grade">Reset</button></div></div>
+      </div>
+      <div class="dd">
+        <button class="dd-btn" type="button" aria-expanded="false" aria-controls="p-trip"><span class="k">Trip length</span><span class="v" data-sum="trip">Any</span><svg class="ico"><use href="#i-arrow-down"/></svg></button>
+        <div class="dd-panel" id="p-trip" hidden><fieldset style="border:0;padding:0;margin:0"><legend class="visually-hidden">Trip length</legend><div class="chips" data-slot="trips"></div></fieldset><div class="panel-foot"><span>Overnight = 2 days</span><button type="button" data-reset="trip">Reset</button></div></div>
+      </div>
+      <div class="dd">
+        <button class="dd-btn" type="button" aria-expanded="false" aria-controls="p-km"><span class="k">Distance</span><span class="v" data-sum="km">Any</span><svg class="ico"><use href="#i-arrow-down"/></svg></button>
+        <div class="dd-panel" id="p-km" hidden><div data-slot="km"></div><div class="panel-foot"><span>Total route length</span><button type="button" data-reset="km">Reset</button></div></div>
+      </div>
+      <div class="dd">
+        <button class="dd-btn" type="button" aria-expanded="false" aria-controls="p-climb"><span class="k">Climb</span><span class="v" data-sum="climb">Any</span><svg class="ico"><use href="#i-arrow-down"/></svg></button>
+        <div class="dd-panel" id="p-climb" hidden><div data-slot="climb"></div><div class="panel-foot"><span>Total elevation gain</span><button type="button" data-reset="climb">Reset</button></div></div>
+      </div>
+      <span class="spacer"></span>
+      <label class="dsearch"><span class="visually-hidden">Search routes by name</span><svg class="ico"><use href="#i-search"/></svg><input class="input" type="search" data-f="q" placeholder="Search a route, like Kinabalu"></label>
+      <div class="dd dd-sort">
+        <button class="dd-btn" type="button" aria-expanded="false" aria-controls="p-sort"><span class="k">Sort</span><span class="v" data-sum="sort">Name, A to Z</span><svg class="ico"><use href="#i-arrow-down"/></svg></button>
+        <div class="dd-panel dd-right" id="p-sort" hidden><label class="visually-hidden">Sort routes<select class="select" data-f="sort"></select></label><div class="sortopts" role="group" aria-label="Sort routes"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="wrap" aria-label="Route results">
+    <div class="index-top">
+      <div class="active" id="active"></div>
+      <button class="link-btn" type="button" data-clear hidden>Clear all filters</button>
+      <ul class="dkey" aria-label="Difficulty key: line colour and label shape">
+        <li><svg style="color:#1d7a43"><use href="#d-easy"/></svg>Easy</li>
+        <li><svg style="color:#7a5e00"><use href="#d-moderate"/></svg>Moderate</li>
+        <li><svg style="color:#a34d00"><use href="#d-hard"/></svg>Hard</li>
+        <li><svg viewBox="0 0 16 10" style="color:#b42318;width:16px"><use href="#d-strenuous"/></svg>Strenuous</li>
+      </ul>
+    </div>
+    <div class="tiles" id="tiles"></div>
+    <div class="more-wrap" id="more"></div>
+  </section>
+</main>
+
+<footer class="lfoot">
+  <div class="wrap">
+    <div class="cols">
+      <div><h2>Know before you go.</h2><a class="sq light" href="../browse/routes.html">Browse routes</a></div>
+      <div><p class="lab">Explore</p><p><a href="../browse/routes.html">Routes</a></p><p><a href="#">Globe</a></p><p><a href="#">Quiz</a></p></div>
+      <div><p class="lab">Account</p><p><a href="#">Sign in</a></p><p><a href="#">Register</a></p><p><a href="#">Profile</a></p></div>
+      <div><p class="lab">Data</p><p style="font-size:13px;line-height:20px">Trails © OpenStreetMap contributors (ODbL). Weather by Open-Meteo.com (CC BY 4.0).</p></div>
+    </div>
+    <div class="word" aria-hidden="true">CAIRN</div>
+    <div class="base"><span>© 2026 CAIRN · IS216 project</span><span>Made for hikers in Southeast Asia</span></div>
+  </div>
+</footer>
+
+<script>
+// Difficulty reads as a heat scale: green easiest, red hardest
+window.D_LINE = { 1: '#6fdc8c', 2: '#f2d34f', 3: '#ff9f43', 4: '#ff5b4f' }
+window.D_LABEL = { 1: '#1d7a43', 2: '#7a5e00', 3: '#a34d00', 4: '#b42318' }
+</script>
+<script src="routes-data.js"></script>
+<script src="../home/shared.js"></script>
+<script src="browse.js"></script>
+<script>window.D_MORE_PLAIN = true</script>
+<script src="d-shared.js"></script>
+<script src="d6.js"></script>
+<script>
+// Dropdowns: one open at a time; outside click or Escape closes and returns focus
+const btns = [...document.querySelectorAll('.dd-btn')]
+function closeAll(except) { btns.forEach((b) => { if (b !== except) { b.setAttribute('aria-expanded', 'false'); document.getElementById(b.getAttribute('aria-controls')).hidden = true } }) }
+btns.forEach((b) => b.addEventListener('click', () => {
+  const open = b.getAttribute('aria-expanded') !== 'true'
+  closeAll(b); b.setAttribute('aria-expanded', open); document.getElementById(b.getAttribute('aria-controls')).hidden = !open
+}))
+document.addEventListener('click', (e) => { if (!e.target.closest('.dd')) closeAll() })
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return
+  const open = btns.find((b) => b.getAttribute('aria-expanded') === 'true')
+  if (open) { closeAll(); open.focus() }
+})
+document.addEventListener('click', (e) => {
+  const r = e.target.closest('[data-reset]'); if (!r) return
+  const k = r.dataset.reset, s = CB.state
+  if (k === 'grade') s.grades.clear(); else if (k === 'trip') s.trips.clear(); else s[k] = [0, 100]
+  CB.update()
+})
+
+// Each button shows what its filter is set to
+CB.onUpdate(() => {
+  const s = CB.state, set = (k, text, on) => { const el = document.querySelector(`[data-sum=${k}]`); el.textContent = text; el.classList.toggle('on', on) }
+  set('country', s.country || 'All countries', !!s.country)
+  const g = [...s.grades].sort().map((n) => CB.GRADES[n].label), t = [...s.trips].map((k) => CB.TRIPS[k])
+  set('grade', g.length ? (g.length > 2 ? `${g.length} grades` : g.join(', ')) : 'Any', g.length > 0)
+  set('trip', t.length ? (t.length > 2 ? `${t.length} lengths` : t.join(', ')) : 'Any', t.length > 0)
+  set('km', document.querySelector('[data-range-val=km]').textContent, !!(s.km[0] || s.km[1] !== 100))
+  set('climb', document.querySelector('[data-range-val=climb]').textContent, !!(s.climb[0] || s.climb[1] !== 100))
+})
+CB.update()
+
+// Parallax banner: each layer moves down by scroll × its data-speed, so far layers lag behind near ones.
+// The search block drifts up a little and fades as the banner leaves. Off when reduced motion is set.
+;(function () {
+  const banner = document.querySelector('.statement')
+  const layers = [...banner.querySelectorAll('[data-speed]')].map((el) => ({ el, k: +el.dataset.speed }))
+  const content = banner.querySelector('.px-content')
+  const still = matchMedia('(prefers-reduced-motion: reduce)')
+  let ticking = false
+  function frame() {
+    ticking = false
+    if (still.matches) return
+    const h = banner.offsetHeight, y = Math.min(Math.max(window.scrollY - banner.offsetTop, 0), h)
+    layers.forEach(({ el, k }) => (el.style.transform = `translate3d(0, ${(y * k).toFixed(1)}px, 0)`))
+    const t = y / h
+    content.style.transform = `translate3d(0, ${(-y * 0.15).toFixed(1)}px, 0)`
+    content.style.opacity = Math.max(0, 1 - t * 1.8).toFixed(3)
+  }
+  addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(frame) } }, { passive: true })
+  addEventListener('resize', frame)
+  frame()
+})()
+</script>
+</body>
+</html>

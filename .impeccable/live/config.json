@@ -1,0 +1,6 @@
+{
+  "files": [".impeccable/mocks/home/home.html"],
+  "insertBefore": "</body>",
+  "commentSyntax": "html",
+  "cspChecked": true
+}

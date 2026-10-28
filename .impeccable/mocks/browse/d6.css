@@ -1,0 +1,43 @@
+/* D6: search inside the sticky filter bar, two behaviours, plus the plain difficulty key */
+
+/* Difficulty key: shape and name only (the shapes already carry the colour) */
+.index-top .dkey { gap: 8px 20px; }
+.dkey svg { width: 11px; height: 11px; }
+
+/* Search field in the pine bar */
+.dsearch { position: relative; display: none; align-items: center; min-width: 0; }
+.dsearch .ico { position: absolute; left: 12px; top: 50%; translate: 0 -50%; width: 20px; height: 20px; color: var(--g700); pointer-events: none; }
+.dsearch .input { width: 100%; min-height: 44px; padding-left: 42px; border: 0; border-radius: 0; background: var(--white); font-size: 15px; }
+.dsearch .input:focus { box-shadow: 0 0 0 3px var(--glacier); }
+.dfilters { display: none; align-items: center; gap: 8px; margin-left: 12px; padding: 0 16px; min-height: 44px; align-self: center; border: 1.5px solid rgb(242 239 234 / 0.6); background: transparent; color: var(--paper); font: 700 13px var(--font); letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; }
+.dfilters:hover { border-color: var(--paper); background: rgb(242 239 234 / 0.08); }
+.dfilters:focus-visible { outline: 3px solid var(--glacier); outline-offset: 2px; }
+.dfilters svg { width: 18px; height: 18px; }
+@keyframes slidein { from { opacity: 0; transform: translateY(-8px); } }
+
+/* Option A · takeover: the filters give way to a wide search while the bar is stuck */
+.mode-takeover.bar-stuck:not(.show-filters) .dbar .dd { display: none; }
+.mode-takeover.bar-stuck:not(.show-filters) .dbar .dsearch { display: flex; flex: 1; margin: 10px 0; animation: slidein 0.35s var(--ease); }
+.mode-takeover.bar-stuck:not(.show-filters) .dbar .spacer { display: none; }
+.mode-takeover.bar-stuck .dfilters { display: inline-flex; }
+.mode-takeover.bar-stuck.show-filters .dbar .dd { animation: slidein 0.3s var(--ease); }
+
+/* Option B · inline: a compact search slides in where the route count used to be */
+.mode-inline .dbar .dsearch { display: flex; width: 0; opacity: 0; overflow: hidden; margin: 10px 0; transition: width 0.45s var(--ease), opacity 0.3s var(--ease), margin 0.45s var(--ease); }
+.mode-inline.bar-stuck .dbar .dsearch { width: min(340px, 30vw); opacity: 1; margin-right: 20px; overflow: visible; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mode-takeover.bar-stuck .dbar .dsearch, .mode-takeover.bar-stuck.show-filters .dbar .dd { animation: none; }
+  .mode-inline .dbar .dsearch { transition: none; }
+}
+@media (max-width: 960px) { .mode-inline .dbar .dsearch, .dfilters { display: none !important; } }
+
+/* Sort as a dropdown like the filters, opening to the left from the bar's right edge */
+.dd-sort { border-left: 1px solid rgb(242 239 234 / 0.18); border-right: 0 !important; }
+.dd-right { left: auto !important; right: 0; min-width: 240px; }
+.sortopts { display: grid; gap: 4px; }
+.sortopts button { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 40px; padding: 0 12px; border: 1px solid var(--g300); background: var(--white); color: var(--ink); font: 700 14px var(--font); text-align: left; cursor: pointer; }
+.sortopts button:hover { border-color: var(--ink); }
+.sortopts button[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: var(--white); }
+.sortopts button[aria-pressed='true']::after { content: ''; width: 16px; height: 16px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 5 5 9-10'/%3E%3C/svg%3E") no-repeat center / contain; }
+.sortopts button:focus-visible { outline: 3px solid var(--lake); outline-offset: 2px; }

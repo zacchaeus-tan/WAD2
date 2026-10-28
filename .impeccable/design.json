@@ -1,0 +1,779 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-28T16:26:47+08:00",
+  "title": "Design System: CAIRN",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "tonalRamp": [
+          "#090d0b",
+          "#0e1311",
+          "#121a16",
+          "#17201c",
+          "#515855",
+          "#8b908e",
+          "#bec1bf",
+          "#e8e9e8"
+        ]
+      },
+      "ground": {
+        "role": "neutral",
+        "displayName": "Ground",
+        "tonalRamp": [
+          "#646463",
+          "#979694",
+          "#c9c8c6",
+          "#fbfaf7",
+          "#fcfbf9",
+          "#fdfcfb",
+          "#fefefd",
+          "#fffefe"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "White",
+        "tonalRamp": [
+          "#666666",
+          "#999999",
+          "#cccccc",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff"
+        ]
+      },
+      "pine": {
+        "role": "primary",
+        "displayName": "Pine",
+        "tonalRamp": [
+          "#0c241b",
+          "#133728",
+          "#194936",
+          "#1f5b43",
+          "#578472",
+          "#8fada1",
+          "#c0d1ca",
+          "#e9efec"
+        ]
+      },
+      "pine-deep": {
+        "role": "primary",
+        "displayName": "Pine Deep",
+        "tonalRamp": [
+          "#091c14",
+          "#0e2a1f",
+          "#123829",
+          "#174633",
+          "#517466",
+          "#8ba299",
+          "#becbc6",
+          "#e8eceb"
+        ]
+      },
+      "pine-mist": {
+        "role": "primary",
+        "displayName": "Pine Mist",
+        "tonalRamp": [
+          "#5b605d",
+          "#898f8b",
+          "#b6bfba",
+          "#e4efe8",
+          "#ebf3ee",
+          "#f2f7f4",
+          "#f7fbf9",
+          "#fcfdfd"
+        ]
+      },
+      "sage": {
+        "role": "primary",
+        "displayName": "Sage",
+        "tonalRamp": [
+          "#4a544f",
+          "#6f7f77",
+          "#94a99e",
+          "#b9d3c6",
+          "#caded4",
+          "#dce9e2",
+          "#ebf3ef",
+          "#f8fbf9"
+        ]
+      },
+      "lichen": {
+        "role": "neutral",
+        "displayName": "Lichen",
+        "tonalRamp": [
+          "#505653",
+          "#79807c",
+          "#a1aba6",
+          "#c9d6cf",
+          "#d6e0db",
+          "#e4eae7",
+          "#f0f4f2",
+          "#fafbfa"
+        ]
+      },
+      "blaze": {
+        "role": "secondary",
+        "displayName": "Blaze",
+        "tonalRamp": [
+          "#4e1d0a",
+          "#742b10",
+          "#9b3a15",
+          "#c2481a",
+          "#d17653",
+          "#e0a48c",
+          "#eeccbf",
+          "#f9ede8"
+        ]
+      },
+      "blaze-deep": {
+        "role": "secondary",
+        "displayName": "Blaze Deep",
+        "tonalRamp": [
+          "#3f1708",
+          "#5f230c",
+          "#7e2e10",
+          "#9e3a14",
+          "#b66b4f",
+          "#ce9c8a",
+          "#e4c8bd",
+          "#f5ebe8"
+        ]
+      },
+      "ember": {
+        "role": "secondary",
+        "displayName": "Ember",
+        "tonalRamp": [
+          "#664637",
+          "#996a53",
+          "#cc8d6e",
+          "#ffb08a",
+          "#ffc4a7",
+          "#ffd8c4",
+          "#ffe9de",
+          "#fff7f3"
+        ]
+      },
+      "lake": {
+        "role": "tertiary",
+        "displayName": "Lake",
+        "tonalRamp": [
+          "#0c2638",
+          "#123954",
+          "#184c70",
+          "#1e5f8c",
+          "#5687a9",
+          "#8eafc6",
+          "#c0d2df",
+          "#e8eff4"
+        ]
+      },
+      "glacier": {
+        "role": "tertiary",
+        "displayName": "Glacier",
+        "tonalRamp": [
+          "#2f4f54",
+          "#46767d",
+          "#5e9ea7",
+          "#75c5d1",
+          "#98d4dc",
+          "#bae2e8",
+          "#d8eff2",
+          "#f1f9fa"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "tonalRamp": [
+          "#61605e",
+          "#918f8c",
+          "#c2bfbb",
+          "#f2efea",
+          "#f5f3ef",
+          "#f8f7f4",
+          "#fbfbf9",
+          "#fefdfd"
+        ]
+      },
+      "linen": {
+        "role": "neutral",
+        "displayName": "Linen",
+        "tonalRamp": [
+          "#5e5c59",
+          "#8d8b86",
+          "#bcb9b2",
+          "#ebe7df",
+          "#f0ede7",
+          "#f5f3ef",
+          "#f9f8f6",
+          "#fdfdfc"
+        ]
+      },
+      "sand": {
+        "role": "neutral",
+        "displayName": "Sand",
+        "tonalRamp": [
+          "#5b5954",
+          "#89857f",
+          "#b6b2a9",
+          "#e4ded3",
+          "#ebe6de",
+          "#f2eee9",
+          "#f7f6f3",
+          "#fcfcfb"
+        ]
+      },
+      "night": {
+        "role": "neutral",
+        "displayName": "Night",
+        "tonalRamp": [
+          "#060a08",
+          "#0a0e0c",
+          "#0d1310",
+          "#101814",
+          "#4c524f",
+          "#888c8a",
+          "#bcbebd",
+          "#e7e8e8"
+        ]
+      },
+      "granite-700": {
+        "role": "neutral",
+        "displayName": "Granite 700",
+        "tonalRamp": [
+          "#171c1a",
+          "#232926",
+          "#2e3733",
+          "#3a4540",
+          "#6b7470",
+          "#9ca2a0",
+          "#c8cbca",
+          "#ebecec"
+        ]
+      },
+      "granite-500": {
+        "role": "neutral",
+        "displayName": "Granite 500",
+        "tonalRamp": [
+          "#262b28",
+          "#39403d",
+          "#4c5651",
+          "#5f6b65",
+          "#87908c",
+          "#afb5b2",
+          "#d2d6d4",
+          "#eff0f0"
+        ]
+      },
+      "granite-300": {
+        "role": "neutral",
+        "displayName": "Granite 300",
+        "tonalRamp": [
+          "#505351",
+          "#797d7a",
+          "#a1a6a2",
+          "#c9d0cb",
+          "#d6dcd8",
+          "#e4e8e5",
+          "#f0f2f0",
+          "#fafafa"
+        ]
+      },
+      "granite-200": {
+        "role": "neutral",
+        "displayName": "Granite 200",
+        "tonalRamp": [
+          "#5a5c5a",
+          "#878a88",
+          "#b4b8b5",
+          "#e1e6e2",
+          "#e8ece9",
+          "#f0f2f0",
+          "#f7f8f7",
+          "#fcfcfc"
+        ]
+      },
+      "granite-100": {
+        "role": "neutral",
+        "displayName": "Granite 100",
+        "tonalRamp": [
+          "#5f605f",
+          "#8f918f",
+          "#bec1be",
+          "#eef1ee",
+          "#f2f4f2",
+          "#f6f8f6",
+          "#fafbfa",
+          "#fdfefd"
+        ]
+      },
+      "heat-1": {
+        "role": "tertiary",
+        "displayName": "Heat 1 · Easy",
+        "tonalRamp": [
+          "#2c5838",
+          "#438454",
+          "#59b070",
+          "#6fdc8c",
+          "#93e5a9",
+          "#b7eec6",
+          "#d7f5df",
+          "#f1fcf4"
+        ]
+      },
+      "heat-2": {
+        "role": "tertiary",
+        "displayName": "Heat 2 · Moderate",
+        "tonalRamp": [
+          "#615420",
+          "#917f2f",
+          "#c2a93f",
+          "#f2d34f",
+          "#f5de7b",
+          "#f8e9a7",
+          "#fbf3ce",
+          "#fefbed"
+        ]
+      },
+      "heat-3": {
+        "role": "tertiary",
+        "displayName": "Heat 3 · Hard",
+        "tonalRamp": [
+          "#66401b",
+          "#995f28",
+          "#cc7f36",
+          "#ff9f43",
+          "#ffb772",
+          "#ffcfa1",
+          "#ffe4ca",
+          "#fff5ec"
+        ]
+      },
+      "heat-4": {
+        "role": "tertiary",
+        "displayName": "Heat 4 · Strenuous",
+        "tonalRamp": [
+          "#662420",
+          "#99372f",
+          "#cc493f",
+          "#ff5b4f",
+          "#ff847b",
+          "#ffada7",
+          "#ffd1ce",
+          "#ffefed"
+        ]
+      },
+      "heat-ink-1": {
+        "role": "tertiary",
+        "displayName": "Heat Ink 1",
+        "tonalRamp": [
+          "#0c311b",
+          "#114928",
+          "#176236",
+          "#1d7a43",
+          "#569b72",
+          "#8ebca1",
+          "#c0daca",
+          "#e8f2ec"
+        ]
+      },
+      "heat-ink-2": {
+        "role": "tertiary",
+        "displayName": "Heat Ink 2",
+        "tonalRamp": [
+          "#312600",
+          "#493800",
+          "#624b00",
+          "#7a5e00",
+          "#9b8640",
+          "#bcae80",
+          "#dad2b8",
+          "#f2efe6"
+        ]
+      },
+      "heat-ink-3": {
+        "role": "tertiary",
+        "displayName": "Heat Ink 3",
+        "tonalRamp": [
+          "#411f00",
+          "#622e00",
+          "#823e00",
+          "#a34d00",
+          "#ba7a40",
+          "#d1a680",
+          "#e5cdb8",
+          "#f6ede6"
+        ]
+      },
+      "heat-ink-4": {
+        "role": "tertiary",
+        "displayName": "Heat Ink 4",
+        "tonalRamp": [
+          "#480e0a",
+          "#6c150e",
+          "#901c13",
+          "#b42318",
+          "#c75a52",
+          "#da918c",
+          "#eac1be",
+          "#f8e9e8"
+        ]
+      },
+      "hazard": {
+        "role": "neutral",
+        "displayName": "Hazard",
+        "tonalRamp": [
+          "#66501f",
+          "#99792e",
+          "#cca13e",
+          "#ffc94d",
+          "#ffd67a",
+          "#ffe4a6",
+          "#fff0cd",
+          "#fffaed"
+        ]
+      },
+      "warning": {
+        "role": "neutral",
+        "displayName": "Warning",
+        "tonalRamp": [
+          "#372400",
+          "#533600",
+          "#6e4800",
+          "#8a5a00",
+          "#a78340",
+          "#c4ac80",
+          "#ded1b8",
+          "#f3eee6"
+        ]
+      },
+      "warning-mist": {
+        "role": "neutral",
+        "displayName": "Warning Mist",
+        "tonalRamp": [
+          "#666258",
+          "#999283",
+          "#ccc3af",
+          "#fff4db",
+          "#fff7e4",
+          "#fffaed",
+          "#fffcf5",
+          "#fffefb"
+        ]
+      },
+      "trail": {
+        "role": "neutral",
+        "displayName": "Trail",
+        "tonalRamp": [
+          "#312417",
+          "#493623",
+          "#62482e",
+          "#7a5a3a",
+          "#9b836b",
+          "#bcac9c",
+          "#dad1c8",
+          "#f2eeeb"
+        ]
+      },
+      "grass": {
+        "role": "neutral",
+        "displayName": "Grass",
+        "tonalRamp": [
+          "#2c3e25",
+          "#435c37",
+          "#597b4a",
+          "#6f9a5c",
+          "#93b385",
+          "#b7ccae",
+          "#d7e3d1",
+          "#f1f5ef"
+        ]
+      },
+      "notepad": {
+        "role": "neutral",
+        "displayName": "Notepad",
+        "tonalRamp": [
+          "#66645d",
+          "#99978c",
+          "#ccc9ba",
+          "#fffbe9",
+          "#fffcee",
+          "#fffdf4",
+          "#fffef9",
+          "#fffffd"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Banner titles and the route name."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section titles."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Route names on tiles, register names."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Paragraphs."
+      },
+      "lede": {
+        "displayName": "Lede",
+        "purpose": "The sentence under a section title."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Filter keys, fact labels, country on a tile. Never above a heading."
+      },
+      "data": {
+        "displayName": "Data",
+        "purpose": "Compared figures in rows and captions."
+      },
+      "data-display": {
+        "displayName": "Data display",
+        "purpose": "The big route numbers, review score, dial values."
+      }
+    },
+    "shadows": [
+      {
+        "name": "panel",
+        "value": "0 12px 32px rgb(23 32 28 / 0.18)",
+        "purpose": "Dropdown panels from the pine bar."
+      },
+      {
+        "name": "stop",
+        "value": "0 18px 40px rgb(23 32 28 / 0.14)",
+        "purpose": "Section cards floating over the trail on route detail."
+      },
+      {
+        "name": "object",
+        "value": "drop-shadow(0 16px 24px rgb(23 32 28 / 0.18))",
+        "purpose": "The tilted notepad (as a filter)."
+      },
+      {
+        "name": "sticky-note",
+        "value": "0 10px 18px rgb(23 32 28 / 0.15)",
+        "purpose": "The yellow sticky note beside the notepad."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "The only easing curve: expo ease-out for every transition."
+      },
+      {
+        "name": "quick",
+        "value": "0.2s",
+        "purpose": "Hover fills and colour changes."
+      },
+      {
+        "name": "reveal",
+        "value": "0.8s",
+        "purpose": "Section rise (28px) and line draws."
+      },
+      {
+        "name": "needle",
+        "value": "1.6s",
+        "purpose": "Grade dial needles; community needle delayed 0.4s."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone",
+        "value": "480px"
+      },
+      {
+        "name": "tiles-2",
+        "value": "820px"
+      },
+      {
+        "name": "stack",
+        "value": "960px"
+      },
+      {
+        "name": "sticky-bar",
+        "value": "961px"
+      },
+      {
+        "name": "tiles-3",
+        "value": "1100px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Ink Button",
+      "kind": "button",
+      "refersTo": "button-ink",
+      "description": "The default action: square, uppercase, ink; turns pine on hover.",
+      "html": "<button class=\"ds-btn-ink\">Browse routes</button>",
+      "css": ".ds-btn-ink{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 28px;border:2px solid var(--ink, #17201c);border-radius:0;font:700 14px/1 'Lato', 'Noto Sans Thai', system-ui, sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background-color .2s cubic-bezier(.16,1,.3,1),color .2s cubic-bezier(.16,1,.3,1),border-color .2s cubic-bezier(.16,1,.3,1);background:var(--ink, #17201c);color:var(--ground, #fbfaf7);} .ds-btn-ink:hover{background:var(--pine, #1f5b43);border-color:var(--pine, #1f5b43);} .ds-btn-ink:focus-visible{outline:3px solid #1e5f8c;outline-offset:3px;} .ds-btn-ink:active{transform:translateY(1px);}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action beside an ink button, or Show more.",
+      "html": "<button class=\"ds-btn-ghost\">Show more</button>",
+      "css": ".ds-btn-ghost{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 28px;border:2px solid var(--ink, #17201c);border-radius:0;font:700 14px/1 'Lato', 'Noto Sans Thai', system-ui, sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background-color .2s cubic-bezier(.16,1,.3,1),color .2s cubic-bezier(.16,1,.3,1),border-color .2s cubic-bezier(.16,1,.3,1);background:transparent;color:var(--ink, #17201c);} .ds-btn-ghost:hover{background:var(--ink, #17201c);color:var(--ground, #fbfaf7);} .ds-btn-ghost:focus-visible{outline:3px solid #1e5f8c;outline-offset:3px;}"
+    },
+    {
+      "name": "Blaze Button",
+      "kind": "button",
+      "refersTo": "button-blaze",
+      "description": "The single key action on a screen.",
+      "html": "<button class=\"ds-btn-blaze\">Generate checklist</button>",
+      "css": ".ds-btn-blaze{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 28px;border:2px solid var(--ink, #17201c);border-radius:0;font:700 14px/1 'Lato', 'Noto Sans Thai', system-ui, sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background-color .2s cubic-bezier(.16,1,.3,1),color .2s cubic-bezier(.16,1,.3,1),border-color .2s cubic-bezier(.16,1,.3,1);background:var(--blaze, #c2481a);border-color:var(--blaze, #c2481a);color:#fff;} .ds-btn-blaze:hover{background:#9e3a14;border-color:#9e3a14;} .ds-btn-blaze:focus-visible{outline:3px solid #1e5f8c;outline-offset:3px;}"
+    },
+    {
+      "name": "Pine Filter Bar",
+      "kind": "nav",
+      "refersTo": "pine-bar",
+      "description": "Sticky pine strip of dropdowns, each showing its current value.",
+      "html": "<div class=\"ds-bar\"><button class=\"ds-dd\"><span class=\"k\">Country</span><span class=\"v\">All countries</span></button><button class=\"ds-dd\" aria-expanded=\"true\"><span class=\"k\">Difficulty</span><span class=\"v on\">Easy, Moderate</span></button><button class=\"ds-dd\"><span class=\"k\">Trip length</span><span class=\"v\">Any</span></button><span class=\"sp\"></span><button class=\"ds-dd\"><span class=\"k\">Sort</span><span class=\"v\">Name A–Z</span></button></div>",
+      "css": ".ds-bar{display:flex;background:var(--pine, #1f5b43);font-family:'Lato', 'Noto Sans Thai', system-ui, sans-serif;} .ds-bar .sp{flex:1;} .ds-dd{display:grid;gap:2px;min-height:64px;padding:10px 20px;border:0;border-right:1px solid rgb(242 239 234 / .18);background:transparent;text-align:left;cursor:pointer;transition:background-color .2s cubic-bezier(.16,1,.3,1);} .ds-dd:hover,.ds-dd[aria-expanded=true]{background:var(--pine-700, #174633);} .ds-dd:focus-visible{outline:3px solid #75c5d1;outline-offset:-3px;} .ds-dd .k{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#b9d3c6;} .ds-dd .v{font-size:15px;font-weight:700;color:#fff;} .ds-dd .v.on{color:#e4ded3;}"
+    },
+    {
+      "name": "Route Tile",
+      "kind": "card",
+      "refersTo": "route-tile",
+      "description": "Dimmed photo on night, the real route line in its heat colour, grade chip with shape, name and Montserrat facts.",
+      "html": "<a class=\"ds-tile\" href=\"#\"><span class=\"f\"><svg class=\"ds-line\" viewBox=\"0 0 100 100\" aria-hidden=\"true\"><path d=\"M12 82 C 26 70, 30 52, 44 50 S 62 30, 70 22 S 84 18, 88 14\" fill=\"none\" stroke=\"#ff9f43\" stroke-width=\"3.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg><span class=\"c\">Indonesia</span><span class=\"g\"><svg viewBox=\"0 0 10 10\" width=\"10\" height=\"10\" aria-hidden=\"true\"><path d=\"M5 0 10 5 5 10 0 5z\" fill=\"currentColor\"/></svg>Hard</span></span><strong>Mount Rinjani via Senaru</strong><span class=\"d\">27.4 km · +3,310 m · 3 days</span></a>",
+      "css": ".ds-tile{display:grid;width:240px;color:var(--ink, #17201c);text-decoration:none;font-family:'Lato', 'Noto Sans Thai', system-ui, sans-serif;} .ds-tile .f{position:relative;aspect-ratio:1;background:#101814 linear-gradient(160deg,#3b4a43,#101814);} .ds-line{position:absolute;inset:12% 8%;width:84%;height:76%;} .ds-tile .c{position:absolute;right:12px;top:12px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgb(242 239 234 / .85);} .ds-tile .g{position:absolute;left:12px;bottom:12px;display:inline-flex;gap:6px;align-items:center;padding:5px 8px;background:var(--ground, #fbfaf7);color:#a34d00;font-size:12px;font-weight:700;} .ds-tile strong{margin-top:14px;font-size:16px;line-height:22px;font-weight:900;} .ds-tile:hover strong{text-decoration:underline;text-underline-offset:3px;} .ds-tile .d{margin-top:6px;font:500 13px 'Montserrat', 'Lato', system-ui, sans-serif;font-variant-numeric:tabular-nums lining-nums;color:#3a4540;} .ds-tile:focus-visible{outline:2px solid #1e5f8c;outline-offset:6px;}"
+    },
+    {
+      "name": "Filter Pill",
+      "kind": "chip",
+      "refersTo": "filter-pill",
+      "description": "An active filter above the results; click to remove.",
+      "html": "<button class=\"ds-pill\">Malaysia<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M6 6l12 12M18 6 6 18\"/></svg></button>",
+      "css": ".ds-pill{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 6px 0 12px;border:1px solid var(--ink, #17201c);border-radius:0;background:transparent;color:var(--ink, #17201c);font:700 13px/1 'Lato', 'Noto Sans Thai', system-ui, sans-serif;cursor:pointer;} .ds-pill svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;} .ds-pill:hover{background:var(--ink, #17201c);color:var(--ground, #fbfaf7);} .ds-pill:focus-visible{outline:3px solid #1e5f8c;outline-offset:3px;}"
+    },
+    {
+      "name": "Fit Check Rows",
+      "kind": "custom",
+      "refersTo": "fit-band",
+      "description": "The personal verdict on pine: solid paper box with pine tick for pass, blaze box with white cross for fail.",
+      "html": "<ul class=\"ds-fit\"><li><i class=\"ok\"></i><span><strong>Distance per day</strong> 10.2 km is within your experience (12 km).</span></li><li class=\"no\"><i class=\"x\"></i><span><strong>Highest point</strong> 3,115 m is above anything you have walked (2,019 m).</span></li></ul>",
+      "css": ".ds-fit{list-style:none;margin:0;padding:8px 24px;background:var(--pine, #1f5b43);color:#f2efea;font:400 17px/25px 'Lato', 'Noto Sans Thai', system-ui, sans-serif;} .ds-fit li{display:grid;grid-template-columns:30px 1fr;gap:16px;align-items:center;padding:18px 0;border-bottom:1px solid rgb(242 239 234 / .18);} .ds-fit li:last-child{border-bottom:0;} .ds-fit strong{font-weight:900;margin-right:8px;} .ds-fit i{width:30px;height:30px;background:#f2efea url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231f5b43' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 5 5 9-10'/%3E%3C/svg%3E\") no-repeat center/18px;} .ds-fit i.x{background:var(--blaze, #c2481a) url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6 6 18'/%3E%3C/svg%3E\") no-repeat center/18px;box-shadow:0 0 0 3px #ffb08a;} .ds-fit li.no{color:#ffd2bd;} .ds-fit li.no strong{color:#fff;}"
+    },
+    {
+      "name": "Register Entry",
+      "kind": "custom",
+      "refersTo": "register-avatar",
+      "description": "One review in the trail register: square pine initial, stars, quote, felt meter and outcome.",
+      "html": "<article class=\"ds-entry\"><span class=\"who\">A</span><div><div class=\"top\"><strong>Aisyah · <span class=\"st\">★★★★<span class=\"off\">★</span></span></strong><time>12 Sep 2026</time></div><blockquote>Steady climb, cold on top. Start early to beat the cloud.</blockquote><div class=\"meta\"><span>Felt <span class=\"felt\"><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i></i><i></i></span></span><b>Finished</b></div></div></article>",
+      "css": ".ds-entry{display:grid;grid-template-columns:52px 1fr;gap:16px;max-width:560px;padding:20px 0;border-top:2px solid var(--ink, #17201c);border-bottom:1px solid #e1e6e2;font-family:'Lato', 'Noto Sans Thai', system-ui, sans-serif;color:var(--ink, #17201c);} .ds-entry .who{width:44px;height:44px;display:grid;place-items:center;background:var(--pine, #1f5b43);color:#f2efea;font-weight:900;font-size:17px;} .ds-entry .top{display:flex;justify-content:space-between;gap:12px;align-items:baseline;} .ds-entry time{font-size:13px;color:#5f6b65;} .ds-entry .st{color:var(--blaze, #c2481a);letter-spacing:2px;} .ds-entry .off{color:#c9d0cb;} .ds-entry blockquote{margin:8px 0 10px;font-size:17px;line-height:26px;} .ds-entry .meta{display:flex;gap:16px;align-items:center;font-size:13px;color:#3a4540;} .ds-entry .meta b{color:var(--pine, #1f5b43);} .ds-entry .felt{display:inline-flex;gap:3px;margin-left:6px;} .ds-entry .felt i{width:14px;height:6px;background:#e1e6e2;} .ds-entry .felt i.on{background:var(--ink, #17201c);}"
+    },
+    {
+      "name": "Number Ticker",
+      "kind": "custom",
+      "refersTo": "number-ticker",
+      "description": "Montserrat figure that counts up once on entering view (Motion animate(0, to, { onUpdate })). Final value lives in the markup.",
+      "html": "<dl class=\"ds-tick\"><dt>Highest point</dt><dd>3,115 m</dd></dl>",
+      "css": ".ds-tick{margin:0;display:grid;gap:8px;padding-bottom:16px;border-bottom:2px solid var(--ink, #17201c);} .ds-tick dt{font:700 11px 'Lato', 'Noto Sans Thai', system-ui, sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#5f6b65;} .ds-tick dd{margin:0;font:600 56px/1 'Montserrat', 'Lato', system-ui, sans-serif;letter-spacing:-.02em;font-variant-numeric:tabular-nums lining-nums;color:var(--ink, #17201c);}"
+    },
+    {
+      "name": "Text Highlighter",
+      "kind": "custom",
+      "refersTo": "text-highlighter",
+      "description": "Marker that draws left to right under one phrase: yellow underline for the verdict, blaze fill for a failing figure.",
+      "html": "<p class=\"ds-hl\">Merbabu is a <span class=\"m\">good challenge</span> for you. The summit at <span class=\"m hot\">3,115 m</span> is higher than you have walked.</p>",
+      "css": ".ds-hl{max-width:34ch;padding:24px 28px;background:var(--pine, #1f5b43);color:#f2efea;font:700 22px/1.5 'Lato', 'Noto Sans Thai', system-ui, sans-serif;} .ds-hl .m{font-weight:900;padding-bottom:2px;background:linear-gradient(#f2d34f,#f2d34f) 0 100%/100% 4px no-repeat;transition:background-size .7s cubic-bezier(.16,1,.3,1);} .ds-hl .m.hot{padding:0 6px;font:600 1em 'Montserrat', 'Lato', system-ui, sans-serif;background:linear-gradient(var(--blaze, #c2481a),var(--blaze, #c2481a)) 0 0/100% 100% no-repeat;color:#fff;}"
+    },
+    {
+      "name": "Animated List",
+      "kind": "custom",
+      "refersTo": "animated-list",
+      "description": "New rows rise 12px and fade in, 60ms apart (Motion animate + stagger); existing rows stay still.",
+      "html": "<ul class=\"ds-al\"><li><i></i><span>Rain shell</span><em>67% rain</em></li><li><i></i><span>Warm layer for the summit</span><em>6° at the top</em></li></ul>",
+      "css": ".ds-al{list-style:none;margin:0;padding:0 24px;background:#ebe7df;border-top:2px solid var(--ink, #17201c);font:400 15px 'Lato', 'Noto Sans Thai', system-ui, sans-serif;color:var(--ink, #17201c);} .ds-al li{display:grid;grid-template-columns:18px 1fr auto;gap:12px;align-items:center;min-height:52px;border-bottom:1px solid rgb(23 32 28 / .15);animation:ds-rise .5s cubic-bezier(.16,1,.3,1) both;} .ds-al li:nth-child(2){animation-delay:.06s;} .ds-al i{width:18px;height:18px;border:1.5px solid var(--ink, #17201c);} .ds-al em{font:500 13px 'Montserrat', 'Lato', system-ui, sans-serif;font-style:normal;color:#3a4540;} @keyframes ds-rise{from{opacity:0;transform:translateY(12px);}}"
+    },
+    {
+      "name": "Scroll Progress",
+      "kind": "nav",
+      "refersTo": "scroll-progress",
+      "description": "Sand bar on a dark pine track along the section bar, plus a distance-walked readout (Motion scroll()).",
+      "html": "<div class=\"ds-sp\"><span>Overview</span><span>Weather</span><span class=\"w\"><b>4.2</b> / 10.01 km</span><span class=\"p\"><i></i></span></div>",
+      "css": ".ds-sp{position:relative;display:flex;align-items:center;gap:18px;min-height:56px;padding:0 20px;background:var(--pine, #1f5b43);color:#d4e3db;font:700 12px 'Lato', 'Noto Sans Thai', system-ui, sans-serif;letter-spacing:.08em;text-transform:uppercase;} .ds-sp .w{margin-left:auto;letter-spacing:0;text-transform:none;font:500 15px 'Montserrat', 'Lato', system-ui, sans-serif;color:#b9d3c6;} .ds-sp .w b{font-weight:600;color:#fff;} .ds-sp .p{position:absolute;left:0;right:0;bottom:0;height:5px;background:#0f3326;} .ds-sp .p i{position:absolute;left:0;top:0;bottom:1px;width:42%;background:#e4ded3;}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Field Index",
+    "overview": "**Creative North Star: \"The Field Index\"**\n\nCAIRN reads like a well-made field index: a near-white page, ink type, heavy two-pixel rules, square edges, and numbers set like measurements. The trail is the image. Every route is shown as its own real line, drawn in a heat colour on a dark photograph, so a hiker can tell an easy walk from a hard climb before reading a word. Pine marks the places where you act on the page (the filter bar, the section bar, the fit verdict); ink carries everything else.\n\nThe system is plain until it matters, then unmistakable. Most of a screen is ground and ink. Colour appears on purpose: heat for difficulty, pine for controls and the personal verdict, blaze for a failed check or the one key action, amber for hazards. Big photographic banners with a parallax or the route's own line open each page, then the page settles into wide, ruled bands with lots of space between them.\n\nThere is warmth inside the strictness. The route-detail page is a walk: a plain brown trail with grass winds behind the sections and is drawn as you scroll. The gear list is a ring-bound notepad with a red margin, and the reviews are a trail register. These handmade touches sit inside the same square, ruled grid; they never become cartoon illustration.",
+    "keyCharacteristics": [
+      "Ink on near-white ground, square corners, 2px ink rules to start and end sections.",
+      "Route lines in a four-step heat scale (green, yellow, orange, red), always paired with a grade shape and name.",
+      "Pine for interactive bars and the fit verdict; blaze only for a failure or the single key action.",
+      "Lato 900 for every heading; Montserrat with tabular figures for every number a hiker compares.",
+      "Dark, desaturated photographs under light lines; real route geometry, no stock illustration.",
+      "Full-width bands; the main tools (fit, weather, gear, reviews) take most of the page width."
+    ],
+    "rules": [
+      {
+        "name": "The Shape Beside Colour Rule",
+        "body": "Heat colour never stands alone. Every grade shows its shape (circle, square, diamond, double diamond) and its name, and every pass or fail shows a tick or a cross in a box.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Heats Rule",
+        "body": "Bright heat (#6FDC8C to #FF5B4F) only sits on night or ink. On ground or white, use the heat-ink step for text and labels.",
+        "section": "colors"
+      },
+      {
+        "name": "The Blaze Means Stop Rule",
+        "body": "Blaze marks a failed check, a rating, or the one key action on a screen. It is never decoration and never a second button colour.",
+        "section": "colors"
+      },
+      {
+        "name": "The Numbers Are Montserrat Rule",
+        "body": "Any figure a hiker compares is Montserrat with tabular, lining figures. Numbers inside sentences stay in Lato, except the highlighted values in the fit sentence.",
+        "section": "typography"
+      },
+      {
+        "name": "The Signed Climb Rule",
+        "body": "Climb is always signed (+893 m); highest point never is (3,115 m). Metric only. A missing value shows \"—\" with the accessible name \"Not listed\".",
+        "section": "typography"
+      },
+      {
+        "name": "The No Eyebrow Rule",
+        "body": "Headings carry themselves. Small uppercase labels name a value or a control; they never sit above a heading as a kicker.",
+        "section": "typography"
+      },
+      {
+        "name": "The Rule Before Shadow Rule",
+        "body": "Separate with a rule or a fill change first. A shadow means the thing is lifted off the page, not that it is important.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do keep every corner square (0 radius), and draw edges with 2px ink rules or 1px hairlines.",
+      "Do pair every heat colour with the grade's shape and name (The Shape Beside Colour Rule).",
+      "Do put bright heat lines only on Night or ink, and use heat-ink steps for text on light grounds.",
+      "Do set compared numbers in Montserrat tabular figures, metric only, climb signed.",
+      "Do use pine for bars and controls you act on, and blaze only for failures, ratings and the one key action.",
+      "Do dim route photographs (about 45% over Night) so the line always reads first.",
+      "Do use `cubic-bezier(0.16, 1, 0.3, 1)` and show the final state under reduced motion.",
+      "Do theme focus rings: 3px Lake on light grounds, Glacier on pine."
+    ],
+    "donts": [
+      "Don't use rounded pills, rounded cards or soft rounded panels; that is the retired homepage style.",
+      "Don't add shadows to flat content at rest (The Rule Before Shadow Rule).",
+      "Don't put a small uppercase kicker above a heading.",
+      "Don't use blaze as decoration or as a second button colour.",
+      "Don't use cartoon illustration, badges, cairn icons along the trail, or \"conquer the summit\" language.",
+      "Don't draw ticks, arrows or crosses with CSS borders or Unicode; use drawn SVG.",
+      "Don't truncate route names below two lines or translate them out of their own script."
+    ]
+  }
+}

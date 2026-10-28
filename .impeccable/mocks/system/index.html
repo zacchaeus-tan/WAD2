@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAIRN · Design system</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Montserrat:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../home/cairn.css">
+<link rel="stylesheet" href="../browse/browse.css">
+<link rel="stylesheet" href="../browse/d-shared.css">
+<link rel="stylesheet" href="../landing/landing.css">
+<style>
+/* The Field Index, shown with its own parts. Tokens and components are the ones routes.html and route-detail.html use. */
+.ds-head { padding: clamp(72px, 9vw, 128px) 0 clamp(48px, 6vw, 80px); border-bottom: 2px solid var(--ink); }
+.ds-head h1 { font-size: clamp(48px, 8vw, 124px); line-height: 0.95; font-weight: 900; letter-spacing: -0.04em; max-width: 11ch; }
+.ds-head .lede { margin-top: 24px; }
+.ds-head .src { margin-top: 20px; display: flex; gap: 8px 24px; flex-wrap: wrap; font-size: 14px; }
+
+.dsnav { position: sticky; top: 0; z-index: 10; background: var(--pine); }
+.dsnav .wrap { display: flex; overflow-x: auto; scrollbar-width: none; }
+.dsnav a { display: flex; align-items: center; min-height: 56px; padding: 0 18px; color: #d4e3db; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; white-space: nowrap; border-bottom: 3px solid transparent; }
+.dsnav a:hover { color: var(--white); background: var(--pine-700); }
+.dsnav a:focus-visible { outline: 3px solid var(--glacier); outline-offset: -3px; border-radius: 0; }
+
+.blk { padding: clamp(72px, 9vw, 128px) 0; border-bottom: 1px solid var(--g200); scroll-margin-top: 56px; }
+.blk > .wrap > h2 { font-size: clamp(30px, 3.6vw, 52px); line-height: 1; font-weight: 900; letter-spacing: -0.03em; }
+.blk > .wrap > .lede { margin-top: 16px; text-wrap: pretty; }
+.blk .body { margin-top: 48px; }
+.sub { font-size: 20px; line-height: 26px; font-weight: 900; margin: 48px 0 16px; padding-top: 16px; border-top: 2px solid var(--ink); }
+.sub:first-child { margin-top: 0; }
+.rule { margin-top: 20px; max-width: 60ch; text-wrap: pretty; font-size: 15px; line-height: 23px; color: var(--g700); }
+.rule strong { color: var(--ink); }
+
+/* Colour */
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 0; border-left: 1px solid var(--g200); border-top: 1px solid var(--g200); }
+.sw-c { border-right: 1px solid var(--g200); border-bottom: 1px solid var(--g200); }
+.sw-c .chip { height: 96px; }
+.sw-c .meta { padding: 12px 14px 14px; display: grid; gap: 2px; }
+.sw-c strong { font-size: 15px; font-weight: 900; }
+.sw-c code { font: 500 13px var(--font-data); color: var(--g700); text-transform: uppercase; }
+.sw-c span { font-size: 13px; line-height: 18px; color: var(--g700); }
+
+.heat-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.heat-row > div { padding: 22px 20px; display: grid; gap: 14px; }
+.heat-night { background: #101814; color: var(--paper); }
+.heat-night svg.ln { width: 100%; height: 56px; }
+.heat-night .nm { font-size: 15px; font-weight: 900; }
+.heat-night code { font: 500 13px var(--font-data); color: var(--lichen, #c9d6cf); }
+.heat-ground { border: 1px solid var(--g200); border-top: 0; }
+.heat-ground > div + div { border-left: 1px solid var(--g200); }
+.glabel { display: inline-flex; align-items: center; gap: 6px; width: max-content; padding: 5px 8px; background: var(--ground); border: 1px solid var(--g200); font-size: 12px; font-weight: 700; }
+.glabel svg { width: 10px; height: 10px; }
+.heat-ground code { font: 500 13px var(--font-data); color: var(--g700); }
+.meters { display: flex; gap: 32px; flex-wrap: wrap; margin-top: 24px; padding: 20px 24px; background: var(--ink); color: var(--paper); }
+.meters .verdict { color: var(--paper); font-weight: 900; display: inline-flex; gap: 12px; align-items: center; }
+
+/* Type */
+.spec { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 24px; align-items: baseline; padding: 28px 0; border-bottom: 1px solid var(--g200); }
+.spec:first-child { border-top: 2px solid var(--ink); }
+.spec .k { display: grid; gap: 4px; }
+.spec .k strong { font-size: 15px; font-weight: 900; }
+.spec .k code { font: 500 12px/1.5 var(--font-data); color: var(--g500); }
+.spec .sample { min-width: 0; overflow-wrap: anywhere; }
+.s-display { font-size: clamp(48px, 8vw, 124px); line-height: 0.95; font-weight: 900; letter-spacing: -0.04em; }
+.s-headline { font-size: clamp(30px, 3.6vw, 52px); line-height: 1; font-weight: 900; letter-spacing: -0.03em; }
+.s-title { font-size: 16px; line-height: 22px; font-weight: 900; }
+.s-lede { font-size: 18px; line-height: 28px; color: var(--g700); max-width: 52ch; text-wrap: pretty; }
+.s-body { font-size: 16px; line-height: 24px; max-width: 65ch; }
+.s-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--g500); }
+.s-data { font: 500 13px var(--font-data); font-variant-numeric: tabular-nums lining-nums; color: var(--g700); }
+.s-datad { font: 600 clamp(32px, 4.6vw, 68px)/1 var(--font-data); letter-spacing: -0.02em; font-variant-numeric: tabular-nums lining-nums; }
+
+/* Shape and depth */
+.shapes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+.shape { display: grid; gap: 12px; align-content: start; }
+.shape .demo { height: 120px; display: grid; place-items: center; background: var(--white); border: 1px solid var(--g200); }
+.shape strong { font-size: 15px; font-weight: 900; }
+.shape p { font-size: 14px; line-height: 20px; color: var(--g700); }
+.d-rule2 { width: 70%; height: 2px; background: var(--ink); }
+.d-hair { width: 70%; height: 29px; background: linear-gradient(var(--g300), var(--g300)) 0 0 / 100% 1px no-repeat, linear-gradient(var(--g300), var(--g300)) 0 14px / 100% 1px no-repeat, linear-gradient(var(--g300), var(--g300)) 0 28px / 100% 1px no-repeat; }
+.d-panel { width: 60%; height: 56px; background: var(--white); box-shadow: 0 12px 32px rgb(23 32 28 / 0.18); }
+.d-round { width: 70%; height: 60px; overflow: visible; }
+
+/* Components */
+.row-btn { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+.on-pine { background: var(--pine); padding: 24px; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin-top: 16px; }
+.dbar-demo { display: flex; background: var(--pine); color: var(--paper); overflow-x: auto; }
+.dbar-demo .dd { border-right: 1px solid rgb(242 239 234 / 0.18); }
+.dbar-demo .dd:first-child { border-left: 1px solid rgb(242 239 234 / 0.18); }
+.dbar-demo .dd-btn { display: grid; grid-template-columns: auto auto; column-gap: 10px; align-items: center; min-height: 64px; padding: 10px 20px; border: 0; background: transparent; color: var(--paper); text-align: left; cursor: pointer; font-family: var(--font); transition: background-color 0.2s var(--ease); }
+.dbar-demo .dd-btn:hover, .dbar-demo .dd-btn[aria-expanded='true'] { background: var(--pine-700); }
+.dbar-demo .dd-btn:focus-visible { outline: 3px solid var(--glacier); outline-offset: -3px; border-radius: 0; }
+.dbar-demo .k { grid-column: 1; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #b9d3c6; }
+.dbar-demo .v { grid-column: 1; font-size: 15px; font-weight: 700; color: var(--white); white-space: nowrap; }
+.dbar-demo .v.on { color: var(--sand); }
+.dbar-demo .dd-btn svg { grid-column: 2; grid-row: 1 / 3; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+.dbar-demo .dd-btn[aria-expanded='true'] svg { rotate: 180deg; }
+.dbar-demo .spacer { flex: 1; min-width: 20px; }
+.panel-demo { width: min(320px, 100%); margin-top: 0; padding: 18px; background: var(--white); box-shadow: 0 12px 32px rgb(23 32 28 / 0.18); display: grid; gap: 6px; }
+.panel-demo .opt { display: flex; justify-content: space-between; align-items: center; min-height: 40px; padding: 0 12px; border: 1px solid var(--g300); font-size: 14px; font-weight: 700; }
+.panel-demo .opt.on { background: var(--ink); border-color: var(--ink); color: var(--white); }
+.panel-demo .opt svg { width: 10px; height: 10px; }
+.panel-demo .opt .data { font-weight: 500; font-size: 13px; }
+.panel-demo .opt.on svg.tk { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.panel-demo .foot { display: flex; justify-content: space-between; padding-top: 12px; margin-top: 6px; border-top: 1px solid var(--g200); font-size: 13px; color: var(--g700); }
+.panel-demo .foot u { color: var(--ink); font-weight: 700; text-underline-offset: 3px; }
+.bar-wrap { display: grid; gap: 0; }
+.bar-wrap .under { padding: 0 0 0 1px; }
+
+.ds-tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 28px; align-items: center; }
+.dkey-demo { display: flex; gap: 8px 20px; flex-wrap: wrap; list-style: none; padding: 0; margin: 0 0 0 auto; font-size: 13px; font-weight: 700; }
+.dkey-demo li { display: inline-flex; align-items: center; gap: 7px; }
+.dkey-demo svg { width: 11px; height: 11px; }
+
+.numbers-demo { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 2px solid var(--ink); }
+.numbers-demo div { padding: 28px 20px 24px; display: grid; gap: 8px; border-right: 1px solid var(--g200); }
+.numbers-demo div:first-child { padding-left: 0; }
+.numbers-demo div:last-child { border-right: 0; }
+.numbers-demo dt { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--g500); }
+.numbers-demo dd { margin: 0; font: 600 clamp(32px, 4.6vw, 68px)/1 var(--font-data); letter-spacing: -0.02em; }
+.numbers-demo .cap { font-size: 13px; font-weight: 700; color: var(--g700); }
+.numbers-demo .cap.trip { width: max-content; padding: 4px 10px; background: var(--ink); color: var(--paper); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+
+.fit-demo { background: var(--pine); color: var(--paper); padding: clamp(24px, 3vw, 44px); }
+.fit-demo .top { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; flex-wrap: wrap; padding-bottom: 20px; border-bottom: 2px solid rgb(242 239 234 / 0.9); }
+.fit-demo h3 { font-size: clamp(26px, 2.8vw, 38px); line-height: 1; font-weight: 900; letter-spacing: -0.02em; }
+.fit-demo .verdict { color: var(--paper); font-size: clamp(22px, 2.2vw, 30px); font-weight: 900; display: inline-flex; gap: 12px; align-items: center; }
+.fit-demo .meter i { width: 10px; height: 32px; }
+.fit-demo ul { list-style: none; margin: 0; padding: 0; }
+.fit-demo li { display: grid; grid-template-columns: 32px 1fr; gap: 16px; align-items: center; padding: 20px 0; border-bottom: 1px solid rgb(242 239 234 / 0.18); font-size: 18px; line-height: 26px; }
+.fit-demo li strong { display: inline-block; min-width: 200px; font-weight: 900; }
+.fit-demo .mk { width: 30px; height: 30px; display: grid; place-items: center; }
+.fit-demo .mk svg { width: 18px; height: 18px; fill: none; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; }
+.fit-demo .ok { background: var(--paper); } .fit-demo .ok svg { stroke: var(--pine); }
+.fit-demo .no { background: var(--blaze); box-shadow: 0 0 0 3px #ffb08a; } .fit-demo .no svg { stroke: var(--white); }
+.fit-demo li.fail { color: #ffd2bd; } .fit-demo li.fail strong { color: var(--white); }
+.fit-demo .warn { display: flex; gap: 12px; align-items: flex-start; margin-top: 20px; font-size: 16px; line-height: 24px; color: #ffe7a8; }
+.fit-demo .warn svg { width: 20px; height: 20px; flex: none; margin-top: 2px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+.grade-demo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: center; background: var(--sand); padding: clamp(24px, 3vw, 44px); }
+.grade-demo svg { width: 100%; max-width: 440px; justify-self: center; overflow: visible; }
+.gk { display: grid; gap: 14px; }
+.gk .row { display: grid; grid-template-columns: 40px 1fr auto; gap: 14px; align-items: center; padding-bottom: 12px; border-bottom: 1px solid rgb(23 32 28 / 0.15); }
+.gk .row:last-child { border-bottom: 0; }
+.gk b { font: 600 30px/1 var(--font-data); }
+
+.reg-demo { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 36px; padding: clamp(24px, 3vw, 40px); border: 2px solid var(--ink); background: var(--ground); }
+.reg-demo .score { font: 600 84px/0.85 var(--font-data); letter-spacing: -0.04em; }
+.reg-demo .score span { font-size: 0.32em; color: var(--g500); }
+.stars-r { display: grid; grid-template-columns: 26px 1fr 18px; gap: 8px; align-items: center; font: 600 13px var(--font-data); margin-top: 8px; }
+.stars-r .bar { height: 8px; background: var(--g200); position: relative; }
+.stars-r .bar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--blaze); }
+.entry-d { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 16px; padding: 20px 0; border-bottom: 1px solid var(--g200); }
+.entry-d:first-child { border-top: 2px solid var(--ink); }
+.entry-d .who { width: 44px; height: 44px; display: grid; place-items: center; background: var(--pine); color: var(--paper); font-weight: 900; font-size: 17px; }
+.entry-d .top { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; }
+.entry-d time { font-size: 13px; color: var(--g500); }
+.entry-d .stars { display: inline-flex; gap: 2px; vertical-align: -2px; }
+.entry-d .stars svg { width: 15px; height: 15px; fill: var(--blaze); }
+.entry-d .stars svg.off { fill: var(--g300); }
+.entry-d blockquote { margin: 8px 0 10px; font-size: 17px; line-height: 26px; }
+.entry-d .meta { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-size: 13px; color: var(--g700); }
+.felt { display: inline-flex; gap: 3px; align-items: center; margin-left: 4px; } .felt i { width: 14px; height: 6px; background: var(--g200); } .felt i.on { background: var(--ink); }
+.done { font-weight: 700; color: var(--pine); }
+.chip-inc { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; background: #fff4db; color: #5c3d00; font-weight: 700; }
+.chip-inc svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+.motion { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.motion .m { padding: 24px; background: var(--white); border: 1px solid var(--g200); display: grid; gap: 14px; align-content: start; }
+.motion strong { font-size: 16px; font-weight: 900; }
+.motion p { font-size: 14px; line-height: 21px; color: var(--g700); }
+.motion code { font: 500 13px var(--font-data); }
+.curve { width: 100%; height: 90px; }
+.track-m { position: relative; height: 10px; background: var(--g100); overflow: hidden; }
+.track-m i { position: absolute; inset: 0; background: var(--pine); transform-origin: 0 50%; transform: scaleX(0); transition: transform 1.2s var(--ease); }
+.motion .m:hover .track-m i, .motion .m:focus-within .track-m i { transform: scaleX(1); }
+.replay { justify-self: start; border: 1px solid var(--ink); background: transparent; min-height: 34px; padding: 0 12px; font: 700 12px var(--font); letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; }
+.replay:hover { background: var(--ink); color: var(--ground); }
+
+.dd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 48px; }
+.dd-grid h3 { font-size: 20px; font-weight: 900; padding-bottom: 12px; border-bottom: 2px solid var(--ink); }
+.dd-grid ul { list-style: none; margin: 0; padding: 0; }
+.dd-grid li { display: grid; grid-template-columns: 22px 1fr; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--g200); font-size: 15px; line-height: 22px; }
+.dd-grid .mk { width: 22px; height: 22px; display: grid; place-items: center; margin-top: 1px; }
+.dd-grid .mk svg { width: 14px; height: 14px; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.dd-grid .yes .mk { background: var(--pine); } .dd-grid .yes .mk svg { stroke: var(--white); }
+.dd-grid .no .mk { background: var(--blaze); } .dd-grid .no .mk svg { stroke: var(--white); }
+
+@media (max-width: 1000px) {
+  .ds-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .shapes, .motion { grid-template-columns: 1fr 1fr; }
+  .numbers-demo { grid-template-columns: 1fr 1fr; } .numbers-demo div:nth-child(odd) { padding-left: 0; } .numbers-demo div:nth-child(2) { border-right: 0; }
+  .grade-demo, .reg-demo, .dd-grid { grid-template-columns: 1fr; }
+  .heat-row { grid-template-columns: 1fr 1fr; } .heat-ground > div:nth-child(3) { border-left: 0; }
+}
+@media (max-width: 640px) {
+  .spec { grid-template-columns: 1fr; gap: 10px; }
+  .heat-row { grid-template-columns: 1fr; } .heat-ground > div + div { border-left: 0; border-top: 1px solid var(--g200); }
+  .shapes, .motion { grid-template-columns: 1fr; }
+  .fit-demo li strong { display: block; min-width: 0; } .fit-demo li { font-size: 16px; }
+  .ds-tiles { grid-template-columns: 1fr 1fr; gap: 28px 14px; }
+}
+
+/* Motion components: live demos driven by Motion (vanilla build; motion-v in the Vue app) */
+.mc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: clamp(24px, 4vw, 56px); align-items: center; padding: 40px 0; border-bottom: 1px solid var(--g200); }
+.mc:first-child { border-top: 2px solid var(--ink); }
+.mc h3 { font-size: 24px; line-height: 1.1; font-weight: 900; letter-spacing: -0.01em; }
+.mc .how { margin-top: 10px; font-size: 15px; line-height: 23px; color: var(--g700); max-width: 46ch; text-wrap: pretty; }
+.mc .use { margin-top: 12px; font-size: 13px; color: var(--g500); }
+.mc .use b { color: var(--ink); }
+.mc .replay { margin-top: 18px; }
+.stage { min-width: 0; }
+
+.ticks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 2px solid var(--ink); }
+.ticks div { display: grid; gap: 8px; padding: 20px 16px 20px 20px; border-right: 1px solid var(--g200); }
+.ticks div:first-child { padding-left: 0; } .ticks div:last-child { border-right: 0; }
+.ticks dt { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--g500); }
+.ticks dd { margin: 0; font: 600 clamp(28px, 3.4vw, 48px)/1 var(--font-data); letter-spacing: -0.02em; font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }
+
+.hl-stage { background: var(--pine); color: var(--paper); padding: 28px 32px; }
+.hl-stage p { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.5; font-weight: 700; max-width: 34ch; }
+.hl-stage .num { font-family: var(--font-data); font-weight: 600; white-space: nowrap; padding: 0 6px; background: rgb(242 239 234 / 0.14); }
+.mark { font-weight: 900; padding-bottom: 2px; background: linear-gradient(#f2d34f, #f2d34f) 0 100% / 100% 4px no-repeat; }
+.mark.hot { padding: 0 6px; background: linear-gradient(var(--blaze), var(--blaze)) 0 0 / 100% 100% no-repeat; color: var(--white); }
+
+.list-stage { background: var(--linen); padding: 24px 28px; }
+.list-stage .lh { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-bottom: 12px; border-bottom: 2px solid var(--ink); }
+.list-stage .lh strong { font-size: 17px; font-weight: 900; }
+.list-stage .lh .sq { min-height: 40px; padding: 0 16px; font-size: 12px; }
+.alist { list-style: none; margin: 0; padding: 0; min-height: 260px; }
+.alist li { display: grid; grid-template-columns: 18px 1fr auto; gap: 12px; align-items: center; min-height: 52px; border-bottom: 1px solid rgb(23 32 28 / 0.15); font-size: 15px; }
+.alist li i { width: 18px; height: 18px; border: 1.5px solid var(--ink); }
+.alist li .data { font-size: 13px; color: var(--g700); }
+.alist .empty-row { color: var(--g700); font-size: 14px; border-bottom: 0; }
+
+.sp-stage { border: 2px solid var(--ink); background: var(--ground); }
+.sp-bar { position: relative; display: flex; align-items: center; gap: 18px; min-height: 48px; padding: 0 16px; background: var(--pine); color: #d4e3db; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.sp-bar .walked { margin-left: auto; display: flex; align-items: center; gap: 8px; text-transform: none; letter-spacing: 0; }
+.sp-bar .walked .k { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #b9d3c6; }
+.sp-bar .walked b { font: 600 15px var(--font-data); font-variant-numeric: tabular-nums; color: var(--white); }
+.sp-bar .walked span.t { font: 500 15px var(--font-data); color: #b9d3c6; }
+.sp-bar .pin { width: 10px; height: 10px; border-radius: 50%; background: var(--blaze); box-shadow: 0 0 0 3px rgb(242 239 234 / 0.9); }
+.sp-bar .progress { position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: #0f3326; }
+.sp-bar .progress i { position: absolute; left: 0; right: 0; top: 0; bottom: 1px; background: var(--sand); transform-origin: 0 50%; transform: scaleX(0); }
+.sp-scroll { height: 280px; overflow-y: auto; padding: 24px 20px; scrollbar-width: thin; scrollbar-color: var(--g300) transparent; }
+.sp-scroll .leg { position: relative; padding: 0 0 0 28px; margin-bottom: 120px; }
+.sp-scroll .leg:last-child { margin-bottom: 40px; }
+.sp-scroll .leg::before { content: ''; position: absolute; left: 6px; top: 6px; width: 10px; height: 10px; background: var(--pine); }
+.sp-scroll .leg b { display: block; font-size: 16px; font-weight: 900; }
+.sp-scroll .leg span { font: 500 13px var(--font-data); color: var(--g700); }
+.sp-scroll .trailline { position: absolute; left: 30px; top: 0; bottom: 0; width: 3px; background: repeating-linear-gradient(to bottom, #cfc5b2 0 2px, transparent 2px 12px); }
+.sp-inner { position: relative; }
+
+@media (max-width: 900px) { .mc { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .ticks { grid-template-columns: 1fr; } .ticks div { padding-left: 0; border-right: 0; border-bottom: 1px solid var(--g200); } .ticks div:last-child { border-bottom: 0; } .sp-bar .navs { display: none; } }
+</style>
+</head>
+<body data-tiles="dark">
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="nav-brand" href="../index.html"><span class="mark"><svg class="ico" style="color:#fbfaf7"><use href="#i-cairn"/></svg></span>CAIRN</a>
+    <nav class="nav-links" aria-label="Main">
+      <a class="nav-pill" href="../browse/routes.html">Routes</a>
+      <a class="nav-pill" href="../detail/route-detail.html">Route detail</a>
+      <a class="nav-pill" href="#" aria-current="page">System</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="ds-head">
+    <div class="wrap">
+      <h1>The Field Index</h1>
+      <p class="lede">CAIRN's design system: ink on near-white, square edges, heavy rules, and every route drawn as its own line in a heat colour. Taken from the browse routes and route detail mockups.</p>
+      <p class="src"><a class="tlink" href="../browse/routes.html">Browse routes</a><a class="tlink" href="../detail/route-detail.html">Route detail</a><span class="fine" style="color:var(--g500)">Written up in DESIGN.md at the project root</span></p>
+    </div>
+  </section>
+
+  <nav class="dsnav" aria-label="Sections">
+    <div class="wrap"><a href="#colour">Colour</a><a href="#difficulty">Difficulty</a><a href="#type">Type</a><a href="#shape">Shape &amp; depth</a><a href="#components">Components</a><a href="#detail">Route detail parts</a><a href="#motion">Motion</a><a href="#moving">Motion components</a><a href="#rules">Do and don't</a></div>
+  </nav>
+
+  <section class="blk" id="colour" aria-labelledby="c-t">
+    <div class="wrap">
+      <h2 id="c-t">Colour</h2>
+      <p class="lede">Ink and ground carry the page. Pine is for things you act on. Blaze means a failure or the one key action.</p>
+      <div class="body">
+        <h3 class="sub">Ground and ink</h3>
+        <div class="swatches">
+          <div class="sw-c"><div class="chip" style="background:#17201c"></div><div class="meta"><strong>Ink</strong><code>#17201C</code><span>Text, 2px rules, solid buttons, footer</span></div></div>
+          <div class="sw-c"><div class="chip" style="background:#fbfaf7"></div><div class="meta"><strong>Ground</strong><code>#FBFAF7</code><span>The page; label chip on tiles</span></div></div>
+          <div class="sw-c"><div class="chip" style="background:#fff"></div><div class="meta"><strong>White</strong><code>#FFFFFF</code><span>Dropdown panels, inputs</span></div></div>
+          <div class="sw-c"><div class="chip" style="background:#101814"></div><div class="meta"><strong>Night</strong><code>#101814</code><span>Under every dimmed photo</span></div></div>
+          <div class="sw-c"><div class="chip" style="background:#3a4540"></div><div class="meta"><strong>Granite 700</strong><code>#3A4540</code><span>Secondary text, facts</span></div></div>
+          <div class="sw-c"><div class="chip" style="background:#5f6b65"></div><div class="meta"><strong>Granite 500</strong><code>#5F6B65</code><span>Labels on ground, dates</span></div></div>
+          <div class="sw-c"><div class="chip" style="background:#e1e6e2"></div><div class="meta"><strong>Granite 200</strong><code>#E1E6E2</code><span>Hairline row dividers</span></div></div>
+          <div class="sw-c"><div class="chip" style="background:#e4ded3"></div><div class="meta"><strong>Sand</strong><code>#E4DED3</code><span>Quiet fills, set filter value</span></div></div>
+          <div class="sw-c"><div class="chip" style="background:#ebe7df"></div><div class="meta"><strong>Linen</strong><code>#EBE7DF</code><span>Selected-day summary</span></div></div>
+        </div>
+
+        <h3 class="sub">Pine, blaze and signals</h3>
+        <div class="swatches">
+          <div class="sw-c"><div class="chip" style="background:#1f5b43"></div><div class="meta"><strong>Pine</strong><code>#1F5B43</code><span>Filter bar, section bar, fit band, links</span></div></div>
+          <div class="sw-c"><div class="chip" style="background:#174633"></div><div class="meta"><strong>Pine Deep</strong><code>#174633</code><span>Bar item hover and open</span></div></div>
+          <div class="sw-c"><div class="chip" style="background:#b9d3c6"></div><div class="meta"><strong>Sage</strong><code>#B9D3C6</code><span>Labels on pine</span></div></div>
+          <div class="sw-c"><div class="chip" style="background:#c9d6cf"></div><div class="meta"><strong>Lichen</strong><code>#C9D6CF</code><span>Text on ink and dark photos</span></div></div>
+          <div class="sw-c"><div class="chip" style="background:#c2481a"></div><div class="meta"><strong>Blaze</strong><code>#C2481A</code><span>Failed check, stars, one key action</span></div></div>
+          <div class="sw-c"><div class="chip" style="background:#ffb08a"></div><div class="meta"><strong>Ember</strong><code>#FFB08A</code><span>Ring around a failed check</span></div></div>
+          <div class="sw-c"><div class="chip" style="background:#1e5f8c"></div><div class="meta"><strong>Lake</strong><code>#1E5F8C</code><span>Focus on light grounds, summit line</span></div></div>
+          <div class="sw-c"><div class="chip" style="background:#75c5d1"></div><div class="meta"><strong>Glacier</strong><code>#75C5D1</code><span>Focus and input glow on pine</span></div></div>
+          <div class="sw-c"><div class="chip" style="background:#ffc94d"></div><div class="meta"><strong>Hazard</strong><code>#FFC94D</code><span>Warning triangle on the banner</span></div></div>
+        </div>
+
+        <h3 class="sub">Trail and paper</h3>
+        <div class="swatches">
+          <div class="sw-c"><div class="chip" style="background:#7a5a3a"></div><div class="meta"><strong>Trail</strong><code>#7A5A3A</code><span>The walked line on route detail</span></div></div>
+          <div class="sw-c"><div class="chip" style="background:#6f9a5c"></div><div class="meta"><strong>Grass</strong><code>#6F9A5C</code><span>Tufts that grow along it</span></div></div>
+          <div class="sw-c"><div class="chip" style="background:#fffbe9"></div><div class="meta"><strong>Notepad</strong><code>#FFFBE9</code><span>Gear sheet, red margin, blue ruling</span></div></div>
+          <div class="sw-c"><div class="chip" style="background:#fff4db"></div><div class="meta"><strong>Warning Mist</strong><code>#FFF4DB</code><span>Incident chips, altitude notes</span></div></div>
+        </div>
+        <p class="rule"><strong>The Blaze Means Stop Rule.</strong> Blaze marks a failed check, a rating, or the one key action on a screen. It is never decoration and never a second button colour.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="blk" id="difficulty" aria-labelledby="h-t">
+    <div class="wrap">
+      <h2 id="h-t">Difficulty</h2>
+      <p class="lede">A four-step heat scale for lines on dark grounds, a darker step of each for text on light ones, and a shape that carries the grade without colour.</p>
+      <div class="body">
+        <div class="heat-row heat-night">
+          <div><svg class="ln" viewBox="0 0 200 56" aria-hidden="true"><path d="M6 46 C 40 40, 50 18, 90 22 S 150 40, 194 10" fill="none" stroke="#6fdc8c" stroke-width="3.4" stroke-linecap="round"/></svg><span class="nm">1 · Easy</span><code>#6FDC8C</code></div>
+          <div><svg class="ln" viewBox="0 0 200 56" aria-hidden="true"><path d="M6 46 C 40 40, 50 18, 90 22 S 150 40, 194 10" fill="none" stroke="#f2d34f" stroke-width="3.4" stroke-linecap="round"/></svg><span class="nm">2 · Moderate</span><code>#F2D34F</code></div>
+          <div><svg class="ln" viewBox="0 0 200 56" aria-hidden="true"><path d="M6 46 C 40 40, 50 18, 90 22 S 150 40, 194 10" fill="none" stroke="#ff9f43" stroke-width="3.4" stroke-linecap="round"/></svg><span class="nm">3 · Hard</span><code>#FF9F43</code></div>
+          <div><svg class="ln" viewBox="0 0 200 56" aria-hidden="true"><path d="M6 46 C 40 40, 50 18, 90 22 S 150 40, 194 10" fill="none" stroke="#ff5b4f" stroke-width="3.4" stroke-linecap="round"/></svg><span class="nm">4 · Strenuous</span><code>#FF5B4F</code></div>
+        </div>
+        <div class="heat-row heat-ground">
+          <div><span class="glabel" style="color:#1d7a43"><svg><use href="#d-easy"/></svg>Easy</span><code>#1D7A43</code></div>
+          <div><span class="glabel" style="color:#7a5e00"><svg><use href="#d-moderate"/></svg>Moderate</span><code>#7A5E00</code></div>
+          <div><span class="glabel" style="color:#a34d00"><svg><use href="#d-hard"/></svg>Hard</span><code>#A34D00</code></div>
+          <div><span class="glabel" style="color:#b42318"><svg viewBox="0 0 16 10" style="width:16px"><use href="#d-strenuous"/></svg>Strenuous<span class="adj data" style="display:inline-flex;gap:3px;align-items:center;padding-left:6px;margin-left:2px;border-left:1px solid currentColor;font-weight:600"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2"><use href="#i-people"/></svg>3.40</span></span><code>#B42318 · with community grade</code></div>
+        </div>
+        <div class="meters">
+          <span class="verdict v-comfortable"><span class="meter" aria-hidden="true"><i></i><i></i><i></i></span>Comfortable</span>
+          <span class="verdict v-challenge"><span class="meter" aria-hidden="true"><i></i><i></i><i></i></span>Good challenge</span>
+          <span class="verdict v-stretch"><span class="meter" aria-hidden="true"><i></i><i></i><i></i></span>A stretch</span>
+        </div>
+        <p class="rule"><strong>The Shape Beside Colour Rule.</strong> Heat colour never stands alone: every grade shows its shape and name, and every pass or fail shows a tick or cross in a box. <strong>The Two Heats Rule.</strong> Bright heat only sits on Night or ink; on ground or white, use the heat-ink step.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="blk" id="type" aria-labelledby="t-t">
+    <div class="wrap">
+      <h2 id="t-t">Type</h2>
+      <p class="lede">Lato for everything you read, at 900 for every heading. Montserrat, with tabular figures, only for numbers a hiker compares.</p>
+      <div class="body">
+        <div class="spec"><div class="k"><strong>Display</strong><code>Lato 900 · clamp(48–124px) · 0.95 · −0.04em</code></div><p class="sample s-display">Gunung Merbabu</p></div>
+        <div class="spec"><div class="k"><strong>Headline</strong><code>Lato 900 · clamp(30–52px) · 1 · −0.03em</code></div><p class="sample s-headline">Is this route right for you?</p></div>
+        <div class="spec"><div class="k"><strong>Title</strong><code>Lato 900 · 16/22px</code></div><p class="sample s-title">Mount Rinjani via Senaru</p></div>
+        <div class="spec"><div class="k"><strong>Lede</strong><code>Lato 400 · 18/28px · Granite 700 · 52ch</code></div><p class="sample s-lede">Every route keeps its official grade next to a community grade from reviews.</p></div>
+        <div class="spec"><div class="k"><strong>Body</strong><code>Lato 400 · 16/24px · 65ch</code></div><p class="sample s-body">Start from Wekas basecamp in the dark to reach the ridge before the rain the forecast shows. Rest often; it's above the 2,500 m altitude-sickness line.</p></div>
+        <div class="spec"><div class="k"><strong>Label</strong><code>Lato 700 · 11px · +0.12em · uppercase</code></div><p class="sample s-label">Elevation gain</p></div>
+        <div class="spec"><div class="k"><strong>Data</strong><code>Montserrat 500 · 13px · tabular</code></div><p class="sample s-data">10.2 km · +1,460 m · 1 day</p></div>
+        <div class="spec"><div class="k"><strong>Data display</strong><code>Montserrat 600 · clamp(32–68px) · −0.02em</code></div><p class="sample s-datad">3,115 m</p></div>
+        <p class="rule"><strong>The Signed Climb Rule.</strong> Climb is always signed (+893 m); highest point never is (3,115 m). Metric only. <strong>The No Eyebrow Rule.</strong> Small uppercase labels name a value or a control, never sit above a heading.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="blk" id="shape" aria-labelledby="s-t">
+    <div class="wrap">
+      <h2 id="s-t">Shape &amp; depth</h2>
+      <p class="lede">Square everywhere. Edges come from weight, not curves. Shadows only for things that really float.</p>
+      <div class="body shapes">
+        <div class="shape"><div class="demo"><span class="d-rule2"></span></div><strong>2px ink rule</strong><p>Opens and closes a section, outlines buttons and switches.</p></div>
+        <div class="shape"><div class="demo"><span class="d-hair"></span></div><strong>1px hairlines</strong><p>Between rows in lists, numbers, the register and the fit check.</p></div>
+        <div class="shape"><div class="demo" style="background:var(--g100)"><span class="d-panel"></span></div><strong>Float shadow</strong><p>Dropdown panels and stops over the trail: <span class="data">0 12px 32px / 18%</span>.</p></div>
+        <div class="shape"><div class="demo"><svg class="d-round" viewBox="0 0 200 60" aria-hidden="true"><path d="M8 48 C 50 50, 60 14, 110 20 S 170 44, 192 12" fill="none" stroke="#7a5a3a" stroke-width="6" stroke-linecap="round"/><g stroke="#6f9a5c" stroke-width="2" stroke-linecap="round" fill="none"><path d="M60 36l-3-8M62 36l1-9M64 36l4-7"/><path d="M140 30l-3-8M142 30l1-9M144 30l4-7"/></g><circle cx="110" cy="20" r="7" fill="#c2481a" stroke="#fff" stroke-width="3"/></svg></div><strong>Round is natural</strong><p>Only the trail, grass, the hiker marker and dial arc are round.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="blk" id="components" aria-labelledby="k-t">
+    <div class="wrap">
+      <h2 id="k-t">Components</h2>
+      <p class="lede">The browse page's parts, at their real size.</p>
+      <div class="body">
+        <h3 class="sub">Buttons</h3>
+        <div class="row-btn">
+          <a class="sq" href="#components">Browse routes<svg class="ico"><use href="#i-arrow-right"/></svg></a>
+          <a class="sq ghost" href="#components">Show more</a>
+          <a class="sq blaze" href="#components">Generate checklist</a>
+          <a class="tlink" href="#components">See a gear checklist</a>
+        </div>
+        <div class="on-pine"><a class="sq light" href="#components">Browse routes</a><span style="color:#b9d3c6;font-size:14px">Light button, on pine</span></div>
+
+        <h3 class="sub">Pine filter bar</h3>
+        <div class="bar-wrap">
+          <div class="dbar-demo">
+            <div class="dd"><button class="dd-btn" type="button" aria-expanded="false"><span class="k">Country</span><span class="v">All countries</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></div>
+            <div class="dd"><button class="dd-btn" type="button" aria-expanded="true"><span class="k">Difficulty</span><span class="v on">Easy, Moderate</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></div>
+            <div class="dd"><button class="dd-btn" type="button" aria-expanded="false"><span class="k">Trip length</span><span class="v">Any length</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></div>
+            <div class="dd"><button class="dd-btn" type="button" aria-expanded="false"><span class="k">Distance</span><span class="v">Any</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></div>
+            <span class="spacer"></span>
+            <div class="dd" style="border-left:1px solid rgb(242 239 234 / 0.18);border-right:0"><button class="dd-btn" type="button" aria-expanded="false"><span class="k">Sort</span><span class="v">Name A–Z</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></div>
+          </div>
+          <div class="under" style="padding-left:clamp(0px, 14vw, 170px)">
+            <div class="panel-demo" role="group" aria-label="Difficulty options (example)">
+              <span class="opt on"><span style="display:inline-flex;gap:8px;align-items:center"><svg style="color:#6fdc8c"><use href="#d-easy"/></svg>Easy</span><svg class="tk" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span>
+              <span class="opt on"><span style="display:inline-flex;gap:8px;align-items:center"><svg style="color:#f2d34f"><use href="#d-moderate"/></svg>Moderate</span><svg class="tk" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span>
+              <span class="opt"><span style="display:inline-flex;gap:8px;align-items:center"><svg style="color:#a34d00"><use href="#d-hard"/></svg>Hard</span><span class="data">58</span></span>
+              <span class="opt"><span style="display:inline-flex;gap:8px;align-items:center"><svg viewBox="0 0 16 10" style="width:16px;color:#b42318"><use href="#d-strenuous"/></svg>Strenuous</span><span class="data">21</span></span>
+              <span class="foot"><span>2 selected</span><u>Clear</u></span>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="sub">Route tiles</h3>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px 24px;flex-wrap:wrap;margin-bottom:24px">
+          <div class="pills" style="margin:0"><button class="pill-x" type="button">Indonesia<svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M6 6l12 12M18 6 6 18"/></svg></button><button class="pill-x" type="button">Under 3 days<svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+          <ul class="dkey-demo" aria-label="Difficulty key"><li><svg style="color:#1d7a43"><use href="#d-easy"/></svg>Easy</li><li><svg style="color:#7a5e00"><use href="#d-moderate"/></svg>Moderate</li><li><svg style="color:#a34d00"><use href="#d-hard"/></svg>Hard</li><li><svg viewBox="0 0 16 10" style="width:16px;color:#b42318"><use href="#d-strenuous"/></svg>Strenuous</li></ul>
+        </div>
+        <div class="ltiles ds-tiles" data-routes="Mount Rinjani via Senaru|Mount Kinabalu Trail|Gunung Merbabu (Wekas BC)|GW - 07 Milford Track"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="blk" id="detail" aria-labelledby="r-t">
+    <div class="wrap">
+      <h2 id="r-t">Route detail parts</h2>
+      <p class="lede">The parts that make the route page: numbers, the fit check, the grade dial and the trail register.</p>
+      <div class="body">
+        <h3 class="sub">Route numbers</h3>
+        <dl class="numbers-demo">
+          <div><dt>Distance</dt><dd>10.2 km</dd></div>
+          <div><dt>Elevation gain</dt><dd>+1,460 m</dd></div>
+          <div><dt>Duration</dt><dd>1 day</dd><span class="cap trip">Day hike</span></div>
+          <div><dt>Highest point</dt><dd>3,115 m</dd><span class="cap">Above 2,500 m</span></div>
+        </dl>
+
+        <h3 class="sub">Fit check</h3>
+        <div class="fit-demo">
+          <div class="top"><h3>Is this route right for you?</h3><span class="verdict v-challenge"><span class="meter" aria-hidden="true"><i></i><i></i><i></i></span>Good challenge</span></div>
+          <ul>
+            <li><span class="mk ok" aria-label="Pass"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg></span><span><strong>Distance per day</strong>10.2 km is within your experience (12 km).</span></li>
+            <li><span class="mk ok" aria-label="Pass"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg></span><span><strong>Climb per day</strong>+1,460 m is within your stretch (+1,300 m).</span></li>
+            <li class="fail"><span class="mk no" aria-label="Fail"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></span><span><strong>Highest point</strong>3,115 m is higher than you have walked (2,019 m).</span></li>
+          </ul>
+          <p class="warn"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-incident"/></svg>Above 2,500 m there is a risk of altitude sickness. Climb slowly and turn back if you get a headache.</p>
+        </div>
+
+        <h3 class="sub">Grade dial</h3>
+        <div class="grade-demo">
+          <svg viewBox="0 0 400 236" role="img" aria-label="Difficulty dial. Official grade 1.00, community-adjusted grade 1.33.">
+            <path d="M40 200a160 160 0 0 1 46.9-113.1" fill="none" stroke="#6fdc8c" stroke-width="30"/>
+            <path d="M86.9 86.9a160 160 0 0 1 113.1-46.9" fill="none" stroke="#f2d34f" stroke-width="30"/>
+            <path d="M200 40a160 160 0 0 1 113.1 46.9" fill="none" stroke="#ff9f43" stroke-width="30"/>
+            <path d="M313.1 86.9a160 160 0 0 1 46.9 113.1" fill="none" stroke="#ff5b4f" stroke-width="30"/>
+            <g fill="#3a4540" font-size="12" font-weight="700" letter-spacing="1" font-family="Lato, sans-serif"><text x="40" y="228" text-anchor="middle">1 EASY</text><text x="360" y="228" text-anchor="middle">4 STRENUOUS</text></g>
+            <g transform="rotate(-90 200 200)"><line x1="200" y1="200" x2="200" y2="66" stroke="#17201c" stroke-width="5" stroke-linecap="round"/><path d="M200 46 L189 70 L211 70 Z" fill="#17201c"/></g>
+            <g transform="rotate(-70.2 200 200)"><line x1="200" y1="200" x2="200" y2="58" stroke="#c2481a" stroke-width="9" stroke-linecap="round" opacity="0.9"/><circle cx="200" cy="52" r="10" fill="#e4ded3" stroke="#c2481a" stroke-width="4"/></g>
+            <circle cx="200" cy="200" r="13" fill="#17201c"/>
+          </svg>
+          <div class="gk">
+            <div class="row"><span class="sw sw-off" aria-hidden="true"></span><strong>Official</strong><b>1.00</b></div>
+            <div class="row"><span class="sw sw-com" aria-hidden="true" style="--ground:#e4ded3"></span><strong>Community-adjusted</strong><b>1.33</b></div>
+          </div>
+        </div>
+
+        <h3 class="sub">Trail register</h3>
+        <div class="reg-demo">
+          <div>
+            <p class="score">4.3<span> / 5</span></p>
+            <div class="stars-r"><span>5</span><span class="bar"><i style="width:50%"></i></span><span>2</span></div>
+            <div class="stars-r"><span>4</span><span class="bar"><i style="width:25%"></i></span><span>1</span></div>
+            <div class="stars-r"><span>3</span><span class="bar"><i style="width:25%"></i></span><span>1</span></div>
+            <div class="stars-r"><span>2</span><span class="bar"><i style="width:0"></i></span><span>0</span></div>
+          </div>
+          <div>
+            <article class="entry-d"><span class="who" aria-hidden="true">A</span><div><div class="top"><strong>Aisyah · <span class="stars" role="img" aria-label="4 of 5"><svg viewBox="0 0 24 24"><path d="m12 2.5 2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg><svg viewBox="0 0 24 24"><path d="m12 2.5 2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg><svg viewBox="0 0 24 24"><path d="m12 2.5 2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg><svg viewBox="0 0 24 24"><path d="m12 2.5 2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg><svg class="off" viewBox="0 0 24 24"><path d="m12 2.5 2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg></span></strong><time datetime="2026-09-12">12 Sep 2026</time></div><blockquote>Steady climb, cold on top. Start early to beat the cloud.</blockquote><div class="meta"><span>Felt<span class="felt" aria-label="Felt 3 of 5"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></span><span class="done">Finished</span><span class="chip-inc"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-incident"/></svg>River crossing</span></div></div></article>
+          </div>
+        </div>
+        <p class="rule">Also on the route page: the walked brown trail with grass, the two-line weather chart with a pine selected day, and the ring-bound gear notepad. See the <a class="tlink" href="../detail/route-detail.html">route detail mockup</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="blk" id="motion" aria-labelledby="m-t">
+    <div class="wrap">
+      <h2 id="m-t">Motion</h2>
+      <p class="lede">One curve for everything. Content is visible by default; motion only adds to it, and reduced motion shows the end state.</p>
+      <div class="body motion">
+        <div class="m"><svg class="curve" viewBox="0 0 200 90" aria-hidden="true"><path d="M4 86 H196 M4 86 V4" stroke="#e1e6e2" stroke-width="1" fill="none"/><path d="M4 86 C 36 4, 64 4, 196 4" stroke="#1f5b43" stroke-width="3" fill="none"/></svg><strong>Expo ease-out</strong><code>cubic-bezier(0.16, 1, 0.3, 1)</code><p>Every transition: hovers at 0.2s, reveals at 0.8s, needles at 1.6s.</p></div>
+        <div class="m" tabindex="0"><div class="track-m"><i></i></div><strong>Draw in</strong><p>Bars, route lines and the trail fill along their length as they enter view. Hover or focus this card to play it.</p></div>
+        <div class="m"><strong>Rise</strong><p>Sections lift 28px into place once. The grade needles swing from Easy to their value, with the community needle 0.4s behind.</p><code>prefers-reduced-motion → end state</code></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="blk" id="moving" aria-labelledby="mc-t">
+    <div class="wrap">
+      <h2 id="mc-t">Motion components</h2>
+      <p class="lede">Four small pieces built with Motion. Each plays once when it comes into view; the buttons replay them here.</p>
+      <div class="body">
+
+        <div class="mc">
+          <div>
+            <h3>Number ticker</h3>
+            <p class="how">Big Montserrat figures count up from zero once, over 1.2s on the expo curve. Tabular figures keep the width steady. The real value is in the page, so screen readers and reduced motion get it straight away.</p>
+            <p class="use">Used on <b>route numbers</b>, <b>review score</b>, <b>dial values</b></p>
+            <button class="replay" type="button" data-replay="ticker">Replay</button>
+          </div>
+          <div class="stage">
+            <dl class="ticks" data-ticker>
+              <div><dt>Distance</dt><dd><span data-to="10.01" data-dp="2">10.01</span> km</dd></div>
+              <div><dt>Elevation gain</dt><dd>+<span data-to="1177" data-dp="0">1,177</span> m</dd></div>
+              <div><dt>Highest point</dt><dd><span data-to="3115" data-dp="0">3,115</span> m</dd></div>
+            </dl>
+          </div>
+        </div>
+
+        <div class="mc">
+          <div>
+            <h3>Text highlighter</h3>
+            <p class="how">One phrase per paragraph gets a marker that draws from left to right: a yellow underline for the verdict, a blaze fill for a figure that fails a check.</p>
+            <p class="use">Used in the <b>fit sentence</b> and <b>weather warnings</b></p>
+            <button class="replay" type="button" data-replay="highlight">Replay</button>
+          </div>
+          <div class="stage">
+            <div class="hl-stage" data-highlight>
+              <p>Merbabu is a <span class="mark">good challenge</span> for you. The summit at <span class="mark hot num">3,115 m</span> is higher than anything you have walked.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mc">
+          <div>
+            <h3>Animated list</h3>
+            <p class="how">New items arrive one at a time, 60ms apart, rising 12px as they fade in. Items already on the list never animate again.</p>
+            <p class="use">Used for <b>AI gear items</b> and <b>trail register entries</b></p>
+          </div>
+          <div class="stage">
+            <div class="list-stage">
+              <div class="lh"><strong>Gear checklist</strong><button class="sq blaze" type="button" data-generate>Generate checklist</button></div>
+              <ul class="alist" data-list aria-live="polite"><li class="empty-row">Generate a list for this route and forecast.</li></ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="mc">
+          <div>
+            <h3>Scroll progress</h3>
+            <p class="how">A sand bar along the bottom of the pine section bar fills as you move down the route, and turns that progress into the route's own distance. Scroll the box to try it.</p>
+            <p class="use">Used on <b>route detail</b>, tied to the same range as the trail.</p>
+          </div>
+          <div class="stage">
+            <div class="sp-stage">
+              <div class="sp-bar" aria-hidden="true"><span class="navs">Overview · Fit · Weather</span><span class="walked"><span class="pin"></span><span class="k">Walked</span><b data-sp-walked>0.0</b><span class="t">/ 10.01 km</span></span><span class="progress"><i data-sp-bar></i></span></div>
+              <div class="sp-scroll" data-sp-scroll tabindex="0" aria-label="Example route, scrollable">
+                <div class="sp-inner"><span class="trailline" aria-hidden="true"></span>
+                  <div class="leg"><b>Wekas basecamp</b><span>0.0 km · 1,750 m</span></div>
+                  <div class="leg"><b>Pos 1</b><span>2.1 km · 2,140 m</span></div>
+                  <div class="leg"><b>Pos 2</b><span>4.0 km · 2,520 m</span></div>
+                  <div class="leg"><b>Ridge camp</b><span>6.3 km · 2,860 m</span></div>
+                  <div class="leg"><b>Kenteng Songo summit</b><span>10.01 km · 3,115 m</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="blk" id="rules" aria-labelledby="d-t" style="border-bottom:0">
+    <div class="wrap">
+      <h2 id="d-t">Do and don't</h2>
+      <div class="body dd-grid">
+        <div><h3>Do</h3><ul class="yes">
+          <li><span class="mk"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg></span>Keep every corner square and draw edges with 2px ink rules or 1px hairlines.</li>
+          <li><span class="mk"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg></span>Pair every heat colour with the grade's shape and name.</li>
+          <li><span class="mk"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg></span>Set compared numbers in Montserrat tabular figures, metric, climb signed.</li>
+          <li><span class="mk"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg></span>Use pine for bars and controls you act on.</li>
+          <li><span class="mk"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg></span>Dim route photos to about 45% over Night so the line reads first.</li>
+        </ul></div>
+        <div><h3>Don't</h3><ul class="no">
+          <li><span class="mk"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></span>Use rounded pills, rounded cards or soft panels.</li>
+          <li><span class="mk"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></span>Add shadows to flat content at rest.</li>
+          <li><span class="mk"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></span>Put a small uppercase kicker above a heading.</li>
+          <li><span class="mk"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></span>Use blaze as decoration or a second button colour.</li>
+          <li><span class="mk"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></span>Draw ticks or crosses with CSS borders or Unicode.</li>
+        </ul></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="lfoot">
+  <div class="wrap">
+    <div class="cols">
+      <div><h2>Know before you go.</h2><a class="sq light" href="../browse/routes.html">Browse routes</a></div>
+      <div><p class="lab">Mockups</p><p><a href="../browse/routes.html">Routes</a></p><p><a href="../detail/route-detail.html">Route detail</a></p><p><a href="../landing/l1-summit.html">Homepage</a></p></div>
+      <div><p class="lab">System</p><p><a href="#colour">Colour</a></p><p><a href="#type">Type</a></p><p><a href="#components">Components</a></p></div>
+      <div><p class="lab">Data</p><p style="font-size:13px;line-height:20px">Trails © OpenStreetMap contributors (ODbL). Weather by Open-Meteo.com (CC BY 4.0).</p></div>
+    </div>
+    <div class="word" aria-hidden="true">CAIRN</div>
+    <div class="base"><span>© 2026 CAIRN · IS216 project</span><span>Design system: The Field Index</span></div>
+  </div>
+</footer>
+
+<script src="../browse/routes-data.js"></script>
+<script src="../browse/browse.js"></script>
+<script src="../home/shared.js"></script>
+<script src="../landing/landing.js"></script>
+<script type="module">
+// Motion components. Vanilla Motion here; the Vue app uses the same calls through motion-v.
+import { animate, inView, scroll, stagger } from 'https://cdn.jsdelivr.net/npm/motion@14.6.0/+esm'
+const still = matchMedia('(prefers-reduced-motion: reduce)').matches
+const ease = [0.16, 1, 0.3, 1]
+const fmt = (v, dp) => v.toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp })
+
+// Number ticker: count each figure up from zero; the final value is already in the markup
+const ticker = document.querySelector('[data-ticker]')
+function tick() {
+  if (still) return
+  ticker.querySelectorAll('[data-to]').forEach((el) => {
+    const to = +el.dataset.to, dp = +el.dataset.dp
+    animate(0, to, { duration: 1.2, ease, onUpdate: (v) => (el.textContent = fmt(v, dp)) })
+  })
+}
+
+// Text highlighter: the marker grows from the left edge
+const marks = document.querySelectorAll('[data-highlight] .mark')
+function highlight() {
+  if (still) return
+  marks.forEach((m, i) => {
+    const size = m.classList.contains('hot') ? '100%' : '4px'
+    animate(m, { backgroundSize: [`0% ${size}`, `100% ${size}`] }, { duration: 0.7, delay: 0.25 + i * 0.5, ease })
+  })
+}
+
+inView(ticker, () => tick(), { amount: 0.6 })
+inView('[data-highlight]', () => highlight(), { amount: 0.6 })
+document.querySelector('[data-replay="ticker"]').addEventListener('click', tick)
+document.querySelector('[data-replay="highlight"]').addEventListener('click', highlight)
+
+// Animated list: generated items arrive one by one; existing items stay still
+const list = document.querySelector('[data-list]')
+const ITEMS = [['Headlamp and spare batteries', 'Before dawn start'], ['Rain shell', '67% rain'], ['Warm layer for the summit', '6° at the top'], ['2 L of water', 'No water above Pos 2'], ['Sunscreen', 'UV 9.7']]
+document.querySelector('[data-generate]').addEventListener('click', (e) => {
+  const fresh = ITEMS.filter(([t]) => ![...list.querySelectorAll('li span:first-of-type')].some((s) => s.textContent === t))
+  if (!fresh.length) { list.innerHTML = ''; e.currentTarget.click(); return }
+  list.querySelector('.empty-row')?.remove()
+  const added = fresh.slice(0, 3).map(([t, why]) => {
+    const li = document.createElement('li')
+    li.innerHTML = `<i aria-hidden="true"></i><span>${t}</span><span class="data">${why}</span>`
+    list.append(li); return li
+  })
+  if (!still) animate(added, { opacity: [0, 1], y: [12, 0] }, { duration: 0.5, delay: stagger(0.06), ease })
+})
+
+// Scroll progress: the bar and the km readout follow the box's scroll
+const box = document.querySelector('[data-sp-scroll]'), out = document.querySelector('[data-sp-walked]')
+scroll(animate('[data-sp-bar]', { scaleX: [0, 1] }, { ease: 'linear' }), { container: box })
+scroll((p) => { out.textContent = (Math.min(1, Math.max(0, p)) * 10.01).toFixed(1) }, { container: box })
+</script>
+</body>
+</html>

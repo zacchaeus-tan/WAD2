@@ -1,0 +1,100 @@
+/* Browse routes: shared shell and controls for the three options. Tokens come from ../home/cairn.css. */
+html { scroll-behavior: auto; }
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-thumb { background: var(--g300); border-radius: var(--r-full); border: 3px solid var(--paper); }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* Nav sits on paper here, so it is static with a hairline under it */
+.nav { position: relative; padding: 14px 0; border-bottom: 1px solid var(--g200); background: var(--paper); }
+.nav .nav-brand, .nav .nav-pill { background: transparent; box-shadow: none; color: var(--g900); transition: background-color 0.25s var(--ease), box-shadow 0.25s var(--ease); }
+.nav .nav-brand { color: var(--pine); }
+.nav .nav-pill:hover, .nav .nav-pill:focus-visible, .nav .nav-brand:hover { background: var(--white); box-shadow: var(--elev-2); }
+.nav .nav-pill[aria-current='page'] { color: var(--pine); }
+.nav .nav-pill[aria-current='page']::after { content: ''; display: block; width: 4px; height: 4px; border-radius: 50%; background: var(--pine); margin-left: 8px; }
+.nav .nav-pill.is-solid:hover { background: var(--pine); color: var(--white); }
+.nav .nav-menu { background: transparent; box-shadow: none; }
+@media (max-width: 720px) { .nav .nav-pill.is-solid { display: none; } }
+
+/* Fields */
+.field { display: grid; gap: 6px; min-width: 0; }
+.field > .t-label, .group-label { color: var(--g700); }
+.search { position: relative; }
+.search .ico { position: absolute; left: 14px; top: 50%; translate: 0 -50%; width: 20px; height: 20px; color: var(--g500); pointer-events: none; }
+.input, .select {
+  width: 100%; min-height: 44px; padding: 0 14px; border: 1px solid var(--g300); border-radius: var(--r-md);
+  background: var(--white); color: var(--g900); font: 400 15px/1 var(--font); caret-color: var(--pine);
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+.search .input { padding-left: 42px; }
+.input::placeholder { color: var(--g500); }
+.input:hover, .select:hover { border-color: var(--g500); }
+.input:focus, .select:focus { outline: none; border-color: var(--lake); box-shadow: 0 0 0 3px var(--lake-50); }
+.select { appearance: none; padding-right: 40px; cursor: pointer;
+  background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233a4540' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center / 18px; }
+
+/* Difficulty and trip-length toggles: real checkboxes styled as chips */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { position: relative; }
+.chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.chip > span {
+  display: inline-flex; align-items: center; gap: 7px; min-height: 36px; padding: 0 14px; border: 1px solid var(--g300);
+  border-radius: var(--r-full); background: var(--white); color: var(--g900); font-size: 14px; font-weight: 700; white-space: nowrap;
+  transition: background-color 0.2s var(--ease), border-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+.chip > span svg { width: 10px; height: 10px; }
+.chip:hover > span { border-color: var(--g500); }
+.chip input:checked + span { background: var(--pine); border-color: var(--pine); color: var(--white); }
+.chip input:focus-visible + span { outline: 3px solid var(--lake); outline-offset: 2px; }
+.chip .count { font-family: var(--font-data); font-weight: 500; font-size: 12px; color: var(--g500); }
+.chip input:checked + span .count { color: #cfe2d8; }
+
+/* Dual range: two native range inputs sharing one track */
+.range { display: grid; gap: 10px; }
+.range-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.range-val { font-family: var(--font-data); font-variant-numeric: tabular-nums; font-size: 14px; font-weight: 600; color: var(--g900); white-space: nowrap; }
+.dual { position: relative; height: 24px; }
+.dual .track { position: absolute; left: 0; right: 0; top: 50%; height: 4px; translate: 0 -50%; border-radius: 2px; background: var(--g200); }
+.dual .fill { position: absolute; top: 0; bottom: 0; border-radius: 2px; background: var(--pine); }
+.dual input { position: absolute; inset: 0; width: 100%; margin: 0; background: none; pointer-events: none; appearance: none; -webkit-appearance: none; }
+.dual input::-webkit-slider-thumb { -webkit-appearance: none; pointer-events: auto; width: 22px; height: 22px; border-radius: 50%; background: var(--white); border: 2px solid var(--pine); box-shadow: var(--elev-1); cursor: grab; }
+.dual input::-moz-range-thumb { pointer-events: auto; width: 18px; height: 18px; border-radius: 50%; background: var(--white); border: 2px solid var(--pine); cursor: grab; }
+.dual input:focus-visible::-webkit-slider-thumb { outline: 3px solid var(--lake); outline-offset: 2px; }
+.dual input:active::-webkit-slider-thumb { cursor: grabbing; background: var(--pine-50); }
+
+.link-btn { border: 0; background: none; padding: 0; color: var(--pine); font: 700 14px/20px var(--font); text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; }
+.link-btn:hover { color: var(--pine-700); }
+.link-btn[hidden] { display: none; }
+
+/* Result count line */
+.count-line { font-size: 15px; color: var(--g700); }
+.count-line strong { font-family: var(--font-data); font-variant-numeric: tabular-nums; color: var(--g900); font-weight: 600; }
+
+/* Facts set in Montserrat */
+.facts-row { display: flex; flex-wrap: wrap; column-gap: 14px; row-gap: 2px; font-family: var(--font-data); font-variant-numeric: tabular-nums lining-nums; font-size: 13px; font-weight: 500; color: var(--g700); }
+.facts-row span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.facts-row .ico { width: 15px; height: 15px; color: var(--g500); }
+.nl { color: var(--g500); }
+
+/* Community-adjusted grade decimal */
+.tag .adj { display: inline-flex; align-items: center; gap: 3px; padding-left: 7px; margin-left: 1px; border-left: 1px solid currentColor; font-family: var(--font-data); font-weight: 600; font-size: 12px; }
+.tag .adj svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+/* Closed routes stay in the list, stamped */
+.stamp { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 9px; border: 1.5px solid #b42318; border-radius: var(--r-sm); color: #b42318; background: #fdecea; font-size: 12px; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+.stamp svg { width: 14px; height: 14px; }
+.is-closed .trail-ink { stroke: var(--g500) !important; }
+
+.rating { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-data); font-size: 13px; font-weight: 600; color: var(--g900); }
+.rating svg { width: 14px; height: 14px; fill: var(--blaze); stroke: none; }
+.rating .n { color: var(--g500); font-weight: 500; }
+
+/* Empty result */
+.empty { display: grid; justify-items: start; gap: 12px; padding: 40px 32px; border: 1px dashed var(--g300); border-radius: var(--r-lg); background: var(--white); }
+.empty h2 { font-size: 20px; line-height: 28px; }
+.empty p { color: var(--g700); max-width: 52ch; }
+
+.more { display: flex; justify-content: center; padding-top: 32px; }
+
+.slim-footer { background: var(--pine); color: #d4e3db; padding: 28px 0; font-size: 13px; }
+.slim-footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.slim-footer a { color: var(--paper); }

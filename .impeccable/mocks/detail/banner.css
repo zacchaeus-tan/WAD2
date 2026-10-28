@@ -1,0 +1,52 @@
+/* Route banner shared by R4 and the S1–S3 styles: dark photo, title left, the route's own line large on the right,
+   hazard sign under the nav, and every route fact in the band below. */
+.nav.nav-dark { position: absolute; inset: 0 0 auto 0; background: transparent; }
+.nav.nav-dark .wrap { border-bottom-color: rgb(242 239 234 / 0.55); }
+.nav.nav-dark .nav-brand, .nav.nav-dark .nav-pill, .nav.nav-dark .nav-menu { color: var(--paper); }
+.nav.nav-dark .nav-brand .mark { background: var(--paper); }
+.nav.nav-dark .nav-brand .mark svg { color: var(--ink) !important; }
+.nav.nav-dark .nav-pill[aria-current='page'] { color: var(--paper); }
+.nav.nav-dark .nav-pill.is-solid { background: var(--paper); color: var(--ink); }
+.nav.nav-dark .nav-menu { background: transparent; box-shadow: none; }
+
+.lhero { position: relative; min-height: clamp(600px, 86vh, 820px); background: #0d1411; color: var(--paper); overflow: hidden; display: flex; align-items: stretch; }
+.lhero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.32; filter: saturate(0.5) brightness(0.75); }
+.lhero .inner { position: relative; z-index: 2; width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 72px); align-items: end; padding-top: clamp(150px, 19vh, 180px); padding-bottom: 48px; }
+.lhero .art { align-self: stretch; position: relative; min-height: clamp(320px, 54vh, 560px); }
+.lhero .art .trail { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.lhero .art .trail path { stroke-width: 5px; stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 3.2s var(--ease) 0.3s forwards; filter: drop-shadow(0 3px 8px rgb(0 0 0 / 0.55)); }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .lhero .art .trail path { animation: none; stroke-dashoffset: 0; } }
+.lhero .crumb { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #b9d3c6; }
+.lhero .crumb a { color: inherit; text-decoration: none; }
+.lhero h1 { margin-top: 12px; font-size: clamp(44px, 6.6vw, 104px); line-height: 0.95; font-weight: 900; letter-spacing: -0.04em; max-width: 14ch; }
+.lhero .labels { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 22px; margin-top: 22px; font-size: 15px; font-weight: 700; color: var(--paper); }
+.lhero .labels span { display: inline-flex; align-items: center; gap: 8px; }
+.lhero .labels svg { width: 11px; height: 11px; }
+.lhero .labels .people { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; }
+.lhero .labels .dot { width: 9px; height: 9px; background: var(--heat-1); display: inline-block; }
+
+.hazard { position: absolute; z-index: 3; top: 96px; left: 0; right: 0; }
+.hazard a { display: inline-flex; align-items: center; gap: 12px; color: var(--paper); text-decoration: none; }
+.hazard svg { width: 40px; height: 36px; flex: none; }
+.hazard strong { display: block; font-size: 13px; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; color: #ffc94d; }
+.hazard span span { display: block; font-size: 14px; color: #d4e3db; }
+.hazard a:hover span span { text-decoration: underline; text-underline-offset: 3px; }
+
+.overview { scroll-margin-top: 56px; border-bottom: 2px solid var(--ink); }
+.numbers { display: grid; grid-template-columns: repeat(4, 1fr); margin: 0; }
+.numbers div { padding: clamp(28px, 4vw, 44px) 0 clamp(24px, 3vw, 36px) 20px; display: grid; gap: 8px; border-right: 1px solid var(--g200); }
+.numbers div:nth-child(4n+1) { padding-left: 0; }
+.numbers div:nth-child(4n) { border-right: 0; }
+.numbers dt { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--g500); }
+.numbers dd { margin: 0; font: 600 clamp(32px, 4.6vw, 68px)/1 var(--font-data); letter-spacing: -0.02em; }
+.numbers.minor { border-top: 1px solid var(--g200); }
+.numbers.minor div { padding-top: 18px; padding-bottom: 22px; }
+.numbers.minor dd { font: 700 18px/1.2 var(--font); letter-spacing: 0; }
+.ov-foot { padding: 0 0 18px; }
+
+@media (max-width: 1000px) {
+  .numbers { grid-template-columns: 1fr 1fr; } .numbers div:nth-child(odd) { padding-left: 0; } .numbers div:nth-child(even) { border-right: 0; } .numbers div:nth-child(4n) { border-right: 0; }
+  .lhero .inner { grid-template-columns: 1fr; padding-top: 160px; }
+  .lhero .art { order: -1; min-height: 240px; }
+}

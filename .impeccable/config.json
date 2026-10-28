@@ -1,0 +1,110 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "lato",
+        "createdAt": "2026-10-27T08:21:25.782Z",
+        "reason": "User's CAIRN Design System v0.2 PDF pins this typeface"
+      },
+      {
+        "rule": "overused-font",
+        "value": "montserrat",
+        "createdAt": "2026-10-27T08:21:25.946Z",
+        "reason": "User's CAIRN Design System v0.2 PDF pins this data typeface"
+      },
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/home/home.html"
+        ],
+        "createdAt": "2026-10-27T10:10:31.342Z",
+        "reason": "User asked for the hero card to be made a lot smaller, so the h1 is 18px; the page scale comes from the CAIRN wordmark and 44-60px section headings"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/browse/c-grid.html"
+        ],
+        "createdAt": "2026-10-27T12:33:18.101Z",
+        "reason": "Full-width linen band: its .wrap child carries the clamp(16px,4vw,48px) gutter, so text is inset"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/browse/*.html"
+        ],
+        "createdAt": "2026-10-27T12:33:25.689Z",
+        "reason": "Paper #F2EFEA is the ground colour pinned by the user's CAIRN Design System (sampled from the cairn photo)"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/browse/c2-pine.html"
+        ],
+        "createdAt": "2026-10-27T13:18:55.824Z",
+        "reason": "Critique browser check: .band children are an absolute img and .wrap, which carries the clamp(16px,4vw,48px) gutter"
+      },
+      {
+        "rule": "low-contrast",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/browse/c2-pine.html"
+        ],
+        "createdAt": "2026-10-27T13:18:56.159Z",
+        "reason": "Critique browser check: no rendered element has #3a4540 on pine at 1440 or 375; all #3a4540 text sits on paper at 8.7:1"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/browse/d-field.html"
+        ],
+        "createdAt": "2026-10-27T13:28:41.579Z",
+        "reason": "Full-width .strip band: its .wrap children carry the clamp(16px,4vw,48px) gutter, same pattern as c-grid and c2-pine"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/browse/d4-dark.html"
+        ],
+        "createdAt": "2026-10-27T13:44:00.055Z",
+        "reason": "Full-width .statement and .dbar bands: content sits in .wrap with the clamp(16px,4vw,48px) gutter (statement also has 88-168px vertical padding); same pattern as c-grid, c2-pine, d-field"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/landing/*.html"
+        ],
+        "createdAt": "2026-10-27T14:18:51.832Z",
+        "reason": "Full-width landing bands (pine-band, quiz-strip, letter, dark, grade-sec): content sits in .wrap with the clamp(16px,4vw,48px) gutter plus 64-160px section padding; same pattern as the browse mocks"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/browse/d5-parallax.html"
+        ],
+        "createdAt": "2026-10-28T06:46:56.825Z",
+        "reason": "Full-width .statement and .dbar bands: content sits in .wrap with the clamp(16px,4vw,48px) gutter; same pattern as d4-dark and the other browse mocks"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/system/index.html"
+        ],
+        "createdAt": "2026-10-28T07:48:11.023Z",
+        "reason": "Claude: static scan has no layout; sections, swatches and demo panels all carry 14-128px padding or a padded .wrap child, and option rows centre text in 40px rows (checked in the rendered page)"
+      }
+    ]
+  }
+}

@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAIRN · Gunung Merbabu (Wekas BC)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Montserrat:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../home/cairn.css">
+<link rel="stylesheet" href="../browse/browse.css">
+<link rel="stylesheet" href="../browse/d-shared.css">
+<link rel="stylesheet" href="../landing/landing.css">
+<link rel="stylesheet" href="detail.css">
+<link rel="stylesheet" href="banner.css">
+<link rel="stylesheet" href="motion.css">
+<link rel="stylesheet" href="s4.css">
+<link rel="stylesheet" href="s5.css">
+<link rel="stylesheet" href="s6.css">
+<style>
+.meter i { transform-origin: 50% 100%; }
+.js-motion .pop .meter i, .js-motion [data-watch] .meter i { transform: scaleY(0); transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.js-motion .in .meter i, .js-motion .in.pop .meter i { transform: none; }
+.js-motion .in .meter i:nth-child(2) { transition-delay: 0.12s; } .js-motion .in .meter i:nth-child(3) { transition-delay: 0.24s; }
+.packbar { height: 8px; background: rgb(23 32 28 / 0.12); position: relative; overflow: hidden; }
+.packbar::after { content: ''; position: absolute; inset: 0; background: var(--pine); transform-origin: 0 50%; transform: scaleX(var(--p, 0)); transition: transform 0.6s var(--ease); }
+.tri-pulse svg { animation: pulse 2.4s ease-in-out infinite; transform-origin: 50% 60%; }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .tri-pulse svg { animation: none; } }
+</style>
+</head>
+<body>
+<header class="nav nav-dark">
+  <div class="wrap nav-inner">
+    <a class="nav-brand" href="../landing/l1-summit.html"><span class="mark"><svg class="ico"><use href="#i-cairn"/></svg></span>CAIRN</a>
+    <nav class="nav-links" aria-label="Main">
+      <a class="nav-pill" href="../browse/routes.html" aria-current="page">Routes</a>
+      <a class="nav-pill" href="#">Globe</a>
+      <a class="nav-pill is-solid" href="#">Sign in</a>
+      <button class="nav-menu" type="button" aria-label="Open menu"><svg class="ico"><use href="#i-menu"/></svg></button>
+    </nav>
+  </div>
+</header>
+<main>
+  <section class="lhero" aria-labelledby="route-title">
+    <img src="../browse/img/card-misty-lake.jpg" alt="">
+    <div class="hazard wrap" role="alert"><a href="#reviews"><svg viewBox="0 0 40 36" aria-hidden="true"><path d="M20 2 38.5 34h-37z" fill="#ffc94d" stroke="#17201c" stroke-width="2" stroke-linejoin="round"/><path d="M20 13v10" stroke="#17201c" stroke-width="3.4" stroke-linecap="round"/><circle cx="20" cy="28.5" r="2" fill="#17201c"/></svg><span><strong>Hazard: elevated</strong><span>Flash flood or river crossing reported</span></span></a></div>
+    <div class="inner wrap">
+      <div>
+        <p class="crumb"><a href="../browse/routes.html">Routes</a> / Indonesia</p>
+        <h1 id="route-title">Gunung Merbabu (Wekas BC)</h1>
+        <p class="labels"><span style="color:#8fdcb2"><svg><use href="#d-easy"/></svg>Easy</span><span><svg class="people" viewBox="0 0 24 24"><use href="#i-people"/></svg>Community 1.33</span><span><i class="dot" aria-hidden="true"></i>Open</span></p>
+      </div>
+      <div class="art" data-trail="#6fdc8c" data-width="5" data-fit></div>
+    </div>
+  </section>
+  <section class="overview" id="overview" aria-label="Route facts">
+    <div class="wrap">
+      <div class="ov-head"><span class="lab">Route details</span></div>
+      <dl class="numbers">
+        <div><dt>Distance</dt><dd>10.01 km</dd></div>
+        <div><dt>Elevation gain</dt><dd>+1,177 m</dd></div>
+        <div><dt>Highest point</dt><dd>3,115 m</dd><span class="cap">Above 2,500 m</span></div>
+        <div><dt>Duration</dt><dd>1 day</dd><span class="cap trip">Day hike</span></div>
+      </dl>
+      <p class="ov-foot fine">Official figures · route line from OpenStreetMap</p>
+    </div>
+  </section>
+  <nav class="secnav" data-secnav aria-label="Sections of this route">
+    <div class="wrap">
+      <a href="#overview">Overview</a><a href="#fit">Is it for you</a><a href="#weather">Weather</a><a href="#plan">Plan</a><a href="#gear">Gear</a><a href="#reviews">Reviews</a>
+    </div>
+  </nav>
+  <section class="journey" aria-label="The route, section by section">
+    <div class="trail-canvas" aria-hidden="true"></div>
+
+    <section class="stop" id="fit" aria-labelledby="fit-t">
+      <article class="card c-fit pop" data-watch>
+        <div class="fit-top"><h2 id="fit-t">Is this route right for you?</h2><span class="verdict v-challenge"><span class="meter" aria-hidden="true"><i></i><i></i><i></i></span>Good challenge</span></div>
+        <ul class="fitlist minimal" data-checks></ul>
+        <p class="fit-warn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4.5M12 17.2v.1"/></svg>Above 2,500 m. Altitude sickness is possible: climb slowly and descend if you feel unwell (CDC Yellow Book).</p>
+      </article>
+    </section>
+
+    <section class="stop" aria-labelledby="gd-t">
+      <article class="card c-grade pop" data-watch>
+        <div class="card-head"><h2 id="gd-t">How hard, honestly</h2><span class="fine">Official grade and community grade</span></div>
+        <div class="split">
+          <div class="dial" data-dial data-official="1" data-community="1.33" role="img" aria-label="Difficulty dial from 1 Easy to 4 Strenuous. Official grade 1.00, community-adjusted grade 1.33.">
+            <svg viewBox="0 0 400 236">
+              <path d="M40 200a160 160 0 0 1 46.9-113.1" fill="none" stroke="#6fdc8c" stroke-width="30"/>
+              <path d="M86.9 86.9a160 160 0 0 1 113.1-46.9" fill="none" stroke="#f2d34f" stroke-width="30"/>
+              <path d="M200 40a160 160 0 0 1 113.1 46.9" fill="none" stroke="#ff9f43" stroke-width="30"/>
+              <path d="M313.1 86.9a160 160 0 0 1 46.9 113.1" fill="none" stroke="#ff5b4f" stroke-width="30"/>
+              <g fill="#3a4540" font-size="12" font-weight="700" letter-spacing="1"><text x="40" y="228" text-anchor="middle">1 EASY</text><text x="88" y="66" text-anchor="end">2</text><text x="312" y="66">3</text><text x="360" y="228" text-anchor="middle">4 STRENUOUS</text></g>
+              <g class="needle n-official"><line x1="200" y1="200" x2="200" y2="66" stroke="#17201c" stroke-width="5" stroke-linecap="round"/><path d="M200 46 L189 70 L211 70 Z" fill="#17201c"/></g>
+              <g class="needle n-comm"><line x1="200" y1="200" x2="200" y2="58" stroke="#c2481a" stroke-width="9" stroke-linecap="round" opacity="0.9"/><circle cx="200" cy="52" r="10" fill="#fffdf8" stroke="#c2481a" stroke-width="4"/></g>
+              <circle cx="200" cy="200" r="13" fill="#17201c"/>
+            </svg>
+          </div>
+          <div class="grade-key">
+            <div class="row"><span class="sw sw-official" aria-hidden="true"></span><strong>Official</strong><b>1.00</b></div>
+            <div class="row"><span class="sw sw-comm" aria-hidden="true"></span><strong>Community-adjusted</strong><b><span data-count="1.33">0.00</span></b></div>
+            <p class="fine">Still Easy, leaning moderate. The fit check uses the community grade.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="stop" id="weather" aria-labelledby="wx-t">
+      <article class="card c-weather pop" data-watch data-wx2>
+        <div class="card-head"><h2 id="wx-t">The week on the mountain</h2>
+          </div>
+        <p class="fine" style="margin-top:-8px">Pick a day. Open-Meteo forecast for the trailhead (1,731 m) and the summit (3,115 m).</p>
+        <div data-view></div>
+        <div>
+          <div class="daysum" data-sum><span class="big"></span><span class="what"></span><button class="sq ghost more" type="button" data-more aria-expanded="false" aria-controls="wx-drawer">More details <svg class="ico"><use href="#i-arrow-down"/></svg></button></div>
+          <div class="drawer" id="wx-drawer"><div></div></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="stop" id="plan" aria-labelledby="pl-t">
+      <article class="card c-plan pop">
+        <div class="card-head"><h2 id="pl-t">Plan your day</h2><span class="fine" style="display:inline-flex;gap:6px;align-items:center"><svg class="ico" style="width:16px;height:16px"><use href="#i-ai"/></svg>AI-generated</span></div>
+        <form class="form-row" onsubmit="return false">
+          <label class="field"><span class="t-label">Start date</span><input class="input" type="date" value="2026-11-01"></label>
+          <label class="field"><span class="t-label">Days</span><input class="input" type="number" min="1" max="60" value="1"></label>
+          <div class="field"><span class="t-label" id="pace-l">Pace</span><div class="seg" role="group" aria-labelledby="pace-l"><button type="button" aria-pressed="true">Relaxed</button><button type="button" aria-pressed="false">Moderate</button><button type="button" aria-pressed="false">Fast</button></div></div>
+          <button class="sq blaze" type="submit">Generate plan</button>
+        </form>
+        <div class="plan" aria-label="Example plan" data-stagger>
+          <div class="day pop"><strong>Before dawn</strong><p>Start from Wekas basecamp in the dark to reach the ridge before the rain the forecast shows on most days.</p><span class="data fine">0–4 km</span></div>
+          <div class="day pop"><strong>Morning</strong><p>Climb to the summit area at 3,115 m. Rest often; this is above the 2,500 m altitude-sickness line.</p><span class="data fine">4–5 km</span></div>
+          <div class="day pop"><strong>Midday</strong><p>Descend the same way. Take care at the river crossing a hiker reported, especially after rain.</p><span class="data fine">5–10 km</span></div>
+        </div>
+        <p class="ai-note"><svg class="ico"><use href="#i-ai"/></svg>Example of a generated plan. AI-generated text can be wrong; check conditions before you go.</p>
+      </article>
+    </section>
+
+    <section class="stop" id="gear" aria-labelledby="gr-t">
+      <article class="card c-note pop" data-gear>
+        <div class="card-head"><h2 id="gr-t">Gear checklist</h2><span class="fine" data-packed></span></div>
+        <div class="note-grid">
+          <div class="notepad">
+            <div class="binding" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="sheet">
+              <div class="pad-head"><strong>Merbabu · pack list</strong><span class="fine">For 1 Nov</span></div>
+              <div class="gear-list"></div>
+              <button class="tlink" type="button" data-add style="border:0;background:none;padding:0;font:inherit;cursor:pointer">+ Add item</button>
+            </div>
+          </div>
+          <aside class="note-side">
+            <div class="sticky"><strong><svg class="ico"><use href="#i-ai"/></svg>AI-generated</strong>Made from the route, this week's forecast and the hazard reports. Edit anything; it's yours once saved.</div>
+            <button class="sq ghost" type="button" data-generate><svg class="ico"><use href="#i-ai"/></svg> Generate checklist</button>
+            <button class="sq" type="button" data-save aria-pressed="false">Save checklist</button>
+            <span class="saved-msg" role="status"></span>
+          </aside>
+        </div>
+      </article>
+    </section>
+
+    <section class="stop full" id="reviews" aria-labelledby="rv-t">
+      <article class="card c-reviews pop" data-watch data-register>
+        <div class="card-head"><h2 id="rv-t">Trail register</h2><a class="sq blaze" href="#" style="min-height:44px">Write a review</a></div>
+        <div class="reg">
+          <aside class="reg-sum" aria-label="Review summary">
+            <span class="score"><span data-count="4.25">0.00</span><span> / 5</span></span>
+            <div style="display:grid;gap:6px">
+              <div class="stars-row"><span>5★</span><span class="bar"><i style="--v:0.5"></i></span><span>2</span></div>
+              <div class="stars-row"><span>4★</span><span class="bar"><i style="--v:0.25"></i></span><span>1</span></div>
+              <div class="stars-row"><span>3★</span><span class="bar"><i style="--v:0.25"></i></span><span>1</span></div>
+              <div class="stars-row"><span>2★</span><span class="bar"><i style="--v:0"></i></span><span>0</span></div>
+              <div class="stars-row"><span>1★</span><span class="bar"><i style="--v:0"></i></span><span>0</span></div>
+            </div>
+            <div class="facts2"><div><span class="lab">Felt like</span><b>2.5 / 4</b></div><div><span class="lab">Finished</span><b>75%</b></div><div><span class="lab">Reviews</span><b>4</b></div><div><span class="lab">Incidents</span><b>2</b></div></div>
+            <p class="fine">Layout preview: three entries are samples. This route has 1 real review.</p>
+          </aside>
+          <div>
+            <div class="reg-filter" role="group" aria-label="Filter reviews"><button type="button" data-f="all" aria-pressed="true">All</button><button type="button" data-f="inc" aria-pressed="false">With incidents</button><button type="button" data-f="done" aria-pressed="false">Finished</button></div>
+            <div class="entries">
+              <article class="entry" data-inc="1" data-done="1"><span class="who" aria-hidden="true">H</span><div>
+                <div class="top"><strong>Hiker · <span class="stars" aria-label="5 of 5">★★★★★</span></strong><time datetime="2026-10-23">23 Oct 2026</time></div>
+                <blockquote>“tough”</blockquote>
+                <div class="meta"><span class="felt" aria-label="Felt like 3 of 4">Felt like <i class="on"></i><i class="on"></i><i class="on"></i><i></i></span><span class="done">✓ Finished</span><span class="chip-inc"><svg viewBox="0 0 24 24"><path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4.5M12 17.2v.1"/></svg>Water hazard · “flood”</span></div></div></article>
+              <article class="entry" data-done="1"><span class="who" aria-hidden="true" style="background:var(--lake)">A</span><div>
+                <div class="top"><strong>Aisyah · <span class="stars" aria-label="4 of 5">★★★★<span class="off">★</span></span> <span class="sample">Sample</span></strong><time datetime="2026-09-12">12 Sep 2026</time></div>
+                <blockquote>Steady climb from Wekas. The last hour to the top is steep and loose; poles helped a lot on the way down.</blockquote>
+                <div class="meta"><span class="felt" aria-label="Felt like 2 of 4">Felt like <i class="on"></i><i class="on"></i><i></i><i></i></span><span class="done">✓ Finished</span></div></div></article>
+              <article class="entry" data-inc="1" data-done="0"><span class="who" aria-hidden="true" style="background:var(--stone)">M</span><div>
+                <div class="top"><strong>Marco · <span class="stars" aria-label="3 of 5">★★★<span class="off">★★</span></span> <span class="sample">Sample</span></strong><time datetime="2026-08-30">30 Aug 2026</time></div>
+                <blockquote>Turned back below the summit after heavy rain made the path slippery. Would try again in the dry season.</blockquote>
+                <div class="meta"><span class="felt" aria-label="Felt like 3 of 4">Felt like <i class="on"></i><i class="on"></i><i class="on"></i><i></i></span><span class="turned">Turned back</span><span class="chip-inc"><svg viewBox="0 0 24 24"><path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4.5M12 17.2v.1"/></svg>Slippery trail</span></div></div></article>
+              <article class="entry" data-done="1"><span class="who" aria-hidden="true" style="background:var(--strenuous)">L</span><div>
+                <div class="top"><strong>Lin · <span class="stars" aria-label="5 of 5">★★★★★</span> <span class="sample">Sample</span></strong><time datetime="2026-08-18">18 Aug 2026</time></div>
+                <blockquote>Sunrise from the top was worth the 2 am start. Bring a proper warm layer; it was cold and windy at the summit.</blockquote>
+                <div class="meta"><span class="felt" aria-label="Felt like 2 of 4">Felt like <i class="on"></i><i class="on"></i><i></i><i></i></span><span class="done">✓ Finished</span></div></div></article>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+  </section>
+</main>
+<footer class="lfoot">
+  <div class="wrap">
+    <div class="cols">
+      <div><h2>Know before you go.</h2><a class="sq light" href="../browse/routes.html">Browse routes</a></div>
+      <div><p class="lab">Explore</p><p><a href="../browse/routes.html">Routes</a></p><p><a href="#">Globe</a></p><p><a href="#">Quiz</a></p></div>
+      <div><p class="lab">Account</p><p><a href="#">Sign in</a></p><p><a href="#">Register</a></p><p><a href="#">Profile</a></p></div>
+      <div><p class="lab">Data</p><p style="font-size:13px;line-height:20px">Trails © OpenStreetMap contributors (ODbL). Weather by Open-Meteo.com (CC BY 4.0).</p></div>
+    </div>
+    <div class="word" aria-hidden="true">CAIRN</div>
+    <div class="base"><span>© 2026 CAIRN · IS216 project</span><span>Made for hikers in Southeast Asia</span></div>
+  </div>
+</footer>
+<script src="../browse/routes-data.js"></script>
+<script src="../browse/browse.js"></script>
+<script src="../home/shared.js"></script>
+<script src="../landing/landing.js"></script>
+<script src="detail.js"></script>
+<script src="motion.js"></script>
+<script src="s6.js"></script>
+</body>
+</html>

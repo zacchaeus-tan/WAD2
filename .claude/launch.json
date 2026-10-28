@@ -1,0 +1,25 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "home-mocks",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "C:\\Users\\DARYLP~1\\AppData\\Local\\Temp\\claude\\C--Users-Daryl-P-Desktop-Y2S1-WAD2-TrekApp-cairn-main\\a790c652-36b5-4db7-921b-7e3e3f2a1b11\\scratchpad\\serve.cjs",
+        "C:\\Users\\Daryl P\\Desktop\\Y2S1\\WAD2\\TrekApp-cairn-main\\.impeccable\\mocks\\home",
+        "5179"
+      ],
+      "port": 5179
+    },
+    {
+      "name": "mocks",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        ".impeccable/mocks/serve.cjs",
+        ".impeccable/mocks",
+        "5180"
+      ],
+      "port": 5180
+    }
+  ]
+}
