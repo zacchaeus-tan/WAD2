@@ -562,11 +562,11 @@ onBeforeUnmount(() => stickObserver?.disconnect())
 
 <style scoped>
 /* Parallax banner: sky, title, then the mountain in front, fading into the pine bar */
-/* Fills the rest of the screen below the navbar on arrival */
+/* Fills the whole screen on arrival; the navbar sits on top of it */
 .routes-banner {
   position: relative;
-  height: calc(100vh - var(--nav-height));
-  height: calc(100svh - var(--nav-height));
+  height: 100vh;
+  height: 100svh;
   min-height: 480px;
   overflow: hidden;
   background: linear-gradient(#2a5bbd, #3a72d4 60%);
@@ -1042,7 +1042,7 @@ onBeforeUnmount(() => stickObserver?.disconnect())
   }
 
   .routes-banner-title {
-    padding-top: 48px;
+    padding-top: calc(var(--nav-height) + 32px);
   }
 }
 </style>

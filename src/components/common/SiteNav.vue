@@ -52,7 +52,7 @@ async function logout() {
           <button type="button" class="site-nav-link" @click="logout">Log out</button>
         </template>
         <RouterLink v-else class="site-nav-link is-solid" to="/auth">Sign in</RouterLink>
-        <RouterLink class="site-nav-link is-blaze" to="/quiz">Take the quiz</RouterLink>
+        <RouterLink class="site-nav-link is-pine" to="/quiz">Take the quiz</RouterLink>
       </nav>
 
       <button
@@ -79,17 +79,18 @@ async function logout() {
         <button type="button" class="site-nav-panel-link" @click="logout">Log out</button>
       </template>
       <RouterLink v-else class="site-nav-panel-link" to="/auth">Sign in</RouterLink>
-      <RouterLink class="cairn-btn is-blaze site-nav-panel-cta" to="/quiz">Take the quiz</RouterLink>
+      <RouterLink class="cairn-btn site-nav-panel-cta" to="/quiz">Take the quiz</RouterLink>
     </nav>
   </header>
 </template>
 
 <style scoped>
 /* 63px tall plus a 2px rule = 4rem + 1px, the height the globe page leaves for the navbar */
+/* Always transparent; light text when it sits over a dark banner (overlay) */
 .site-nav {
   position: relative;
   z-index: 20;
-  background: var(--ground);
+  background: transparent;
   color: var(--ink);
   font-family: var(--font);
 }
@@ -148,14 +149,14 @@ async function logout() {
   text-decoration: none;
 }
 
-.site-nav-link.is-blaze {
+.site-nav-link.is-pine {
   margin-left: 4px;
-  background: var(--blaze);
+  background: var(--pine);
   color: var(--white);
 }
 
-.site-nav-link.is-blaze:hover {
-  background: var(--blaze-deep);
+.site-nav-link.is-pine:hover {
+  background: var(--pine-deep);
   text-decoration: none;
 }
 
@@ -245,6 +246,14 @@ async function logout() {
 
 .site-nav-panel-cta {
   margin-top: 16px;
+  background: var(--pine);
+  border-color: var(--pine);
+  color: var(--white);
+}
+
+.site-nav-panel-cta:hover {
+  background: var(--pine-deep);
+  border-color: var(--pine-deep);
 }
 
 /* Over a dark banner: transparent with light text, until the menu opens */
