@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-28T16:26:47+08:00",
+  "generatedAt": "2026-10-28T21:17:21+08:00",
   "title": "Design System: CAIRN",
   "extensions": {
     "colorMeta": {
@@ -687,9 +687,9 @@
       "name": "Text Highlighter",
       "kind": "custom",
       "refersTo": "text-highlighter",
-      "description": "Marker that draws left to right under one phrase: yellow underline for the verdict, blaze fill for a failing figure.",
-      "html": "<p class=\"ds-hl\">Merbabu is a <span class=\"m\">good challenge</span> for you. The summit at <span class=\"m hot\">3,115 m</span> is higher than you have walked.</p>",
-      "css": ".ds-hl{max-width:34ch;padding:24px 28px;background:var(--pine, #1f5b43);color:#f2efea;font:700 22px/1.5 'Lato', 'Noto Sans Thai', system-ui, sans-serif;} .ds-hl .m{font-weight:900;padding-bottom:2px;background:linear-gradient(#f2d34f,#f2d34f) 0 100%/100% 4px no-repeat;transition:background-size .7s cubic-bezier(.16,1,.3,1);} .ds-hl .m.hot{padding:0 6px;font:600 1em 'Montserrat', 'Lato', system-ui, sans-serif;background:linear-gradient(var(--blaze, #c2481a),var(--blaze, #c2481a)) 0 0/100% 100% no-repeat;color:#fff;}"
+      "description": "After Magic UI Highlighter, rebuilt with Motion: a pine marker with rough hand-drawn edges behind the chosen word; the other word is an outline. Used on the sign-in / register words.",
+      "html": "<div class=\"ds-hl\"><span class=\"w on\"><i></i><b>Sign In</b></span><span class=\"w\"><b>Register</b></span></div>",
+      "css": ".ds-hl{display:flex;gap:24px;padding:28px;background:#101814;font:900 48px/1 'Lato', 'Noto Sans Thai', system-ui, sans-serif;letter-spacing:-.03em;} .ds-hl .w{position:relative;padding:0 10px;color:transparent;-webkit-text-stroke:2px rgb(242 239 234 / .6);} .ds-hl .w b{position:relative;z-index:1;font-weight:900;} .ds-hl .w i{position:absolute;inset:-6px 0;background:var(--pine, #1f5b43);clip-path:polygon(1% 8%,0 92%,4% 97%,22% 100%,48% 96%,76% 100%,97% 95%,100% 88%,99% 12%,96% 4%,74% 0,50% 3%,24% 0,3% 4%);} .ds-hl .w.on{color:#f2efea;-webkit-text-stroke-color:#f2efea;}"
     },
     {
       "name": "Animated List",
@@ -703,20 +703,21 @@
       "name": "Scroll Progress",
       "kind": "nav",
       "refersTo": "scroll-progress",
-      "description": "Sand bar on a dark pine track along the section bar, plus a distance-walked readout (Motion scroll()).",
-      "html": "<div class=\"ds-sp\"><span>Overview</span><span>Weather</span><span class=\"w\"><b>4.2</b> / 10.01 km</span><span class=\"p\"><i></i></span></div>",
-      "css": ".ds-sp{position:relative;display:flex;align-items:center;gap:18px;min-height:56px;padding:0 20px;background:var(--pine, #1f5b43);color:#d4e3db;font:700 12px 'Lato', 'Noto Sans Thai', system-ui, sans-serif;letter-spacing:.08em;text-transform:uppercase;} .ds-sp .w{margin-left:auto;letter-spacing:0;text-transform:none;font:500 15px 'Montserrat', 'Lato', system-ui, sans-serif;color:#b9d3c6;} .ds-sp .w b{font-weight:600;color:#fff;} .ds-sp .p{position:absolute;left:0;right:0;bottom:0;height:5px;background:#0f3326;} .ds-sp .p i{position:absolute;left:0;top:0;bottom:1px;width:42%;background:#e4ded3;}"
+      "description": "Sand bar on a dark pine track along the bottom of the pine section bar, filling as you scroll through the sections (Motion useScroll). No readout.",
+      "html": "<div class=\"ds-sp\"><span>Overview</span><span>Is it for you</span><span>Weather</span><span class=\"p\"><i></i></span></div>",
+      "css": ".ds-sp{position:relative;display:flex;align-items:center;gap:18px;min-height:56px;padding:0 20px 5px;background:var(--pine, #1f5b43);color:#d4e3db;font:700 12px 'Lato', 'Noto Sans Thai', system-ui, sans-serif;letter-spacing:.08em;text-transform:uppercase;} .ds-sp .p{position:absolute;left:0;right:0;bottom:0;height:5px;background:#0f3326;} .ds-sp .p i{position:absolute;left:0;top:0;bottom:1px;width:42%;background:#e4ded3;}"
     }
   ],
   "narrative": {
     "northStar": "The Field Index",
-    "overview": "**Creative North Star: \"The Field Index\"**\n\nCAIRN reads like a well-made field index: a near-white page, ink type, heavy two-pixel rules, square edges, and numbers set like measurements. The trail is the image. Every route is shown as its own real line, drawn in a heat colour on a dark photograph, so a hiker can tell an easy walk from a hard climb before reading a word. Pine marks the places where you act on the page (the filter bar, the section bar, the fit verdict); ink carries everything else.\n\nThe system is plain until it matters, then unmistakable. Most of a screen is ground and ink. Colour appears on purpose: heat for difficulty, pine for controls and the personal verdict, blaze for a failed check or the one key action, amber for hazards. Big photographic banners with a parallax or the route's own line open each page, then the page settles into wide, ruled bands with lots of space between them.\n\nThere is warmth inside the strictness. The route-detail page is a walk: a plain brown trail with grass winds behind the sections and is drawn as you scroll. The gear list is a ring-bound notepad with a red margin, and the reviews are a trail register. These handmade touches sit inside the same square, ruled grid; they never become cartoon illustration.",
+    "overview": "**Creative North Star: \"The Field Index\"**\n\nCAIRN reads like a well-made field index: a near-white page, ink type, heavy two-pixel rules, square edges, and numbers set like measurements. The trail is the image. Every route is shown as a line drawn in a heat colour on a dark photograph, so a hiker can tell an easy walk from a hard climb before reading a word (for now the line is a placeholder drawing in the right colour; the real route lines come later, see Implementation). Pine marks the places where you act on the page (the filter bar, the section bar, the fit verdict, the quiz button); ink carries everything else.\n\nThe system is plain until it matters, then unmistakable. Most of a screen is ground and ink. Colour appears on purpose: heat for difficulty, pine for controls and the personal verdict, blaze for a failed check or the one key action, amber for hazards. Every redesigned page opens on a full-screen, dimmed photograph with a transparent navbar over it (a parallax cairn on browse, the route's line on detail, a cairn in a valley on sign-in, hikers on a ridge for the quiz), then settles into wide, ruled bands with lots of space between them.\n\nThere is warmth inside the strictness. The route-detail page is a walk: a plain brown trail with grass winds behind the sections and is drawn as you scroll. The gear list is a ring-bound notepad with a red margin, the reviews are a trail register, and the quiz is a climb whose checkpoint cairns are built as you reach them. These handmade touches sit inside the same square, ruled grid; they never become cartoon illustration.",
     "keyCharacteristics": [
       "Ink on near-white ground, square corners, 2px ink rules to start and end sections.",
       "Route lines in a four-step heat scale (green, yellow, orange, red), always paired with a grade shape and name.",
       "Pine for interactive bars and the fit verdict; blaze only for a failure or the single key action.",
       "Lato 900 for every heading; Montserrat with tabular figures for every number a hiker compares.",
-      "Dark, desaturated photographs under light lines; real route geometry, no stock illustration.",
+      "Full-screen dimmed photographs under light type; drawn lines and cairns, no stock illustration or cartoon art.",
+      "A transparent navbar on every page: light text over photo banners, dark text on light pages.",
       "Full-width bands; the main tools (fit, weather, gear, reviews) take most of the page width."
     ],
     "rules": [
@@ -737,7 +738,7 @@
       },
       {
         "name": "The Numbers Are Montserrat Rule",
-        "body": "Any figure a hiker compares is Montserrat with tabular, lining figures. Numbers inside sentences stay in Lato, except the highlighted values in the fit sentence.",
+        "body": "Any figure a hiker compares is Montserrat with tabular, lining figures. Numbers inside sentences stay in Lato.",
         "section": "typography"
       },
       {
@@ -762,18 +763,22 @@
       "Do put bright heat lines only on Night or ink, and use heat-ink steps for text on light grounds.",
       "Do set compared numbers in Montserrat tabular figures, metric only, climb signed.",
       "Do use pine for bars and controls you act on, and blaze only for failures, ratings and the one key action.",
-      "Do dim route photographs (about 45% over Night) so the line always reads first.",
+      "Do open redesigned pages with a full-screen dimmed photo (about 32–45% over Night) and keep the navbar transparent over it.",
       "Do use `cubic-bezier(0.16, 1, 0.3, 1)` and show the final state under reduced motion.",
-      "Do theme focus rings: 3px Lake on light grounds, Glacier on pine."
+      "Do theme focus rings: 3px Lake on light grounds, Glacier on pine and on dark photos.",
+      "Do show safety warnings only when there is a risk, and never hide them behind an interaction.",
+      "Do build with the CAIRN classes and scoped component styles described in Implementation."
     ],
     "donts": [
       "Don't use rounded pills, rounded cards or soft rounded panels; that is the retired homepage style.",
       "Don't add shadows to flat content at rest (The Rule Before Shadow Rule).",
       "Don't put a small uppercase kicker above a heading.",
       "Don't use blaze as decoration or as a second button colour.",
-      "Don't use cartoon illustration, badges, cairn icons along the trail, or \"conquer the summit\" language.",
-      "Don't draw ticks, arrows or crosses with CSS borders or Unicode; use drawn SVG.",
-      "Don't truncate route names below two lines or translate them out of their own script."
+      "Don't use cartoon illustration, badges, cairn icons along the route-detail trail, or \"conquer the summit\" language.",
+      "Don't draw ticks, arrows, crosses or stars with CSS borders or Unicode; use drawn SVG.",
+      "Don't truncate route names below two lines or translate them out of their own script.",
+      "Don't show an \"open\" status, a trip-type tag or an \"Above 2,500 m\" caption on route detail; they were removed on purpose.",
+      "Don't invent numbers or content for placeholders (star breakdown, route photos, sample reviews); show the placeholder."
     ]
   }
 }

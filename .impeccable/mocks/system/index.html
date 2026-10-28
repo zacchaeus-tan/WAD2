@@ -220,11 +220,13 @@
 .ticks dt { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--g500); }
 .ticks dd { margin: 0; font: 600 clamp(28px, 3.4vw, 48px)/1 var(--font-data); letter-spacing: -0.02em; font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }
 
-.hl-stage { background: var(--pine); color: var(--paper); padding: 28px 32px; }
-.hl-stage p { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.5; font-weight: 700; max-width: 34ch; }
-.hl-stage .num { font-family: var(--font-data); font-weight: 600; white-space: nowrap; padding: 0 6px; background: rgb(242 239 234 / 0.14); }
-.mark { font-weight: 900; padding-bottom: 2px; background: linear-gradient(#f2d34f, #f2d34f) 0 100% / 100% 4px no-repeat; }
-.mark.hot { padding: 0 6px; background: linear-gradient(var(--blaze), var(--blaze)) 0 0 / 100% 100% no-repeat; color: var(--white); }
+/* Text highlighter: a pine marker with rough edges behind the chosen word (as on the sign-in page) */
+.hl-stage { display: flex; flex-wrap: wrap; gap: 12px 28px; padding: 32px; background: #101814; }
+.hl-word { position: relative; padding: 0 10px; border: 0; background: none; color: transparent; -webkit-text-stroke: 2px rgb(242 239 234 / 0.6); font: 900 clamp(40px, 5vw, 64px) / 1 var(--font); letter-spacing: -0.03em; cursor: pointer; }
+.hl-word span { position: relative; z-index: 1; }
+.hl-word i { position: absolute; inset: -6px 0; background: var(--pine); transform-origin: 0 50%; transform: scaleX(0); clip-path: polygon(1% 8%, 0 92%, 4% 97%, 22% 100%, 48% 96%, 76% 100%, 97% 95%, 100% 88%, 99% 12%, 96% 4%, 74% 0, 50% 3%, 24% 0, 3% 4%); }
+.hl-word[aria-pressed='true'] { color: var(--paper); -webkit-text-stroke-color: var(--paper); }
+.hl-word:focus-visible { outline: 3px solid var(--glacier); outline-offset: 6px; }
 
 .list-stage { background: var(--linen); padding: 24px 28px; }
 .list-stage .lh { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-bottom: 12px; border-bottom: 2px solid var(--ink); }
@@ -526,13 +528,13 @@
         <div class="mc">
           <div>
             <h3>Text highlighter</h3>
-            <p class="how">One phrase per paragraph gets a marker that draws from left to right: a yellow underline for the verdict, a blaze fill for a figure that fails a check.</p>
-            <p class="use">Used in the <b>fit sentence</b> and <b>weather warnings</b></p>
-            <button class="replay" type="button" data-replay="highlight">Replay</button>
+            <p class="how">A pine marker with rough, hand-drawn edges sits behind the chosen word and sweeps along it when the choice changes. The other word is an outline. Click a word to switch.</p>
+            <p class="use">Used on the <b>sign-in / register</b> words (vertical there, sweeping along the reading direction)</p>
           </div>
           <div class="stage">
-            <div class="hl-stage" data-highlight>
-              <p>Merbabu is a <span class="mark">good challenge</span> for you. The summit at <span class="mark hot num">3,115 m</span> is higher than anything you have walked.</p>
+            <div class="hl-stage" data-highlight role="group" aria-label="Highlighter example">
+              <button type="button" class="hl-word" aria-pressed="true"><i aria-hidden="true"></i><span>Sign In</span></button>
+              <button type="button" class="hl-word" aria-pressed="false"><i aria-hidden="true"></i><span>Register</span></button>
             </div>
           </div>
         </div>
@@ -554,12 +556,12 @@
         <div class="mc">
           <div>
             <h3>Scroll progress</h3>
-            <p class="how">A sand bar along the bottom of the pine section bar fills as you move down the route, and turns that progress into the route's own distance. Scroll the box to try it.</p>
+            <p class="how">A sand bar on a dark pine track along the bottom of the pine section bar fills as you move down the route. No readout. Scroll the box to try it.</p>
             <p class="use">Used on <b>route detail</b>, tied to the same range as the trail.</p>
           </div>
           <div class="stage">
             <div class="sp-stage">
-              <div class="sp-bar" aria-hidden="true"><span class="navs">Overview · Fit · Weather</span><span class="walked"><span class="pin"></span><span class="k">Walked</span><b data-sp-walked>0.0</b><span class="t">/ 10.01 km</span></span><span class="progress"><i data-sp-bar></i></span></div>
+              <div class="sp-bar" aria-hidden="true"><span class="navs">Overview · Is it for you · Weather · Plan</span><span class="progress"><i data-sp-bar></i></span></div>
               <div class="sp-scroll" data-sp-scroll tabindex="0" aria-label="Example route, scrollable">
                 <div class="sp-inner"><span class="trailline" aria-hidden="true"></span>
                   <div class="leg"><b>Wekas basecamp</b><span>0.0 km · 1,750 m</span></div>
@@ -634,20 +636,20 @@ function tick() {
   })
 }
 
-// Text highlighter: the marker grows from the left edge
-const marks = document.querySelectorAll('[data-highlight] .mark')
-function highlight() {
-  if (still) return
-  marks.forEach((m, i) => {
-    const size = m.classList.contains('hot') ? '100%' : '4px'
-    animate(m, { backgroundSize: [`0% ${size}`, `100% ${size}`] }, { duration: 0.7, delay: 0.25 + i * 0.5, ease })
-  })
+// Text highlighter: the pine marker sweeps along the chosen word; the other one clears
+const words = [...document.querySelectorAll('[data-highlight] .hl-word')]
+function choose(word) {
+  for (const w of words) {
+    const on = w === word
+    w.setAttribute('aria-pressed', on)
+    animate(w.querySelector('i'), { scaleX: on ? 1 : 0 }, { duration: still ? 0 : 0.6, ease })
+  }
 }
+words.forEach((w) => w.addEventListener('click', () => choose(w)))
+inView('[data-highlight]', () => choose(words[0]), { amount: 0.6 })
 
 inView(ticker, () => tick(), { amount: 0.6 })
-inView('[data-highlight]', () => highlight(), { amount: 0.6 })
 document.querySelector('[data-replay="ticker"]').addEventListener('click', tick)
-document.querySelector('[data-replay="highlight"]').addEventListener('click', highlight)
 
 // Animated list: generated items arrive one by one; existing items stay still
 const list = document.querySelector('[data-list]')
@@ -664,10 +666,9 @@ document.querySelector('[data-generate]').addEventListener('click', (e) => {
   if (!still) animate(added, { opacity: [0, 1], y: [12, 0] }, { duration: 0.5, delay: stagger(0.06), ease })
 })
 
-// Scroll progress: the bar and the km readout follow the box's scroll
-const box = document.querySelector('[data-sp-scroll]'), out = document.querySelector('[data-sp-walked]')
+// Scroll progress: the bar follows the box's scroll
+const box = document.querySelector('[data-sp-scroll]')
 scroll(animate('[data-sp-bar]', { scaleX: [0, 1] }, { ease: 'linear' }), { container: box })
-scroll((p) => { out.textContent = (Math.min(1, Math.max(0, p)) * 10.01).toFixed(1) }, { container: box })
 </script>
 </body>
 </html>
