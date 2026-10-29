@@ -45,3 +45,5 @@ playwright-report/
 
 # Supabase CLI
 supabase/.temp/
+
+pnpm-lock.yaml
