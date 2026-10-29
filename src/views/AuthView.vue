@@ -285,8 +285,11 @@ onBeforeUnmount(() => pinObserver?.disconnect())
   align-self: flex-start;
 }
 
+/* The button itself is vertical, not just the text inside it: Safari otherwise sizes the
+   button as if the word were horizontal, and the word spills out over the form */
 .auth-word {
   position: relative;
+  writing-mode: vertical-rl;
 }
 
 /* Hand-drawn pine highlight behind the chosen word (after Magic UI's Highlighter).
@@ -457,6 +460,7 @@ onBeforeUnmount(() => pinObserver?.disconnect())
     margin: 0 0 48px;
   }
 
+  .auth-word,
   .auth-word-text,
   .auth-word.is-left .auth-word-text {
     writing-mode: horizontal-tb;
