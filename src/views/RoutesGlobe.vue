@@ -5,7 +5,11 @@ import { Map as MapLibreMap, Marker, Popup, ScaleControl } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { motion, useReducedMotion } from 'motion-v'
 import { useRouter } from 'vue-router'
-import { fetchRouteGeometry, fetchRouteSummaries } from '../controller/routesController'
+import {
+  fetchRouteGeometry,
+  fetchRouteSummaries,
+  preloadRoute,
+} from '../controller/routesController'
 import GlobeContours from '@/components/globe/GlobeContours.vue'
 import GlobeIntro from '@/components/globe/GlobeIntro.vue'
 import GlobePanel from '@/components/globe/GlobePanel.vue'
@@ -40,10 +44,13 @@ const navHeightPx = 65
 const indexPanelPx = 342
 const introMinimumMs = 2200
 // How long the camera takes to dive onto a route, the longest it then waits for the satellite
-// photos to sharpen, and how long the fade to black takes
+// photos to sharpen, how long the transition screen takes to fade in, the least time it stays up,
+// and the longest it waits for the route's details on a slow connection
 const routeDiveMs = 2400
 const routeTileWaitMs = 8000
-const routeFadeMs = 600
+const routeScreenFadeMs = 600
+const routeScreenMs = 1800
+const routeLoadWaitMs = 8000
 const spinDegreesPerMs = 360 / 150000
 // How many map tiles can fail in one view before the user is told about it
 const tileFailuresBeforeWarning = 20
@@ -82,7 +89,7 @@ const satelliteView = ref(savedView?.satellite ?? true)
 const introTimeDone = ref(Boolean(savedView))
 // Name of the route being opened, shown while the globe dives onto it
 const openingRouteName = ref('')
-const routeDiveFading = ref(false)
+const routeScreenShowing = ref(false)
 // What the hover card and the clicked card show. Vue renders both cards into the hidden holder
 // in the template, and the map popups display those same elements (see addRouteCardPopup).
 const hoverCardRoute = ref(null)
@@ -367,7 +374,7 @@ function movePillNearTop(lngLat, offsetY = 0) {
   })
 }
 
-// Flies the camera down onto the route, fades to black, then opens its details page
+// Flies the camera down onto the route, shows the transition screen, then opens its details page
 async function openRouteDetails(properties, lngLat) {
   if (openingRouteName.value) {
     return
@@ -380,6 +387,11 @@ async function openRouteDetails(properties, lngLat) {
   }
 
   openingRouteName.value = properties.name
+  // Started now, so the details are usually ready by the time the dive ends
+  const routeLoaded = Promise.race([
+    preloadRoute(properties.routeId),
+    new Promise((resolve) => setTimeout(resolve, routeLoadWaitMs)),
+  ])
   setMapInteraction(globeView, false)
   hideHoverPopup()
   // Closing the card unpins its line, so pin it again to keep it drawn during the dive
@@ -409,7 +421,7 @@ async function openRouteDetails(properties, lngLat) {
     duration: routeDiveMs,
     essential: true,
   })
-  globeView.once('moveend', () => fadeOutWhenSharp(detailsPage))
+  globeView.once('moveend', () => showScreenWhenSharp(detailsPage, routeLoaded))
 }
 
 function openClickedRoute() {
@@ -422,22 +434,30 @@ function closeClickedCard() {
 }
 
 // Waits on the route until its satellite photos have finished loading (or for a few seconds
-// on a slow connection), then fades to black and opens the details page
-function fadeOutWhenSharp(detailsPage) {
-  let fading = false
-  function fadeOut() {
-    if (fading) {
+// on a slow connection), then shows the transition screen until the route's details have loaded
+// and opens the details page. The screen stays up while the page's code downloads too, as the
+// router only leaves this page once that's done.
+function showScreenWhenSharp(detailsPage, routeLoaded) {
+  let screenShown = false
+  function showScreen() {
+    if (screenShown) {
       return
     }
-    fading = true
+    screenShown = true
     clearTimeout(routeDiveTimer)
-    routeDiveFading.value = true
-    routeDiveTimer = setTimeout(() => router.push(detailsPage), routeFadeMs)
+    routeScreenShowing.value = true
+    routeDiveTimer = setTimeout(async () => {
+      await routeLoaded
+      // The user may have gone back while the details were loading
+      if (globeView) {
+        router.push(detailsPage)
+      }
+    }, routeScreenMs)
   }
 
   // 'idle' fires once every tile on screen has loaded and faded in
-  globeView.once('idle', fadeOut)
-  routeDiveTimer = setTimeout(fadeOut, routeTileWaitMs)
+  globeView.once('idle', showScreen)
+  routeDiveTimer = setTimeout(showScreen, routeTileWaitMs)
 }
 
 function onPillEnter(pill) {
@@ -973,34 +993,27 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <!-- Covers the globe during the dive so nothing can be clicked, then fades to night -->
-    <div v-if="openingRouteName" class="cairn globe-route-dive" role="status">
-      <!-- Fades its opacity rather than its colour, so the browser can blend it without
-           repainting the whole screen on every frame of the dive -->
+    <!-- Covers the globe during the dive so nothing can be clicked, then the transition screen
+         fades in over it -->
+    <div v-if="openingRouteName" class="globe-route-dive">
       <motion.div
-        class="globe-route-dive-night"
+        class="cairn globe-route-screen"
+        role="status"
         :initial="{ opacity: 0 }"
-        :animate="{ opacity: routeDiveFading ? 1 : 0 }"
-        :transition="{ duration: routeFadeMs / 1000, ease: 'easeIn' }"
-      />
-      <motion.p
-        class="globe-route-dive-label"
-        :initial="{ opacity: 0 }"
-        :animate="{ opacity: 1 }"
-        :transition="{ duration: reduceMotion ? 0 : 0.4 }"
+        :animate="{ opacity: routeScreenShowing ? 1 : 0 }"
+        :transition="{ duration: routeScreenFadeMs / 1000, ease: [0.16, 1, 0.3, 1] }"
       >
-        <!-- The trailing space keeps the label and the name apart for screen readers -->
-        <span class="cairn-label">Heading to the trailhead </span>
-        <strong>{{ openingRouteName }}</strong>
+        <p class="cairn-label">Heading to the trailhead</p>
+        <p class="globe-route-screen-name">{{ openingRouteName }}</p>
         <svg
-          class="globe-route-dive-trail"
+          class="globe-route-screen-trail"
           viewBox="0 0 400 20"
           preserveAspectRatio="none"
           aria-hidden="true"
         >
           <path d="M4 12C70 2 120 18 190 10S320 4 396 12" />
         </svg>
-      </motion.p>
+      </motion.div>
     </div>
   </div>
 </template>
@@ -1145,59 +1158,52 @@ onBeforeUnmount(() => {
   white-space: nowrap;
 }
 
-/* Sits over the globe while it dives onto a route; the label shows straight away and
-   the fade to night starts once the route's satellite photos have loaded */
+/* Above the navbar (z-index 20 in SiteNav.vue), as the screen covers the whole page */
 .globe-route-dive {
   position: absolute;
   inset: 0;
-  z-index: 10;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 0 var(--gutter) 64px;
-  background: transparent;
-  color: var(--ground);
+  z-index: 30;
 }
 
-.globe-route-dive-night {
+/* Fades its opacity rather than its colour, so the browser can blend it without repainting
+   the whole screen on every frame */
+.globe-route-screen {
   position: absolute;
   inset: 0;
-  background: var(--night);
-}
-
-.globe-route-dive-label {
-  position: relative;
   display: grid;
-  gap: 8px;
+  place-content: center;
   justify-items: center;
+  gap: 12px;
+  padding: 0 var(--gutter);
+  background: var(--night);
+  color: var(--ground);
   text-align: center;
 }
 
-.globe-route-dive-label .cairn-label {
+.globe-route-screen .cairn-label {
   color: var(--lichen);
 }
 
-.globe-route-dive-trail {
-  width: min(420px, 80vw);
-  height: 20px;
-}
-
-.globe-route-dive-trail path {
-  fill: none;
-  stroke: var(--wood-light);
-  stroke-width: 3;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-}
-
-.globe-route-dive-label strong {
+.globe-route-screen-name {
   max-width: 14ch;
   font-size: clamp(36px, 6vw, 88px);
   font-weight: 900;
   line-height: 0.95;
   letter-spacing: -0.03em;
-  text-shadow: 0 4px 24px rgb(0 0 0 / 0.4);
   text-wrap: balance;
+}
+
+.globe-route-screen-trail {
+  width: min(420px, 80vw);
+  height: 20px;
+}
+
+.globe-route-screen-trail path {
+  fill: none;
+  stroke: var(--wood-light);
+  stroke-width: 3;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
 }
 
 /* On phones the route index is a bar along the bottom, so the camera buttons and the map's

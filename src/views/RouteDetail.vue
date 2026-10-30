@@ -2,7 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useScroll } from 'motion-v'
-import { fetchRouteById } from '../controller/routesController'
+import { fetchRouteById, takePreloadedRoute } from '../controller/routesController'
 import { useReviewsStore } from '../controller/reviewsStore'
 import { useAuthStore } from '@/controller/authStore'
 import { generateItinerary } from '../controller/itineraryController'
@@ -25,8 +25,9 @@ const routeParams = useRoute()
 const reviewsStore = useReviewsStore()
 const auth = useAuthStore()
 const checklistStore = useChecklistStore()
-const route = ref(null)
-const loading = ref(true)
+// The globe's transition screen stays up until the route has loaded, so it's already here
+const route = ref(takePreloadedRoute(routeParams.params.id))
+const loading = ref(!route.value)
 const error = ref('')
 
 // "Sign in" links come back to this page afterwards
@@ -73,7 +74,7 @@ async function loadWeather() {
 onMounted(async () => {
   checklistStore.reset()
   try {
-    route.value = await fetchRouteById(routeParams.params.id)
+    route.value ??= await fetchRouteById(routeParams.params.id)
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     error.value = `Unable to load this route: ${message}`
@@ -115,8 +116,14 @@ async function reloadRoute() {
 // Scroll progress through the sections: the section bar fills from top to bottom,
 // and the trail is drawn a little ahead, level with the middle of the screen.
 const journey = ref(null)
-const { scrollYProgress: sectionProgress } = useScroll({ target: journey, offset: ['start start', 'end end'] })
-const { scrollYProgress: trailProgress } = useScroll({ target: journey, offset: ['start 0.55', 'end 0.55'] })
+const { scrollYProgress: sectionProgress } = useScroll({
+  target: journey,
+  offset: ['start start', 'end end'],
+})
+const { scrollYProgress: trailProgress } = useScroll({
+  target: journey,
+  offset: ['start 0.55', 'end 0.55'],
+})
 </script>
 
 <template>
@@ -126,7 +133,9 @@ const { scrollYProgress: trailProgress } = useScroll({ target: journey, offset: 
         <p v-if="loading" role="status">Loading route...</p>
         <p v-else-if="error" role="alert">{{ error }}</p>
         <p v-else>This route could not be found.</p>
-        <RouterLink v-if="!loading" class="cairn-btn is-light" to="/routes">Back to all routes</RouterLink>
+        <RouterLink v-if="!loading" class="cairn-btn is-light" to="/routes"
+          >Back to all routes</RouterLink
+        >
       </div>
     </div>
 
@@ -139,7 +148,11 @@ const { scrollYProgress: trailProgress } = useScroll({ target: journey, offset: 
         <WalkedTrail :progress="trailProgress" />
 
         <section id="fit" class="route-stop" aria-labelledby="fit-title">
-          <FitCheck :suitability="suitability" :is-logged-in="auth.isLoggedIn" :sign-in-to="signInTo" />
+          <FitCheck
+            :suitability="suitability"
+            :is-logged-in="auth.isLoggedIn"
+            :sign-in-to="signInTo"
+          />
         </section>
 
         <section class="route-stop" aria-label="How hard, honestly">
@@ -162,11 +175,16 @@ const { scrollYProgress: trailProgress } = useScroll({ target: journey, offset: 
               </span>
             </div>
             <p class="route-plan-intro">
-              Choose when you're starting, how many days you have and your pace, and we'll suggest a day-by-day
-              plan.
+              Choose when you're starting, how many days you have and your pace, and we'll suggest a
+              day-by-day plan.
             </p>
 
-            <ItineraryForm v-if="auth.isLoggedIn" :route="route" :loading="itineraryLoading" @generate="onGenerate" />
+            <ItineraryForm
+              v-if="auth.isLoggedIn"
+              :route="route"
+              :loading="itineraryLoading"
+              @generate="onGenerate"
+            />
             <p v-else class="route-plan-intro">
               <RouterLink :to="signInTo">Sign in</RouterLink>
               to generate an itinerary.
@@ -188,7 +206,9 @@ const { scrollYProgress: trailProgress } = useScroll({ target: journey, offset: 
                 </ul>
               </template>
 
-              <p class="cairn-fine">AI-generated. Check trail conditions, weather and permits before you hike.</p>
+              <p class="cairn-fine">
+                AI-generated. Check trail conditions, weather and permits before you hike.
+              </p>
             </template>
           </article>
         </section>
