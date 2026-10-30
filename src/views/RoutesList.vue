@@ -8,6 +8,7 @@ import DifficultyMark from '@/components/common/DifficultyMark.vue'
 import FilterDropdown from '@/components/routes/FilterDropdown.vue'
 import RangeFilter from '@/components/routes/RangeFilter.vue'
 import RouteTile from '@/components/routes/RouteTile.vue'
+import RoutesLoading from '@/components/routes/RoutesLoading.vue'
 import cairnPhoto from '@/assets/img/cairn1.jpg'
 import cairnMask from '@/assets/img/cairn1-mask.png'
 import photoAlpinePath from '@/assets/img/card-alpine-path.jpg'
@@ -357,7 +358,7 @@ onBeforeUnmount(() => stickObserver?.disconnect())
       </motion.div>
     </section>
 
-    <p v-if="loading" class="cairn-wrap routes-message" role="status">Loading routes...</p>
+    <RoutesLoading v-if="loading" />
     <p v-else-if="error" class="cairn-wrap routes-message" role="alert">{{ error }}</p>
     <p v-else-if="routes.length === 0" class="cairn-wrap routes-message">No routes are available right now.</p>
 
