@@ -7,6 +7,16 @@ export function listRoutes() {
   return supabase.from('routes').select('*')
 }
 
+// Just what the browse filters and tiles need. line_svg is a small ready-made path for the
+// tile, so browse doesn't download every full line (geometry).
+export function listRouteTiles() {
+  return supabase
+    .from('routes')
+    .select(
+      'id, name, country, distance_km, elevation_gain_m, duration_days, is_multiday, effective_difficulty, official_difficulty, technical_rating, line_svg',
+    )
+}
+
 // Just what the globe's pills and cards need. Leaves out each route's full line (geometry),
 // which is several MB across all routes; the globe loads a line only when it shows one.
 export function listRouteSummaries() {

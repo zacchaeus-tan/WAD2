@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'motion-v'
-import { fetchRoutes } from '../controller/routesController'
+import { fetchRouteTiles } from '../controller/routesController'
 import { tripType } from '@/lib/matching'
 import { GRADES, gradeOf } from '@/lib/difficultyStyle'
 import DifficultyMark from '@/components/common/DifficultyMark.vue'
@@ -311,7 +311,7 @@ onMounted(async () => {
   })
 
   try {
-    routes.value = await fetchRoutes()
+    routes.value = await fetchRouteTiles()
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     error.value = `Unable to load routes: ${message}`

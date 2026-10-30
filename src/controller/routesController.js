@@ -1,7 +1,23 @@
-import { listRoutes, listRouteSummaries, getRoute, getRouteGeometry, listRoutesByIds } from '@/model/routesModel'
+import {
+  listRoutes,
+  listRouteTiles,
+  listRouteSummaries,
+  getRoute,
+  getRouteGeometry,
+  listRoutesByIds,
+} from '@/model/routesModel'
 
 export async function fetchRoutes() {
   const { data, error } = await listRoutes()
+  if (error) {
+    throw error
+  }
+
+  return data
+}
+
+export async function fetchRouteTiles() {
+  const { data, error } = await listRouteTiles()
   if (error) {
     throw error
   }

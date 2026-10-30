@@ -178,7 +178,7 @@ components:
 
 **Creative North Star: "The Field Index"**
 
-CAIRN reads like a well-made field index: a near-white page, ink type, heavy two-pixel rules, square edges, and numbers set like measurements. The trail is the image. Every route is shown as a line drawn in a heat colour on a dark photograph, so a hiker can tell an easy walk from a hard climb before reading a word (for now the line is a placeholder drawing in the right colour; the real route lines come later, see Implementation). Pine marks the places where you act on the page (the filter bar, the section bar, the fit verdict, the quiz button); ink carries everything else.
+CAIRN reads like a well-made field index: a near-white page, ink type, heavy two-pixel rules, square edges, and numbers set like measurements. The trail is the image. Every route is shown as its own line, drawn in a heat colour on a dark photograph, so a hiker can tell an easy walk from a hard climb before reading a word. Pine marks the places where you act on the page (the filter bar, the section bar, the fit verdict, the quiz button); ink carries everything else.
 
 The system is plain until it matters, then unmistakable. Most of a screen is ground and ink. Colour appears on purpose: heat for difficulty, pine for controls and the personal verdict, blaze for a failed check or the one key action, amber for hazards. Every redesigned page opens on a full-screen, dimmed photograph with a transparent navbar over it (a parallax cairn on browse, the route's line on detail, a cairn in a valley on sign-in, hikers on a ridge for the quiz), then settles into wide, ruled bands with lots of space between them.
 
@@ -415,11 +415,13 @@ Bootstrap 5 CSS still loads globally (`src/main.js`) and remains the project's b
 
 ### Pages and their parts
 - `src/App.vue`: `SiteNav` (overlaid on the routes-list, route-detail, auth and quiz routes) and `SiteFooter` (hidden on the globe).
-- Browse, `src/views/RoutesList.vue`: `components/routes/FilterDropdown`, `RangeFilter`, `RouteTile`, `PlaceholderLine`, and `components/common/DifficultyMark`. Filtering, sorting and paging run in the view on the routes it already loads.
+- Browse, `src/views/RoutesList.vue`: `components/routes/FilterDropdown`, `RangeFilter`, `RouteTile`, `RouteLine`, and `components/common/DifficultyMark`. Filtering, sorting and paging run in the view on the routes it already loads.
 - Route detail, `src/views/RouteDetail.vue`: `RouteBanner`, `RouteNumbers`, `SectionNav`, `WalkedTrail` and `GradeDial` (in `components/routes`), `components/matching/FitCheck`, `components/weather/WeatherForecast`, `components/itinerary/ItineraryForm` and `ItineraryDay`, `components/checklist/GearChecklist` and `ChecklistForm` (also used on Profile), `components/reviews/TrailRegister`, `ReviewList`, `ReviewForm`, `IncidentFields` and `ReviewSummary`, and `components/common/NumberTicker`.
 - Sign-in, `src/views/AuthView.vue`: self-contained.
 - Quiz, `src/views/QuizView.vue` with `components/quiz/QuizAscent` (always `compact`) and `components/quiz/quizText.js` (short stop names, answer text).
-- Shared helpers: `src/lib/difficultyStyle.js` (grade colours and shapes, `gradeOf`, `isCommunityAdjusted`).
+- Shared helpers: `src/lib/difficultyStyle.js` (grade colours and shapes, `gradeOf`, `isCommunityAdjusted`) and `src/lib/routeLine.js` (`geometryToPath`: a route's GeoJSON line fitted to the 400×240 box and simplified to a short SVG path).
+- Route lines: tiles and the detail banner draw each route's own line with `components/routes/RouteLine`. Browse loads only the columns its filters and tiles need (`listRouteTiles()`), with `routes.line_svg`, a ready-made path for the 400×240 box, instead of the full geometry. The detail banner builds its path from `route.geometry` with `geometryToPath`. A route without either falls back to `PlaceholderLine`, which the loading tiles also use.
+- `line_svg` is filled by `node scripts/build-route-line-svg.mjs`, which writes `supabase/migrations/0013_route_line_svg_data.sql` with the same `geometryToPath`. Run it again after importing or changing route lines; until then a trigger (`0012`) clears the stale preview, so those tiles show the placeholder.
 
 ### Data and logic boundaries
 - Do not change controllers, models, stores or `src/lib/matching.js` for a design change without the team's agreement. Views may compute display-only values from data they already load.
@@ -427,9 +429,8 @@ Bootstrap 5 CSS still loads globally (`src/main.js`) and remains the project's b
 - The fit verdict and its checks come from `checkRouteSuitability()` in `src/lib/matching.js`, the weather figures and warnings from `src/controller/weatherController.js`, and the quiz questions from `src/lib/quizQuestions.js`. The design only presents them.
 
 ### Placeholders (to replace later)
-- **Route lines.** Tiles and the detail banner draw the same placeholder line (`PlaceholderLine.vue`) in the route's heat colour. Planned: a simplified line stored per route, so browse stops downloading every full line (about 21 MB today).
 - **Star breakdown.** The five bars in the trail register are grey placeholders with "—". Planned: counts stored on the route and kept up to date by `recalc_route_stats()`, because reviews are paged.
 - **Photos.** Tiles rotate four stock photos and the detail banner uses one, until each route has its own. Images live in `src/assets/img/`: `cairn1.jpg` and `cairn1-mask.png` (browse banner), `card-*.jpg` (tiles, detail banner, quiz) and `cairn-valley.jpg` (sign-in).
 
 ### Visual references
-The approved mockups are static HTML in `.impeccable/mocks/`, served with `node .impeccable/mocks/serve.cjs .impeccable/mocks 5180`: `browse/routes.html`, `detail/route-detail.html`, `landing/l1-summit.html`, and the design system page `system/index.html`. Where the app and a mockup differ, the app and this file are the current truth (for example the removed trip-type tag and the placeholder lines).
+The approved mockups are static HTML in `.impeccable/mocks/`, served with `node .impeccable/mocks/serve.cjs .impeccable/mocks 5180`: `browse/routes.html`, `detail/route-detail.html`, `landing/l1-summit.html`, and the design system page `system/index.html`. Where the app and a mockup differ, the app and this file are the current truth (for example the removed trip-type tag).
