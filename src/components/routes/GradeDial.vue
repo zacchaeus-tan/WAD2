@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useInView, useReducedMotion } from 'motion-v'
 import NumberTicker from '@/components/common/NumberTicker.vue'
 import ReviewSummary from '@/components/reviews/ReviewSummary.vue'
+import { GRADES } from '@/lib/difficultyStyle'
 
 // Official grade as a solid black arrow, community-adjusted grade as an orange band
 // with a ring. Both needles swing in from Easy when the dial comes into view.
@@ -23,6 +24,34 @@ const community = computed(() => toGrade(props.route.effective_difficulty))
 function angleFor(grade) {
   return -90 + ((grade - 1) / 3) * 180
 }
+
+// Point on the dial at an angle, measured from straight up around the hub at (200, 200)
+const HUB = 200
+const RADIUS = 160
+function pointAt(angle, radius = RADIUS) {
+  const rad = (angle * Math.PI) / 180
+  return [HUB + radius * Math.sin(rad), HUB - radius * Math.cos(rad)]
+}
+
+// Bands split where gradeOf() rounds (1.5, 2.5, 3.5), so the colour under a needle
+// matches the grade label shown everywhere else on the site
+const BAND_EDGES = [1, 1.5, 2.5, 3.5, 4]
+
+const bands = [1, 2, 3, 4].map((grade) => {
+  const [x1, y1] = pointAt(angleFor(BAND_EDGES[grade - 1]))
+  const [x2, y2] = pointAt(angleFor(BAND_EDGES[grade]))
+  return {
+    grade,
+    color: GRADES[grade].line,
+    d: `M${x1} ${y1}A${RADIUS} ${RADIUS} 0 0 1 ${x2} ${y2}`,
+  }
+})
+
+// Each join between two bands is labelled just outside the dial
+const edgeLabels = BAND_EDGES.slice(1, -1).map((edge) => {
+  const [x, y] = pointAt(angleFor(edge), 190)
+  return { edge, x, y }
+})
 
 const dial = ref(null)
 const inView = useInView(dial, { once: true, amount: 0.5 })
@@ -52,14 +81,26 @@ const label = computed(() => {
     <div v-else class="grade-dial-split">
       <div ref="dial" class="grade-dial-svg" role="img" :aria-label="label">
         <svg viewBox="0 0 400 236">
-          <path d="M40 200a160 160 0 0 1 46.9-113.1" fill="none" stroke="#6fdc8c" stroke-width="30" />
-          <path d="M86.9 86.9a160 160 0 0 1 113.1-46.9" fill="none" stroke="#f2d34f" stroke-width="30" />
-          <path d="M200 40a160 160 0 0 1 113.1 46.9" fill="none" stroke="#ff9f43" stroke-width="30" />
-          <path d="M313.1 86.9a160 160 0 0 1 46.9 113.1" fill="none" stroke="#ff5b4f" stroke-width="30" />
+          <path
+            v-for="band in bands"
+            :key="band.grade"
+            :d="band.d"
+            fill="none"
+            :stroke="band.color"
+            stroke-width="30"
+          />
           <g fill="#3a4540" font-size="12" font-weight="700" letter-spacing="1">
             <text x="40" y="228" text-anchor="middle">1 EASY</text>
-            <text x="88" y="66" text-anchor="end">2</text>
-            <text x="312" y="66">3</text>
+            <text
+              v-for="mark in edgeLabels"
+              :key="mark.edge"
+              :x="mark.x"
+              :y="mark.y"
+              text-anchor="middle"
+              dominant-baseline="middle"
+            >
+              {{ mark.edge }}
+            </text>
             <text x="360" y="228" text-anchor="middle">4 STRENUOUS</text>
           </g>
           <g class="grade-dial-needle" :style="{ transform: `rotate(${needleRotate(official)}deg)` }">

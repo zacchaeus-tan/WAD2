@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAIRN · Globe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Montserrat:wght@500;600&display=swap" rel="stylesheet">
+<!-- MapLibre GL JS (https://maplibre.org, BSD-3-Clause): same library the app already uses -->
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css">
+<link rel="stylesheet" href="globe.css">
+</head>
+<body class="is-intro">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="g-easy" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4.2" fill="currentColor"/></symbol>
+    <symbol id="g-moderate" viewBox="0 0 10 10"><rect x="1" y="1" width="8" height="8" fill="currentColor"/></symbol>
+    <symbol id="g-hard" viewBox="0 0 10 10"><path d="M5 0.4 9.6 5 5 9.6 0.4 5z" fill="currentColor"/></symbol>
+    <symbol id="g-strenuous" viewBox="0 0 16 10"><path d="M4.6 0.4 9.2 5 4.6 9.6 0 5zM11.4 0.4 16 5 11.4 9.6 6.8 5z" fill="currentColor"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v15M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.6 1.3 6.7L12 17.5l-6 3.3 1.3-6.7-5-4.6 6.8-.8z" fill="currentColor"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 12h16M12 4c2.4 2.2 3.4 5 3.4 8s-1 5.8-3.4 8c-2.4-2.2-3.4-5-3.4-8s1-5.8 3.4-8z" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-cairn" viewBox="0 0 24 24"><g fill="currentColor"><ellipse cx="12" cy="20" rx="8" ry="2.4"/><ellipse cx="12" cy="15.2" rx="6" ry="2.2"/><ellipse cx="12" cy="10.6" rx="4.4" ry="2"/><ellipse cx="12" cy="6.4" rx="3" ry="1.8"/><ellipse cx="12" cy="3" rx="1.6" ry="1.2"/></g></symbol>
+  </defs>
+</svg>
+
+<!-- Transparent navbar over the dark globe, paper text, same as the other photo-led pages -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <nav class="nav-group" aria-label="Explore">
+      <a class="nav-link" href="../landing/l1-summit.html">Home</a>
+      <a class="nav-link" href="../browse/routes.html">Browse routes</a>
+      <a class="nav-link is-current" href="#" aria-current="page">Globe</a>
+    </nav>
+    <a class="brand" href="../landing/l1-summit.html" aria-label="CAIRN home"><span class="brand-mark"><svg><use href="#i-cairn"/></svg></span>CAIRN</a>
+    <nav class="nav-group is-right" aria-label="Account">
+      <a class="nav-link" href="#">Sign in</a>
+      <a class="nav-link is-pine" href="#">Take the quiz</a>
+    </nav>
+  </div>
+</header>
+
+<main class="globe-page">
+  <div id="globe" class="globe-surface" role="region" aria-label="Interactive globe" aria-roledescription="3D globe"></div>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <!-- Intro: wordmark, loading bar, then the explore button -->
+  <section class="intro" id="intro">
+    <h1 class="intro-title" aria-label="CAIRN"><span>C</span><span>A</span><span>I</span><span>R</span><span>N</span></h1>
+    <p class="intro-tagline">Find your next trail.</p>
+    <div class="intro-loading" id="loading">
+      <div class="bar" role="progressbar" aria-label="Loading routes" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="bar-fill"></span></div>
+      <p class="loading-text" role="status"><span id="loading-msg">Loading routes</span><span class="pct" id="loading-pct">0%</span></p>
+    </div>
+    <button class="btn is-light intro-go" id="explore" type="button" hidden data-testid="globe-explore-button">
+      Explore the globe<svg><use href="#i-down"/></svg>
+    </button>
+  </section>
+
+  <!-- The index: counts, countries to fly to, the grade key and the map switch -->
+  <aside class="index" id="index" aria-label="Route index" data-testid="globe-panel">
+    <button class="index-toggle" id="index-toggle" type="button" aria-expanded="false" aria-controls="index-body">
+      <span class="index-count"><b class="data" id="count-shown">0</b> routes</span>
+      <span class="index-toggle-label">Index<svg><use href="#i-plus"/></svg></span>
+    </button>
+    <div class="index-body" id="index-body">
+      <div class="index-head">
+        <h2>Routes on the globe</h2>
+        <p class="data" data-testid="globe-route-count"><span id="count-total">0</span> routes · <span id="count-countries">0</span> countries</p>
+      </div>
+      <p class="label">Fly to</p>
+      <ol class="countries" id="countries"></ol>
+      <p class="label">Difficulty</p>
+      <ul class="key" id="key"></ul>
+      <p class="label">Map</p>
+      <div class="switch" role="radiogroup" aria-label="Map type">
+        <button type="button" role="radio" aria-checked="false" data-map="map">Map</button>
+        <button type="button" role="radio" aria-checked="true" data-map="satellite">Satellite</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Camera controls, square, bottom right -->
+  <div class="cam" aria-label="Camera">
+    <button type="button" id="zoom-in" aria-label="Zoom in"><svg><use href="#i-plus"/></svg></button>
+    <button type="button" id="zoom-out" aria-label="Zoom out"><svg><use href="#i-minus"/></svg></button>
+    <button type="button" id="reset" aria-label="Back to all routes"><svg><use href="#i-home"/></svg></button>
+  </div>
+
+  <!-- One card, positioned beside the chip on wide screens, docked to the bottom on phones -->
+  <article class="card" id="card" hidden data-testid="route-card"></article>
+
+  <div class="dive" id="dive" aria-live="polite"><p id="dive-name"></p></div>
+</main>
+
+<script src="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.js"></script>
+<script src="../browse/routes-data.js"></script>
+<script src="globe.js"></script>
+</body>
+</html>

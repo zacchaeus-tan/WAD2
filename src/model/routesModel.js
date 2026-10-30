@@ -23,7 +23,7 @@ export function listRouteSummaries() {
   return supabase
     .from('routes')
     .select(
-      'id, name, country, latitude, longitude, distance_km, duration_days, avg_rating, effective_difficulty, official_difficulty, technical_rating',
+      'id, name, country, latitude, longitude, distance_km, elevation_gain_m, altitude_m, duration_days, avg_rating, effective_difficulty, official_difficulty, technical_rating',
     )
 }
 

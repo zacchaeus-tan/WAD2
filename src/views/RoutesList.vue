@@ -191,10 +191,31 @@ const filteredRoutes = computed(() => {
 
 const displayedRoutes = computed(() => filteredRoutes.value.slice(0, visibleCount.value))
 
-// Start again from the first page whenever the results change
+const filterBar = ref(null)
+const results = ref(null)
+
+// Bring the first result into view, just under the sticky bar. upOnly stops it pulling
+// the page down while someone is still typing in the banner search.
+function scrollToResults(upOnly = false) {
+  if (!results.value) {
+    return
+  }
+  const barHeight = wideScreen.matches && filterBar.value ? filterBar.value.offsetHeight : 0
+  // One pixel past the bar's resting point, so it counts as stuck and shows its own search
+  const offset = results.value.getBoundingClientRect().top - barHeight + 1
+  if (upOnly && offset >= 0) {
+    return
+  }
+  window.scrollTo({ top: window.scrollY + offset, behavior: reduceMotion.value ? 'auto' : 'smooth' })
+}
+
+// Start again from the first page, at the top of the results, whenever the results change
 watch(
   [searchTerm, selectedCountry, selectedGrades, selectedTrips, distanceRange, climbRange, sortBy],
-  () => (visibleCount.value = PAGE_SIZE),
+  () => {
+    visibleCount.value = PAGE_SIZE
+    scrollToResults(true)
+  },
   { deep: true },
 )
 
@@ -353,7 +374,13 @@ onBeforeUnmount(() => stickObserver?.disconnect())
         <label class="routes-banner-search">
           <span class="cairn-visually-hidden">Search routes by name</span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m20 20-4.4-4.4" /></svg>
-          <input v-model="searchTerm" type="search" placeholder="Search a route, like Kinabalu" />
+          <!-- Enter takes you down to what the search found -->
+          <input
+            v-model="searchTerm"
+            type="search"
+            placeholder="Search a route, like Kinabalu"
+            @keydown.enter="scrollToResults()"
+          />
         </label>
       </motion.div>
     </section>
@@ -364,7 +391,13 @@ onBeforeUnmount(() => stickObserver?.disconnect())
 
     <template v-else>
       <div ref="barSentinel" aria-hidden="true"></div>
-      <div class="routes-bar" :class="{ 'is-stuck': barIsStuck }" role="group" aria-label="Filter routes">
+      <div
+        ref="filterBar"
+        class="routes-bar"
+        :class="{ 'is-stuck': barIsStuck }"
+        role="group"
+        aria-label="Filter routes"
+      >
         <div class="cairn-wrap routes-bar-inner">
           <FilterDropdown
             label="Country"
@@ -510,7 +543,7 @@ onBeforeUnmount(() => stickObserver?.disconnect())
         </div>
       </div>
 
-      <section class="cairn-wrap routes-results" aria-label="Route results">
+      <section ref="results" class="cairn-wrap routes-results" aria-label="Route results">
         <div class="routes-results-top">
           <div class="routes-active">
             <button
