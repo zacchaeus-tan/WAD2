@@ -10,25 +10,41 @@
 <link rel="stylesheet" href="../home/cairn.css">
 <link rel="stylesheet" href="../browse/browse.css">
 <link rel="stylesheet" href="../browse/d-shared.css">
+<link rel="stylesheet" href="../detail/banner.css">
 <link rel="stylesheet" href="landing.css">
+<link rel="stylesheet" href="l1-carousels.css">
 <style>
 /* Hero: the wordmark set between the sky and the mountain; layers move at different speeds */
-.hero { position: relative; height: clamp(640px, 92vh, 880px); overflow: hidden; background: linear-gradient(#2a5bbd, #3a72d4 60%); color: var(--white); isolation: isolate; }
+.hero {
+  --h: max(640px, 100svh); --pad: calc(65px + clamp(48px, 10vh, 110px)); --font: clamp(120px, 27vw, 420px);
+  --stack-top: calc(var(--pad) + var(--font) * 0.5); /* the stack's top reaches halfway up the wordmark */
+  --w: max(100vw, (var(--h) - var(--stack-top)) / 0.621); /* photo width: wide enough to reach the hero's foot */
+  --x: max(100vw - var(--w), min(0px, 68vw - var(--w) * 0.681)); /* the stack is 68.1% across the photo */
+  --y: calc(var(--stack-top) - var(--w) * 0.8406); /* and its top is 84.06% of the photo's width down */
+  position: relative; height: var(--h); overflow: hidden; background: #8fa9b4; color: var(--white); isolation: isolate;
+}
 .layer { position: absolute; inset: 0; will-change: transform; pointer-events: none; }
-.sky, .front { background: url('../browse/img/cairn1.jpg') 50% 10% / cover no-repeat; }
-.front { -webkit-mask: url('../browse/img/cairn1-mask.png') 50% 10% / cover no-repeat; mask: url('../browse/img/cairn1-mask.png') 50% 10% / cover no-repeat; z-index: 3; }
-.word { z-index: 2; display: flex; justify-content: center; padding-top: clamp(90px, 14vh, 150px); }
-.word span { font-size: clamp(120px, 27vw, 420px); line-height: 0.8; font-weight: 900; letter-spacing: -0.05em; color: var(--white); text-shadow: 0 8px 32px rgb(0 0 0 / 0.18); }
-.shade { position: absolute; inset: 0; z-index: 4; pointer-events: none; background: linear-gradient(to bottom, transparent 50%, rgb(10 18 14 / 0.6) 100%); }
-.hero-foot { position: absolute; left: 0; right: 0; bottom: 32px; z-index: 5; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; }
-.hero-foot h1 { font-size: clamp(24px, 2.4vw, 34px); line-height: 1.1; font-weight: 900; max-width: 15ch; text-shadow: 0 2px 16px rgb(0 0 0 / 0.35); }
-.hero-foot .cue { display: inline-flex; gap: 8px; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgb(255 255 255 / 0.6); color: var(--white); font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; }
-.hero-foot .cue svg { width: 16px; height: 16px; }
-.quizcard { width: min(320px, 100%); background: var(--pine); color: var(--paper); padding: 20px; display: grid; gap: 14px; box-shadow: var(--elev-3); }
-.quizcard p { font-size: 16px; line-height: 22px; font-weight: 700; }
-.quizcard .sq { min-height: 44px; font-size: 13px; }
+.sky { background: url('img/cairn-cloud-sky.jpg') var(--x) var(--y) / var(--w) auto no-repeat; }
+.front { background: url('img/cairn-cloud-front.jpg') var(--x) var(--y) / var(--w) auto no-repeat; -webkit-mask: url('img/cairn-cloud-front-mask.png') var(--x) var(--y) / var(--w) auto no-repeat; mask: url('img/cairn-cloud-front-mask.png') var(--x) var(--y) / var(--w) auto no-repeat; z-index: 3; }
+.word { z-index: 2; display: flex; justify-content: center; padding-top: var(--pad); }
+.word span { font-size: var(--font); line-height: 0.8; font-weight: 900; letter-spacing: -0.05em; color: var(--white); text-shadow: 0 8px 32px rgb(0 0 0 / 0.18); }
+.shade { position: absolute; inset: 0; z-index: 4; pointer-events: none; background: linear-gradient(to bottom, rgb(10 18 14 / 0.38), transparent 20%, transparent 55%, rgb(10 18 14 / 0.6) 100%); }
+.hero-foot { position: absolute; left: 0; right: 0; bottom: 24px; z-index: 5; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; }
+.hero-foot h1 { font-size: clamp(19px, 1.7vw, 24px); line-height: 1.1; font-weight: 900; max-width: 15ch; text-shadow: 0 2px 16px rgb(0 0 0 / 0.35); }
+.hero-foot .cue { display: inline-flex; gap: 8px; align-items: center; margin-top: 10px; padding-top: 8px; border-top: 1px solid rgb(255 255 255 / 0.6); color: var(--white); font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; }
+.hero-foot .cue svg { width: 13px; height: 13px; }
+.quizcard { width: min(240px, 100%); background: var(--pine); color: var(--paper); padding: 14px; display: grid; gap: 10px; box-shadow: var(--elev-3); }
+.quizcard p { font-size: 13px; line-height: 18px; font-weight: 700; }
+.quizcard .sq { min-height: 36px; padding: 0 12px; font-size: 11px; }
+.quizcard .sq svg { width: 14px; height: 14px; }
 
 /* Statement with framed photos set off-grid, as in a printed spread */
+/* Every section fills one screen, with its content centred */
+.statement, .routes-sec, .quiz-band { min-height: 100svh; display: grid; grid-template-columns: minmax(0, 1fr); align-content: center; padding-block: clamp(40px, 7vh, 80px); }
+.lfoot { min-height: 100svh; display: grid; grid-template-columns: minmax(0, 1fr); }
+.lfoot > .wrap { display: grid; grid-template-rows: auto 1fr auto; width: 100%; }
+.lfoot .word { align-self: end; }
+
 .statement { position: relative; text-align: center; }
 .statement .big { max-width: 14ch; margin: 0 auto; }
 .statement .lede { margin: 28px auto 0; }
@@ -38,11 +54,7 @@
 .frame.f1 { left: max(16px, calc(50vw - 640px)); top: 40px; }
 .frame.f2 { right: max(16px, calc(50vw - 640px)); bottom: 40px; }
 
-/* How it works: three square fields, each drawing what the step produces */
-.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 56px; }
-.step .field { aspect-ratio: 1; display: grid; place-items: center; padding: 28px; }
-.step h3 { margin-top: 16px; font-size: 20px; line-height: 26px; font-weight: 900; }
-.step p { margin-top: 6px; color: var(--g700); max-width: 34ch; }
+/* Small product fragments shown in the carousel */
 .mini { width: 100%; max-width: 280px; background: var(--white); padding: 16px; display: grid; gap: 10px; font-size: 14px; }
 .mini .q { font-weight: 900; font-size: 15px; line-height: 20px; }
 .mini .opt { border: 1.5px solid var(--g300); padding: 8px 10px; }
@@ -54,37 +66,38 @@
 .mini .v { display: flex; align-items: center; gap: 10px; font-weight: 900; }
 .mini .v .meter i { background: var(--g200); }
 
-.fit { display: grid; grid-template-columns: 1fr minmax(0, 480px); gap: clamp(40px, 7vw, 112px); align-items: center; }
-.fit .lede { margin-top: 20px; }
-.fit ul.rules { margin: 28px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; font-size: 15px; color: var(--g700); }
-.fit ul.rules li::before { content: ''; display: inline-block; width: 8px; height: 8px; background: var(--ink); margin-right: 12px; translate: 0 -2px; }
-
-.grade-sec { background: var(--linen); }
-.grade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(40px, 7vw, 112px); align-items: center; }
-.grade-grid .note { margin-top: 18px; font-size: 14px; color: var(--g700); }
-
 .routes-sec { background: var(--ink); color: var(--paper); }
-.routes-sec .top { display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; margin-bottom: 40px; }
-.routes-sec .more { display: flex; justify-content: center; margin-top: 56px; }
+.routes-sec .top { display: flex; justify-content: space-between; align-items: end; gap: 12px 24px; flex-wrap: wrap; margin-bottom: clamp(20px, 4vh, 40px); }
+.routes-sec .more { display: flex; justify-content: center; margin-top: clamp(20px, 4vh, 48px); }
 
 .quiz-band { text-align: center; }
 .quiz-band .big { max-width: 12ch; margin: 0 auto; }
 .quiz-band p { margin: 22px auto 32px; max-width: 46ch; color: #d4e3db; font-size: 18px; line-height: 28px; }
 
+@media (max-width: 1000px) {
+  .routes-sec .ltiles { gap: 20px 12px; }
+  .routes-sec .ltile .field { aspect-ratio: 16 / 10; }
+  .routes-sec .ltile h3 { margin-top: 8px; font-size: 14px; line-height: 18px; }
+  .routes-sec .ltile .facts { margin-top: 2px; font-size: 12px; }
+}
 @media (max-width: 900px) {
-  .steps, .fit, .grade-grid { grid-template-columns: 1fr; }
   .frame { display: none; }
   .hero-foot { flex-direction: column; align-items: flex-start; }
 }
-@media (max-width: 640px) {
-  .sky, .front { background-position: 50% 4%; }
-  .front { -webkit-mask-position: 50% 4%; mask-position: 50% 4%; }
-  .word { padding-top: 70px; }
+@media (max-height: 700px) and (max-width: 1000px) {
+  .routes-sec .ltile .field { aspect-ratio: 2 / 1; }
+  .routes-sec .more .sq { min-height: 44px; }
+  .lfoot { padding: 28px 0 14px; }
+  .lfoot .cols { gap: 16px; }
+  .lfoot h2 { margin-bottom: 10px; font-size: 20px; line-height: 24px; }
+  .lfoot p { margin-bottom: 4px; }
+  .lfoot .word { margin: 16px 0 12px; }
+  .lfoot .sq { min-height: 44px; }
 }
 </style>
 </head>
 <body>
-<header class="nav">
+<header class="nav nav-dark">
   <div class="wrap nav-inner">
     <a class="nav-brand" href="l1-summit.html"><span class="mark"><svg class="ico" style="color:#fbfaf7"><use href="#i-cairn"/></svg></span>CAIRN</a>
     <nav class="nav-links" aria-label="Main">
@@ -98,17 +111,17 @@
 
 <main>
   <section class="hero" data-parallax aria-labelledby="hero-title">
-    <div class="layer sky" data-speed="0.6" role="img" aria-label="A cairn of flat stones on a grassy ridge below a snow-covered peak"></div>
+    <div class="layer sky" data-speed="0.6" role="img" aria-label="A cairn of flat stones on a rocky hilltop, with cloud behind it"></div>
     <div class="layer word" data-speed="0.42" aria-hidden="true"><span>CAIRN</span></div>
     <div class="layer front" data-speed="0.05" aria-hidden="true"></div>
     <div class="shade" aria-hidden="true"></div>
     <div class="hero-foot wrap" data-fade>
       <div>
         <h1 id="hero-title">Know if a trek suits you before you go.</h1>
-        <a class="cue" href="#intro">How it works<svg class="ico"><use href="#i-arrow-down"/></svg></a>
+        <a class="cue" href="#intro">Find out more<svg class="ico"><use href="#i-arrow-down"/></svg></a>
       </div>
       <div class="quizcard">
-        <p>Not sure what you can handle yet? Five questions about the walks you've done.</p>
+        <p>Tell us about your experience level</p>
         <a class="sq light" href="#">Take the quiz<svg class="ico"><use href="#i-arrow-right"/></svg></a>
       </div>
     </div>
@@ -119,76 +132,74 @@
     <figure class="frame f2" aria-hidden="true"><img src="../browse/img/card-alpine-path.jpg" alt=""></figure>
     <div class="wrap rise">
       <h2 class="big">Every summit starts with an honest answer.</h2>
-      <p class="lede">CAIRN compares what you've already walked with what a route will ask of you, day by day, and tells you plainly where it fits and where it stretches you.</p>
+      <p class="lede">CAIRN is a trek planner for hikers in Southeast Asia. Take a short quiz about the walks you've done, and every route shows whether it suits you and where it will stretch you. Grades shift with real hiker reviews, and AI helps you plan the days and pack the right gear.</p>
       <svg class="glyph" aria-hidden="true"><use href="#i-cairn"/></svg>
     </div>
   </section>
 
-  <section class="sec-tight" aria-labelledby="how-title" style="padding-top:0">
-    <div class="wrap">
-      <div class="kicker-rule" style="padding-top:20px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap"><h2 id="how-title" class="mid">How it works</h2><a class="tlink" href="#">Read the matching rules</a></div>
-      <div class="steps">
-        <article class="step rise">
-          <div class="field" style="background:var(--sand)"><div class="mini"><span class="q">What's the longest day you've walked?</span><span class="opt">Under 8 km</span><span class="opt sel">8 to 15 km</span><span class="opt">Over 15 km</span></div></div>
-          <h3>Tell us what you've done</h3><p>A five-question quiz about distance, climb, altitude and nights out.</p>
-        </article>
-        <article class="step rise">
-          <div class="field" style="background:#d3e3d6"><div class="mini"><span class="row"><span>Distance a day</span><span class="data">Within</span></span><span class="row"><span>Highest point</span><span class="data">Above</span></span><span class="v v-challenge"><span class="meter" aria-hidden="true"><i></i><i></i><i></i></span>Good challenge</span></div></div>
-          <h3>See where a route stretches you</h3><p>Fixed rules check each route against your history. Every check is shown.</p>
-        </article>
-        <article class="step rise">
-          <div class="field" style="background:#d6e4ec"><div class="mini"><span class="row"><strong>Day 1</strong><span class="data">9.2 km · +1,340 m</span></span><span class="row"><strong>Day 2</strong><span class="data">Summit, descend</span></span><span class="ai"><svg class="ico"><use href="#i-ai"/></svg>AI-generated plan</span></div></div>
-          <h3>Plan the days and the gear</h3><p>A day-by-day plan, live weather warnings and a checklist for the route.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="sec" aria-labelledby="fit-title">
-    <div class="wrap fit">
-      <div class="rise">
-        <h2 id="fit-title" class="mid">Rules decide. You see every one.</h2>
-        <p class="lede">A route can ask up to 25% more than you've done before and still count as within your experience. Above 2,500 m, altitude sickness is flagged.</p>
-        <ul class="rules"><li>Distance and climb per day</li><li>Highest point reached</li><li>Number of days on the trail</li><li>Your experience against the grade</li></ul>
-      </div>
-      <div class="rise">
-        <div class="verdict-card">
-          <div class="vc-head"><strong>Mount Pulag Lusod Trail</strong><span class="lab">Philippines</span></div>
-          <ul>
-            <li><span class="ok"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg></span><span>Distance a day</span><span class="data">9.2 km</span></li>
-            <li><span class="ok"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg></span><span>Climb a day</span><span class="data">+1,340 m</span></li>
-            <li><span class="no"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></span><span>Highest point</span><span class="data">2,699 m</span></li>
-            <li><span class="ok"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg></span><span>Days on the trail</span><span class="data">1 day</span></li>
-          </ul>
-          <div class="warn"><svg viewBox="0 0 24 24"><path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4.5M12 17.2v.1"/></svg>Above 2,500 m: watch for altitude sickness (CDC Yellow Book).</div>
-          <div class="vc-foot"><span class="verdict v-challenge"><span class="meter" aria-hidden="true"><i></i><i></i><i></i></span>Good challenge</span></div>
+  <section class="tour" id="how" aria-roledescription="carousel" aria-labelledby="how-title">
+      <div class="t-back" aria-hidden="true"></div>
+      <div class="t-head wrap"><h2 id="how-title" class="mid">How it works</h2></div>
+      <div class="t-view">
+        <div class="t-track">
+          <article class="slide" aria-roledescription="slide">
+            <img class="s-photo" src="../browse/img/card-alpine-path.jpg" alt="" loading="lazy">
+            <div class="s-text"><h3>See your suitability for each route</h3><p>Fixed rules check each route against your history. A route can ask up to 25% more than you've done before and still count as within your experience.</p></div>
+            <div class="s-visual"><ul class="levels">
+                <li class="v-comfortable"><span class="meter" aria-hidden="true"><i></i><i></i><i></i></span><strong>Comfortable</strong><span>Within what you have done before.</span></li>
+                <li class="v-challenge"><span class="meter" aria-hidden="true"><i></i><i></i><i></i></span><strong>Good challenge</strong><span>A step up in one or two areas.</span></li>
+                <li class="v-stretch"><span class="meter" aria-hidden="true"><i></i><i></i><i></i></span><strong>A stretch</strong><span>Well beyond what you have done so far.</span></li>
+            </ul></div>
+          </article>
+          <article class="slide" aria-roledescription="slide">
+            <img class="s-photo" src="../browse/img/card-ridge-hikers.jpg" alt="" loading="lazy">
+            <div class="s-text"><h3>The grade moves when hikers say so.</h3><p>Every route keeps its official grade next to a community grade from reviews. When hikers rate it harder, the grade shifts, and the fit check uses it.</p></div>
+            <div class="s-visual"><div>
+              <div class="shift">
+                <div class="g"><span class="lab">Official</span><span class="num" style="color:#1d7a43">1.00</span><strong>Easy</strong></div>
+                <svg class="arrow ico" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+                <div class="g" style="background:var(--ink);color:var(--paper);border-color:var(--ink)"><span class="lab" style="color:#b9d3c6">Community</span><span class="num">1.33</span><strong>Leaning moderate</strong></div>
+              </div>
+            </div></div>
+          </article>
+          <article class="slide" aria-roledescription="slide">
+            <img class="s-photo" src="../browse/img/card-lake-peaks.jpg" alt="" loading="lazy">
+            <div class="s-text"><h3>Plan your trek</h3><p>AI-assisted planner based on weather and your preferences</p></div>
+            <div class="s-visual"><article class="plan-day">
+              <p class="lab">Day 1 · Sat, 31 Oct 2026</p>
+              <h4>Ascent via Akiki Trail</h4>
+              <p class="way">Akiki Trailhead → Trail End at 2913 m</p>
+              <p class="facts data"><span>9.26 km</span><span>+1647 m</span><span>~7 h</span></p>
+              <ul><li>Panoramic views of the Philippine mountain ranges</li><li>Dense forest sections transitioning to alpine vegetation</li><li>Rewarding summit views at the highest altitude point</li></ul>
+              <p class="notes">Start early to avoid afternoon weather changes; bring plenty of water and high-energy snacks; wear sturdy hiking boots and layered clothing for altitude changes; pace yourself for the steep elevation gain.</p>
+            </article></div>
+          </article>
+          <article class="slide" aria-roledescription="slide">
+            <img class="s-photo" src="../home/img/cairn-valley.jpg" alt="" loading="lazy">
+            <div class="s-text"><h3>Pack the right gear</h3><p>Our AI assists you in ensuring you have the right gear for the conditions ahead.</p></div>
+            <div class="s-visual"><div class="pad-wrap">
+              <div class="pad">
+                <div class="pad-sheet">
+                  <strong>Mount Pulag Lusod Trail · pack list</strong>
+                  <ul>
+                  <li><span class="tick on"></span><span class="txt on">Rain jacket</span></li>
+                  <li><span class="tick on"></span><span class="txt on">Water bottles<span class="qty"> — 2 L</span></span></li>
+                  <li><span class="tick"></span><span class="txt">Head torch</span></li>
+                  <li><span class="tick"></span><span class="txt">Warm layer</span></li>
+                  </ul>
+                </div>
+              </div>
+            </div></div>
+          </article>
         </div>
-        <p class="example-note">Example for a hiker whose highest walk so far reached 2,000 m. Route figures are real.</p>
       </div>
-    </div>
-  </section>
-
-  <section class="grade-sec sec" aria-labelledby="grade-title">
-    <div class="wrap grade-grid">
-      <div class="rise">
-        <h2 id="grade-title" class="mid">The grade moves when hikers say so.</h2>
-        <p class="lede" style="margin-top:20px">Every route keeps its official grade next to a community grade from reviews. When hikers rate it harder, the grade shifts, and the fit check uses it.</p>
-      </div>
-      <div class="rise">
-        <div class="shift">
-          <div class="g"><span class="lab">Official</span><span class="num" style="color:#1d7a43">1.00</span><strong>Easy</strong></div>
-          <svg class="arrow ico" aria-hidden="true"><use href="#i-arrow-right"/></svg>
-          <div class="g" style="background:var(--ink);color:var(--paper);border-color:var(--ink)"><span class="lab" style="color:#b9d3c6">Community</span><span class="num">1.33</span><strong>Leaning moderate</strong></div>
-        </div>
-        <p class="note">Gunung Merbabu (Wekas BC), Indonesia, after one hiker's review reporting a difficult river crossing.</p>
-      </div>
-    </div>
+      <div class="t-ctl wrap"></div>
   </section>
 
   <section class="routes-sec on-dark sec" aria-labelledby="routes-title">
     <div class="wrap">
       <div class="top">
-        <div><h2 id="routes-title" class="mid">Routes to start with</h2></div>
+        <div><h2 id="routes-title" class="mid">Routes to explore</h2></div>
         <div class="heat" aria-label="Line colour shows difficulty"><span><i style="background:var(--heat-1)"></i>Easy</span><span><i style="background:var(--heat-2)"></i>Moderate</span><span><i style="background:var(--heat-3)"></i>Hard</span><span><i style="background:var(--heat-4)"></i>Strenuous</span></div>
       </div>
       <div class="ltiles" data-routes="Mount Pulag Lusod Trail|Mount Rinjani via Senaru|Mount Kinabalu Trail|Trans-Tahan"></div>
@@ -199,7 +210,7 @@
   <section class="pine-band quiz-band sec" aria-labelledby="quiz-title">
     <div class="wrap rise">
       <h2 id="quiz-title" class="big">Find the trek that fits.</h2>
-      <p>Answer five questions once. Every route then shows how it compares with what you've walked.</p>
+      <p>Take our short quiz. Every route then shows how it compares with what you've walked.</p>
       <a class="sq blaze" href="#">Take the quiz<svg class="ico"><use href="#i-arrow-right"/></svg></a>
     </div>
   </section>
@@ -222,5 +233,6 @@
 <script src="../browse/browse.js"></script>
 <script src="../home/shared.js"></script>
 <script src="landing.js"></script>
+<script src="l1-carousels.js"></script>
 </body>
 </html>

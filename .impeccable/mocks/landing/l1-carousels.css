@@ -1,0 +1,109 @@
+/* L1 "How it works" carousel: a draggable filmstrip of dimmed photo panels,
+   with the current panel's photo cross-fading behind the whole section. */
+.tour { --sw: min(82vw, 1120px); position: relative; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: clamp(12px, 3vh, 28px); height: 100svh; min-height: 560px; padding: clamp(20px, 5vh, 56px) 0 clamp(12px, 3vh, 32px); overflow: clip; background: #101814; color: var(--paper); }
+.t-back { position: absolute; inset: 0; }
+.t-back img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; filter: brightness(0.3) saturate(0.6); transition: opacity 0.8s var(--ease); }
+.t-back img.is-on { opacity: 1; }
+.t-head { position: relative; display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+.t-head .tlink { color: var(--paper); }
+.t-head .tlink:hover { color: var(--sand); }
+
+.t-view { position: relative; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; cursor: grab; }
+.t-view::-webkit-scrollbar { display: none; }
+.t-view.dragging { scroll-snap-type: none; cursor: grabbing; user-select: none; }
+.t-track { display: flex; gap: 20px; width: max-content; height: 100%; padding-inline: calc((100vw - var(--sw)) / 2); }
+
+/* One panel: words beside what that step produces */
+.slide { position: relative; flex: 0 0 var(--sw); display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(32px, 5vw, 80px); align-items: center; min-height: 0; padding: clamp(20px, 4vw, 56px); overflow: hidden; scroll-snap-align: center; opacity: 0.45; transition: opacity 0.35s var(--ease); }
+.slide.is-on { opacity: 1; }
+.s-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.5) saturate(0.75); pointer-events: none; }
+.s-text, .s-visual { position: relative; }
+.s-text h3 { font-size: clamp(30px, 3.6vw, 52px); line-height: 1.04; font-weight: 900; letter-spacing: -0.025em; text-wrap: balance; }
+.s-text p { margin-top: 18px; font-size: 18px; line-height: 28px; color: #e4ebe6; max-width: 40ch; text-wrap: pretty; }
+.s-visual { display: grid; justify-items: center; min-width: 0; }
+.s-visual > * { width: 100%; max-width: 440px; }
+.s-visual .shift .g { color: var(--ink); }
+.s-visual .shift .g { background: var(--white); }
+.s-visual .shift .arrow { color: var(--paper); }
+
+/* The three suitability levels, on pine as on the route page */
+.levels { margin: 0; padding: 8px 24px; list-style: none; background: var(--pine); color: var(--paper); }
+.levels li { display: grid; grid-template-columns: auto 1fr; gap: 2px 16px; align-items: center; padding: 18px 0; border-bottom: 1px solid rgb(242 239 234 / 0.18); }
+.levels li, .levels li strong { color: var(--paper); }
+.levels li:last-child { border-bottom: 0; }
+.levels .meter { grid-row: span 2; }
+.levels .meter i { width: 10px; height: 34px; }
+.levels strong { font-size: 20px; line-height: 26px; font-weight: 900; }
+.levels li > span:last-child { font-size: 15px; line-height: 22px; color: #d4e3db; }
+
+/* Itinerary day card, as on the route page */
+.plan-day { display: grid; gap: 8px; padding: 20px 22px; border-top: 3px solid var(--ink); background: var(--white); color: var(--ink); }
+.plan-day p, .plan-day h4 { margin: 0; }
+.plan-day .lab { color: var(--g700); }
+.plan-day h4 { font-size: 18px; line-height: 24px; font-weight: 900; }
+.plan-day .way { font-size: 15px; }
+.plan-day .facts { display: flex; flex-wrap: wrap; gap: 4px 14px; color: var(--g700); font-size: 13px; font-weight: 500; }
+.plan-day ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 22px; }
+.plan-day .notes { color: var(--g700); font-size: 14px; line-height: 21px; }
+
+/* Ring-bound gear notepad, as on the route page */
+.pad-wrap { color: var(--ink); }
+.pad { filter: drop-shadow(0 16px 24px rgb(23 32 28 / 0.18)); transform: rotate(-0.6deg); }
+.pad-sheet { padding: 18px 24px 24px 62px; background-color: #fffbe9; background-image: linear-gradient(to right, transparent 44px, #e5a3a3 44px 46px, transparent 46px), repeating-linear-gradient(to bottom, transparent 0 47px, #b8d2e6 47px 48px); background-position: 0 0, 0 52px; }
+.pad-sheet strong { display: flex; align-items: baseline; height: 34px; margin-bottom: 18px; font-size: 17px; font-weight: 900; }
+.pad-sheet ul { margin: 0; padding: 0; list-style: none; }
+.pad-sheet li { display: flex; align-items: center; gap: 12px; min-height: 48px; }
+.pad-sheet .tick { position: relative; flex: none; width: 20px; height: 20px; border: 2px solid var(--g700); }
+.pad-sheet .tick.on::after { content: ''; position: absolute; left: -2px; top: -8px; width: 24px; height: 24px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c2481a' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 13l5 5L21 4'/%3E%3C/svg%3E") no-repeat center / contain; }
+.pad-sheet .txt { position: relative; font-size: 17px; }
+.pad-sheet .txt.on { color: var(--g500); }
+.pad-sheet .txt.on::after { content: ''; position: absolute; left: -4px; right: -4px; top: 55%; height: 2px; background: var(--g700); }
+.pad-sheet .qty { color: var(--g700); }
+
+/* Controls: a rule per panel, arrows, count */
+.t-ctl { position: relative; display: flex; align-items: center; gap: 16px; }
+.t-ticks { flex: 1; display: flex; gap: 6px; min-width: 0; }
+.t-tick { position: relative; flex: 1; min-height: 44px; padding: 0; border: 0; background: none; cursor: pointer; }
+.t-tick::before, .t-tick::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 3px; }
+.t-tick::before { background: rgb(242 239 234 / 0.3); }
+.t-tick::after { background: var(--paper); transform: scaleX(var(--fill, 0)); transform-origin: left; transition: transform 0.25s var(--ease); }
+.t-count { font-family: var(--font-data); font-variant-numeric: tabular-nums; font-size: 14px; font-weight: 600; white-space: nowrap; }
+.t-btn { width: 44px; height: 44px; display: grid; place-items: center; flex: none; padding: 0; border: 2px solid currentColor; background: none; color: inherit; cursor: pointer; transition: background-color 0.2s var(--ease), color 0.2s var(--ease); }
+.t-btn:hover { background: var(--paper); border-color: var(--paper); color: var(--ink); }
+.t-btn svg { width: 18px; height: 18px; }
+.t-btn.prev svg { rotate: 180deg; }
+.t-tick:focus-visible, .t-btn:focus-visible { outline: 3px solid var(--paper); outline-offset: 2px; }
+
+@media (max-width: 900px) {
+  .slide { grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; align-content: center; }
+}
+@media (max-width: 760px) {
+  .tour { --sw: 92vw; }
+  .slide { padding: 16px; }
+  .s-text h3 { font-size: 26px; }
+  .s-text p { margin-top: 8px; }
+  .plan-day { padding: 14px 16px; gap: 4px; }
+  .plan-day ul { font-size: 14px; line-height: 19px; }
+  .plan-day .notes { font-size: 13px; line-height: 18px; }
+  .t-track { gap: 8px; }
+  .s-text p { font-size: 15px; line-height: 21px; }
+}
+@media (max-width: 560px) {
+  .s-visual .shift { grid-template-columns: 1fr auto 1fr; gap: 8px; }
+  .s-visual .shift .arrow { rotate: none; width: 24px; height: 24px; }
+  .s-visual .shift .g { padding: 12px; }
+  .s-visual .shift .g .num { font-size: 32px; }
+  .s-visual .shift .g strong { font-size: 14px; line-height: 18px; }
+}
+/* Short screens: fewer lines in the tallest cards */
+@media (max-height: 760px) {
+  .plan-day .notes { display: none; }
+  .pad-sheet li:nth-child(n + 4) { display: none; }
+}
+@media (max-height: 760px) and (max-width: 900px) {
+  .plan-day li:nth-child(3) { display: none; }
+  .levels li { padding: 10px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .slide, .t-back img { transition: none; }
+}
