@@ -26,6 +26,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev", "--", "--port", "5173", "--strictPort"],
       "port": 5173
+    },
+    {
+      "name": "wad2-2",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--dir", "../wad2-2", "run", "dev", "--port", "5174", "--strictPort"],
+      "port": 5174
     }
   ]
 }

@@ -95,12 +95,20 @@ async function onToggleSaved() {
                 <button type="button" @click="openForm(item)">Edit</button>
                 <button type="button" class="is-remove" @click="checklistStore.deleteItem(item.id)">Remove</button>
               </span>
+              <!-- Editing opens right under the item, so it stays next to what is being changed -->
+              <ChecklistForm
+                v-if="showForm && editingItem?.id === item.id"
+                :key="editingItem.id"
+                class="gear-item-form"
+                :item="editingItem"
+                @done="closeForm"
+              />
             </motion.li>
           </AnimatePresence>
 
           <div v-if="checklistStore.checklist && isSaved" class="gear-form-area">
-            <button v-if="!showForm" type="button" class="cairn-link" @click="openForm()">+ Add item</button>
-            <ChecklistForm v-else :key="editingItem?.id ?? 'new'" :item="editingItem" @done="closeForm" />
+            <ChecklistForm v-if="showForm && !editingItem" key="new" @done="closeForm" />
+            <button v-else type="button" class="cairn-link" @click="openForm()">+ Add item</button>
           </div>
         </div>
       </div>
@@ -248,6 +256,11 @@ async function onToggleSaved() {
   column-gap: 12px;
   min-height: 48px;
   overflow: hidden;
+}
+
+.gear-item-form {
+  grid-column: 1 / -1;
+  margin: 4px 0 12px;
 }
 
 .gear-item-label {

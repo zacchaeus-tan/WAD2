@@ -1,7 +1,23 @@
-import { listRoutes, listRouteSummaries, getRoute, getRouteGeometry, listRoutesByIds } from '@/model/routesModel'
+import {
+  listRoutes,
+  listRouteTiles,
+  listRouteSummaries,
+  getRoute,
+  getRouteGeometry,
+  listRoutesByIds,
+} from '@/model/routesModel'
 
 export async function fetchRoutes() {
   const { data, error } = await listRoutes()
+  if (error) {
+    throw error
+  }
+
+  return data
+}
+
+export async function fetchRouteTiles() {
+  const { data, error } = await listRouteTiles()
   if (error) {
     throw error
   }
@@ -43,6 +59,25 @@ export async function fetchRouteById(id) {
   }
 
   return data
+}
+
+// A route fetched ahead of its page opening, so the page can show it straight away with no
+// loading message. If this fails the page fetches the route itself and shows any error.
+let preloadedRoute = null
+
+export async function preloadRoute(id) {
+  try {
+    preloadedRoute = await fetchRouteById(id)
+  } catch {
+    preloadedRoute = null
+  }
+}
+
+// Used once: a later visit to the same page fetches a fresh copy
+export function takePreloadedRoute(id) {
+  const route = preloadedRoute?.id === id ? preloadedRoute : null
+  preloadedRoute = null
+  return route
 }
 
 export async function fetchRoutesByIds(ids) {

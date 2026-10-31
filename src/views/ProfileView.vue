@@ -278,15 +278,22 @@ function packedCount(items) {
                     <span aria-hidden="true">|</span>
                     <button type="button" class="checklist-action-remove" @click="onRemove(item)">remove</button>
                   </div>
+                  <ChecklistForm
+                    v-if="formState?.checklistId === c.id && formState.item?.id === item.id"
+                    :key="item.id"
+                    class="w-100"
+                    :item="formState.item"
+                    :checklist-id="c.id"
+                    @done="onFormDone"
+                  />
                 </li>
               </ul>
             </div>
 
             <div class="checklist-form-area">
               <ChecklistForm
-                v-if="formState?.checklistId === c.id"
-                :key="formState.item?.id ?? 'new'"
-                :item="formState.item"
+                v-if="formState?.checklistId === c.id && !formState.item"
+                key="new"
                 :checklist-id="c.id"
                 @done="onFormDone"
               />
@@ -337,7 +344,7 @@ function packedCount(items) {
 }
 
 .checklist-meta-inline {
-  color:  #6c757d;
+  color: #6c757d;
 }
 
 .checklist-body {
@@ -366,6 +373,7 @@ function packedCount(items) {
 .checklist-item {
   display: flex;
   align-items: flex-start;
+  flex-wrap: wrap;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
 }
@@ -380,6 +388,8 @@ function packedCount(items) {
 
 .checklist-item-text {
   flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .checklist-item-done {
@@ -389,6 +399,7 @@ function packedCount(items) {
 
 /* edit | remove */
 .checklist-actions {
+  flex-shrink: 0;
   white-space: nowrap;
 }
 

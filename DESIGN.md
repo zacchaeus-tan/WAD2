@@ -178,7 +178,7 @@ components:
 
 **Creative North Star: "The Field Index"**
 
-CAIRN reads like a well-made field index: a near-white page, ink type, heavy two-pixel rules, square edges, and numbers set like measurements. The trail is the image. Every route is shown as a line drawn in a heat colour on a dark photograph, so a hiker can tell an easy walk from a hard climb before reading a word (for now the line is a placeholder drawing in the right colour; the real route lines come later, see Implementation). Pine marks the places where you act on the page (the filter bar, the section bar, the fit verdict, the quiz button); ink carries everything else.
+CAIRN reads like a well-made field index: a near-white page, ink type, heavy two-pixel rules, square edges, and numbers set like measurements. The trail is the image. Every route is shown as its own line, drawn in a heat colour on a dark photograph, so a hiker can tell an easy walk from a hard climb before reading a word. Pine marks the places where you act on the page (the filter bar, the section bar, the fit verdict, the quiz button); ink carries everything else.
 
 The system is plain until it matters, then unmistakable. Most of a screen is ground and ink. Colour appears on purpose: heat for difficulty, pine for controls and the personal verdict, blaze for a failed check or the one key action, amber for hazards. Every redesigned page opens on a full-screen, dimmed photograph with a transparent navbar over it (a parallax cairn on browse, the route's line on detail, a cairn in a valley on sign-in, hikers on a ridge for the quiz), then settles into wide, ruled bands with lots of space between them.
 
@@ -255,7 +255,7 @@ Ink and ground carry the page; a forest pine runs the controls; a heat scale bor
 
 A content width of 1200px (1320px for the route-detail sections) inside a fluid gutter of clamp(16px, 4vw, 48px), on a 4px spacing scale (4, 8, 12, 16, 24, 32, 48, 64, 96). Sections are full-width bands; detail stops are spaced clamp(140px, 16vw, 220px) apart so the trail between them reads as distance walked. More space sits above a heading than below it. Everything works from 375px; the breakpoints in use are 480, 640, 820, 900/960 and 1100px.
 
-**Navbar.** 63px tall plus a 2px rule, exactly `--nav-height` (4rem + 1px); the globe page sizes itself to the screen minus this height. Always transparent. Over a photo (browse, route detail, sign-in, quiz) it is absolutely positioned on top with paper text; on light pages it stays in the flow with ink text.
+**Navbar.** 63px tall plus a 2px rule, exactly `--nav-height` (4rem + 1px). Always transparent. Over a photo or the night globe (browse, route detail, sign-in, quiz, globe) it is absolutely positioned on top with paper text; on light pages it stays in the flow with ink text.
 
 **Full-screen openings.** The browse banner and the route-detail banner are 100svh with the navbar on top. A route page always opens at its banner: the router resets scroll when you open a different route, while back and forward keep their position. The sign-in and quiz pages are a single full-screen photo with the content on top.
 
@@ -266,6 +266,8 @@ A content width of 1200px (1320px for the route-detail sections) inside a fluid 
 **Sign-in.** Three columns: the giant vertical "Sign In" word, the 460px form in the centre, the giant vertical "Register" word. Each word stays centred on screen while the form scrolls (sticky, offset by half its own measured height) and comes to rest at the end of the form. Below 900px the two words sit side by side above the form, reading normally.
 
 **Quiz.** On wide screens (over 900px) the page is exactly one screen tall: the heading sits large in the empty space above the left of the mountain, the mountain fills the left column, and the question panel (up to 520px) is centred on the right. Nothing scrolls at 1280×665 and larger. On phones the page stacks and scrolls.
+
+**Globe.** The one page dressed as a hiking map: one full screen of night with faint sage contour lines behind the satellite globe and the transparent navbar on top; no footer. It opens on a dimmed, spinning globe under a large CAIRN wordmark, with a cairn built stone by stone as things load, then a wooden signpost reading "Explore the globe". Exploring brings in the route index as a trailhead notice board: a 312px paper sheet in a wooden frame with a roof and two legs running off the screen, on the left. It holds the route count, the countries as "This way to" fingerposts on one post, the "Trail blazes" difficulty key and a square Map / Satellite switch. The globe centres in the space beside it. Bottom right are a compass that follows the map's bearing (click to face north and go back to all routes) and square zoom buttons; just past the board, a GPS-style readout gives the view's position and scale. Each route is a square ink tag (its short name and grade shape in bright heat) that turns ground with a heat-ink shape on hover, and nearby routes group into outlined squares with a Montserrat count, larger from 20 routes. Hovering a tag shows its card; clicking pins it with a close button and an "Open route" plank, and a dot walks along the route's solid heat line. The card is a tilted page of field notes on Notepad, with the #E5A3A3 margin, #B8D2E6 rules and a tack: country label, full name clamped at two lines, grade and rating (or "No reviews yet"), then distance, climb, duration and highest point. It always opens clear of its tag and of the board and navbar. Opening a route flies down onto it, then a full-screen night transition screen fades in with "Heading to the trailhead", the route's name and a line of trail centred on it. It holds for at least 1.8s and until the route has loaded, so the route's page opens with no loading message. Below 641px the board folds into a wooden "routes · Trail board" bar along the bottom that opens as a sheet, the readout goes, and a tapped tag first glides up under the navbar so its card can hang below it. Wood is Trail (#7A5A3A) with #8D6A46 and #5C4933, on this page only.
 
 ## Elevation & Depth
 
@@ -360,6 +362,7 @@ Built with Motion for Vue (`motion-v`). One expo ease-out curve, `cubic-bezier(0
 - **Layout and presence** (`layout`, `layoutId`, `AnimatePresence`): tiles re-flowing on filter, gear items and reviews arriving, the sliding pine fill on chosen quiz answers, quiz questions blurring in and out, cairns built and toppled.
 - **Gestures** (`whileHover`, `whilePress`): the sign-in words.
 - **In view** (`useInView`): number tickers, the grade-dial needles, the weather lines.
+- **State** (`animate` bound to Vue state): the globe page's intro, cairn stones, board, camera buttons, readout, route tags and route transition screen.
 
 ### Number ticker
 Big Montserrat figures (route numbers, review score, dial values) count up once from zero when they enter view, over 1.2s on the expo curve, keeping tabular figures so the width never jumps. Screen readers get the final value only.
@@ -408,18 +411,20 @@ Vue 3 (`<script setup>`, plain JavaScript, no TypeScript), Vite, Pinia, vue-rout
 ### Where the styles live
 - `src/assets/cairn.css`: every token as a CSS custom property on `:root` (colours, `--font`, `--font-data`, `--gutter`, `--max`, `--ease`, `--shadow-panel`, `--shadow-stop`, `--nav-height`) and the shared classes: `.cairn` (Lato, ground, ink and margin resets for a redesigned page), `.cairn-wrap`, `.cairn-btn` with `.is-ghost` / `.is-light` / `.is-blaze` / `.is-small`, `.cairn-link`, `.cairn-input`, `.cairn-label`, `.cairn-fine`, `.cairn-data`, `.cairn-headline` and `.cairn-visually-hidden`. It is imported in `src/main.js`, after Bootstrap.
 - Everything else is a `<style scoped>` block in each `.vue` file. Use the tokens (`var(--pine)`) rather than raw hex.
-- A redesigned page puts `class="cairn …"` on its root element. Pages that are not redesigned yet (Home, Profile, Globe, Admin) do not, and keep their Bootstrap look.
+- A redesigned page puts `class="cairn …"` on its root element. On the globe, which is dark, the class goes on each light piece instead (the index, the route card, the intro and the dive label). Pages that are not redesigned yet (Home, Profile, Admin) do not, and keep their Bootstrap look.
 
 ### Bootstrap
-Bootstrap 5 CSS still loads globally (`src/main.js`) and remains the project's base framework. The redesigned pages and components (navbar, footer, browse, route detail, sign-in, quiz and their components) do not use Bootstrap classes; they use the CAIRN classes and scoped styles, because Bootstrap's defaults (rounded corners, its spacing and type scale, blue focus) fight the square Field Index look. Bootstrap's reset still sits underneath. Home, Profile and the globe controls still use Bootstrap classes, so Bootstrap must stay until they are redesigned.
+Bootstrap 5 CSS still loads globally (`src/main.js`) and remains the project's base framework. The redesigned pages and components (navbar, footer, browse, route detail, sign-in, quiz, globe and their components) do not use Bootstrap classes; they use the CAIRN classes and scoped styles, because Bootstrap's defaults (rounded corners, its spacing and type scale, blue focus) fight the square Field Index look. Bootstrap's reset still sits underneath. Home and Profile still use Bootstrap classes (the globe only uses `d-none` for its hidden card holder), so Bootstrap must stay until they are redesigned.
 
 ### Pages and their parts
-- `src/App.vue`: `SiteNav` (overlaid on the routes-list, route-detail, auth and quiz routes) and `SiteFooter` (hidden on the globe).
-- Browse, `src/views/RoutesList.vue`: `components/routes/FilterDropdown`, `RangeFilter`, `RouteTile`, `PlaceholderLine`, and `components/common/DifficultyMark`. Filtering, sorting and paging run in the view on the routes it already loads.
+- `src/App.vue`: `SiteNav` (overlaid on the routes-list, route-detail, auth, quiz and globe routes) and `SiteFooter` (hidden on the globe).
+- Browse, `src/views/RoutesList.vue`: `components/routes/FilterDropdown`, `RangeFilter`, `RouteTile`, `RouteLine`, and `components/common/DifficultyMark`. Filtering, sorting and paging run in the view on the routes it already loads.
 - Route detail, `src/views/RouteDetail.vue`: `RouteBanner`, `RouteNumbers`, `SectionNav`, `WalkedTrail` and `GradeDial` (in `components/routes`), `components/matching/FitCheck`, `components/weather/WeatherForecast`, `components/itinerary/ItineraryForm` and `ItineraryDay`, `components/checklist/GearChecklist` and `ChecklistForm` (also used on Profile), `components/reviews/TrailRegister`, `ReviewList`, `ReviewForm`, `IncidentFields` and `ReviewSummary`, and `components/common/NumberTicker`.
 - Sign-in, `src/views/AuthView.vue`: self-contained.
 - Quiz, `src/views/QuizView.vue` with `components/quiz/QuizAscent` (always `compact`) and `components/quiz/quizText.js` (short stop names, answer text).
-- Shared helpers: `src/lib/difficultyStyle.js` (grade colours and shapes, `gradeOf`, `isCommunityAdjusted`).
+- Shared helpers: `src/lib/difficultyStyle.js` (grade colours and shapes, `gradeOf`, `isCommunityAdjusted`) and `src/lib/routeLine.js` (`geometryToPath`: a route's GeoJSON line fitted to the 400×240 box and simplified to a short SVG path).
+- Route lines: tiles and the detail banner draw each route's own line with `components/routes/RouteLine`. Browse loads only the columns its filters and tiles need (`listRouteTiles()`), with `routes.line_svg`, a ready-made path for the 400×240 box, instead of the full geometry. The detail banner builds its path from `route.geometry` with `geometryToPath`. A route without either falls back to `PlaceholderLine`, which the loading tiles also use.
+- `line_svg` is filled by `node scripts/build-route-line-svg.mjs`, which writes `supabase/migrations/0013_route_line_svg_data.sql` with the same `geometryToPath`. Run it again after importing or changing route lines; until then a trigger (`0012`) clears the stale preview, so those tiles show the placeholder.
 
 ### Data and logic boundaries
 - Do not change controllers, models, stores or `src/lib/matching.js` for a design change without the team's agreement. Views may compute display-only values from data they already load.
@@ -427,9 +432,8 @@ Bootstrap 5 CSS still loads globally (`src/main.js`) and remains the project's b
 - The fit verdict and its checks come from `checkRouteSuitability()` in `src/lib/matching.js`, the weather figures and warnings from `src/controller/weatherController.js`, and the quiz questions from `src/lib/quizQuestions.js`. The design only presents them.
 
 ### Placeholders (to replace later)
-- **Route lines.** Tiles and the detail banner draw the same placeholder line (`PlaceholderLine.vue`) in the route's heat colour. Planned: a simplified line stored per route, so browse stops downloading every full line (about 21 MB today).
 - **Star breakdown.** The five bars in the trail register are grey placeholders with "—". Planned: counts stored on the route and kept up to date by `recalc_route_stats()`, because reviews are paged.
 - **Photos.** Tiles rotate four stock photos and the detail banner uses one, until each route has its own. Images live in `src/assets/img/`: `cairn1.jpg` and `cairn1-mask.png` (browse banner), `card-*.jpg` (tiles, detail banner, quiz) and `cairn-valley.jpg` (sign-in).
 
 ### Visual references
-The approved mockups are static HTML in `.impeccable/mocks/`, served with `node .impeccable/mocks/serve.cjs .impeccable/mocks 5180`: `browse/routes.html`, `detail/route-detail.html`, `landing/l1-summit.html`, and the design system page `system/index.html`. Where the app and a mockup differ, the app and this file are the current truth (for example the removed trip-type tag and the placeholder lines).
+The approved mockups are static HTML in `.impeccable/mocks/`, served with `node .impeccable/mocks/serve.cjs .impeccable/mocks 5180`: `browse/routes.html`, `detail/route-detail.html`, `landing/l1-summit.html`, and the design system page `system/index.html`. Where the app and a mockup differ, the app and this file are the current truth (for example the removed trip-type tag).

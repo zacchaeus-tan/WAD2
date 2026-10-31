@@ -2,14 +2,14 @@
 // placing pills, and the labels shown on pills and route cards. Plain functions with no
 // map or Vue state, so they can be tested on their own.
 
+import { GRADES } from '@/lib/difficultyStyle'
+
 // Route pills closer together than this are stacked so none is hidden behind another
 export const stackRadiusMetres = 100
-const stackSpacingPx = 28
+const stackSpacingPx = 32
 
-const difficultyNames = { 1: 'Easy', 2: 'Moderate', 3: 'Hard', 4: 'Strenuous' }
-// Also used for the route line colours in globeMap.js; the legend in GlobePanel.vue matches these
-export const difficultyColours = { 1: '#24883b', 2: '#e6b700', 3: '#ec741c', 4: '#cb3030' }
-export const unratedColour = '#64748b'
+// Granite 300: light enough to read on the dark globe
+export const unratedColour = '#c9d0cb'
 
 export function isPosition(position) {
   return (
@@ -74,8 +74,7 @@ export function routePosition(route) {
 
 // 1 (easy) to 4 (strenuous), from whichever difficulty the route has
 export function difficultyLevel(route) {
-  const value =
-    route.effective_difficulty ?? route.official_difficulty ?? route.technical_rating
+  const value = route.effective_difficulty ?? route.official_difficulty ?? route.technical_rating
   const labels = {
     easy: 1,
     moderate: 2,
@@ -90,39 +89,112 @@ export function difficultyLevel(route) {
   return Number.isFinite(numericValue) ? Math.min(4, Math.max(1, Math.round(numericValue))) : null
 }
 
+// The bright heat colours, because route lines and pill shapes always sit on the dark globe
+// or an ink pill (DESIGN.md, "The Two Heats Rule")
 export function difficultyColour(difficulty) {
-  return difficultyColours[difficulty] ?? unratedColour
+  return GRADES[difficulty]?.line ?? unratedColour
+}
+
+// The card's facts follow the design system's content rules: metric, km to 1 decimal,
+// metres with separators, climb signed and highest point not. A missing value gives '',
+// which the card shows as a dash read out as "Not listed".
+function isMissing(value) {
+  return value == null || value === '' || !Number.isFinite(Number(value))
 }
 
 function formatRouteDistance(distance) {
-  if (distance == null || distance === '' || !Number.isFinite(Number(distance))) {
-    return 'Route'
+  if (isMissing(distance)) {
+    return ''
   }
 
-  return `${Number(distance).toLocaleString(undefined, { maximumFractionDigits: 1 })} km`
+  const km = Number(distance).toLocaleString('en-GB', {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  })
+  return `${km} km`
+}
+
+function formatMetres(metres, sign = '') {
+  if (isMissing(metres)) {
+    return ''
+  }
+
+  return `${sign}${Math.round(Number(metres)).toLocaleString('en-GB')} m`
 }
 
 function formatRouteDuration(days) {
-  if (days == null || days === '') {
-    return 'Not listed'
+  if (isMissing(days)) {
+    return ''
   }
 
   return `${days} ${Number(days) === 1 ? 'day' : 'days'}`
 }
 
+// "Gunung Merbabu (Wekas BC)" -> "Gunung Merbabu", so pills on the globe stay short.
+// The card always shows the full name.
+export function shortRouteName(name) {
+  const short = name.replace(/\s*\(.*\)\s*$/, '')
+  return short || name
+}
+
 // Everything a route's pill and card show, ready to display
 export function routeCardDetails(route) {
   const difficulty = difficultyLevel(route)
+  const name = route.name || 'Unnamed route'
   return {
     routeId: route.id,
-    name: route.name || 'Unnamed route',
+    name,
+    shortName: shortRouteName(name),
     country: route.country || 'Not listed',
     difficulty,
-    difficultyLabel: difficultyNames[difficulty] ?? 'Not rated',
+    difficultyLabel: GRADES[difficulty]?.label ?? 'Not rated',
     durationLabel: formatRouteDuration(route.duration_days),
     distanceLabel: formatRouteDistance(route.distance_km),
+    climbLabel: formatMetres(route.elevation_gain_m, '+'),
+    highestLabel: formatMetres(route.altitude_m),
     ratingLabel: route.avg_rating == null ? '' : Number(route.avg_rating).toFixed(1),
   }
+}
+
+// One entry per country for the globe's "Fly to" list: how many routes it has and the
+// corners of the box around their trailheads. Most routes first.
+export function countrySummaries(routes) {
+  const countries = new Map()
+  for (const route of routes) {
+    const position = routePosition(route)
+    if (!position) {
+      continue
+    }
+
+    const name = route.country || 'Not listed'
+    if (!countries.has(name)) {
+      countries.set(name, {
+        name,
+        count: 0,
+        west: Infinity,
+        south: Infinity,
+        east: -Infinity,
+        north: -Infinity,
+      })
+    }
+    const country = countries.get(name)
+    country.count++
+    country.west = Math.min(country.west, position[0])
+    country.south = Math.min(country.south, position[1])
+    country.east = Math.max(country.east, position[0])
+    country.north = Math.max(country.north, position[1])
+  }
+
+  return [...countries.values()]
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+    .map((country) => ({
+      name: country.name,
+      count: country.count,
+      bounds: [
+        [country.west, country.south],
+        [country.east, country.north],
+      ],
+    }))
 }
 
 function distanceInMetres([lng1, lat1], [lng2, lat2]) {

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import * as checklistModel from '@/model/checklistModel'
 import * as routesModel from '@/model/routesModel'
+import { checkItemName, tidyItemName, maxNameLength, maxReasonLength } from '@/lib/checklistRules'
 
 const categories = ['clothing', 'safety', 'navigation', 'water_food', 'shelter', 'documents', 'other']
 
@@ -44,12 +45,16 @@ export const useChecklistStore = defineStore('checklist', () => {
     }
 
     function validate(form) {
-        if (form.label == null || form.label.trim() === '') {
-            error.value = 'Item name is required.'
+        if (checkItemName(form.label)) {
+            error.value = checkItemName(form.label)
             return false
         }
         if (form.quantity == null || form.quantity.trim() === ''){
             error.value = 'Quantity is required.'
+            return false
+        }
+        if (form.reason && form.reason.trim().length > maxReasonLength) {
+            error.value = 'Reason must be ' + maxReasonLength + ' characters or fewer.'
             return false
         }
         return true
@@ -57,7 +62,7 @@ export const useChecklistStore = defineStore('checklist', () => {
 
     function clean(form) {
         return {
-            label: form.label.trim(),
+            label: tidyItemName(form.label),
             category: form.category || 'other',
             quantity: form.quantity?.toString().trim() || null,
             reason: form.reason?.trim() || null,
@@ -77,14 +82,15 @@ export const useChecklistStore = defineStore('checklist', () => {
             .filter((i) => typeof i?.label === 'string' && i.label.trim())
             // clean each item
             .map((i) => ({
-                label: i.label.trim().slice(0, 100),
+                label: tidyItemName(i.label).slice(0, maxNameLength).trim(),
                 category: categories.includes(i.category) ? i.category : 'other',
                 quantity: i.quantity ? String(i.quantity).slice(0, 30) : '1',
-                reason: i.reason ? String(i.reason).slice(0, 200) : null,
+                reason: i.reason ? String(i.reason).trim().slice(0, maxReasonLength) : null,
                 is_checked: false,
                 is_custom: false,
-
             }))
+            // drop anything whose name isn't valid
+            .filter((i) => checkItemName(i.label) === null)
     }
 
     async function generate(route) {
@@ -116,7 +122,7 @@ export const useChecklistStore = defineStore('checklist', () => {
 
             checklist.value = created
             items.value = createdItems
-            
+            return true
         } catch (e) {
             error.value = e.message
             return false

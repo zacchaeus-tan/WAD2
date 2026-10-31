@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { GRADES, gradeOf, isCommunityAdjusted } from '@/lib/difficultyStyle'
 import DifficultyMark from '@/components/common/DifficultyMark.vue'
-import PlaceholderLine from './PlaceholderLine.vue'
+import RouteLine from './RouteLine.vue'
 
 const props = defineProps({
   route: { type: Object, required: true },
@@ -39,7 +39,7 @@ function formatDays(value) {
   <RouterLink class="route-tile" :to="{ name: 'route-detail', params: { id: route.id } }">
     <span class="route-tile-field">
       <img class="route-tile-photo" :src="photo" alt="" loading="lazy" />
-      <span class="route-tile-line"><PlaceholderLine :color="lineColor" /></span>
+      <span class="route-tile-line"><RouteLine :path="route.line_svg" :geometry="route.geometry" :color="lineColor" /></span>
       <span v-if="route.country" class="route-tile-country">{{ route.country }}</span>
       <span class="route-tile-grade">
         <DifficultyMark :grade="grade" />

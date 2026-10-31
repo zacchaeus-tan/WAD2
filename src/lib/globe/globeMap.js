@@ -7,7 +7,8 @@
 // - CARTO basemaps (https://carto.com/basemaps) and Esri World Imagery, used when no MapTiler key is set
 // - NASA GIBS Blue Marble imagery (https://earthdata.nasa.gov/gibs) and NASA's cloud picture (public/clouds.jpg)
 
-import { difficultyColours, unratedColour } from './globeRoutes'
+import { GRADES } from '@/lib/difficultyStyle'
+import { lineParts, unratedColour } from './globeRoutes'
 
 const maptilerKey = import.meta.env.VITE_MAPTILER_KEY
 
@@ -222,9 +223,10 @@ export async function addCloudLayer(map, isSatelliteView) {
   )
 }
 
-// Two sources for our routes: 'route-highlight' holds just the one route line on show (so
-// changing it is quick), and 'route-markers' holds every route's trailhead for the pills
-export function addRouteLayers(map, markerData, lineOpacity) {
+// Three sources for our routes: 'route-highlight' holds just the one route line on show (so
+// changing it is quick), 'route-markers' holds every route's trailhead for the pills, and
+// 'route-walker' holds the dot walking along a pinned route (see walkRoute)
+export function addRouteLayers(map, markerData) {
   map.addSource('route-highlight', {
     type: 'geojson',
     data: { type: 'FeatureCollection', features: [] },
@@ -240,10 +242,10 @@ export function addRouteLayers(map, markerData, lineOpacity) {
     clusterMaxZoom: 15,
   })
 
-  // Line colour by difficulty, e.g. ['match', ['get', 'difficulty'], 1, '#24883b', ..., grey]
+  // Line colour by difficulty, e.g. ['match', ['get', 'difficulty'], 1, '#6fdc8c', ..., grey]
   const colourByDifficulty = ['match', ['get', 'difficulty']]
-  for (const [level, colour] of Object.entries(difficultyColours)) {
-    colourByDifficulty.push(Number(level), colour)
+  for (const [level, grade] of Object.entries(GRADES)) {
+    colourByDifficulty.push(Number(level), grade.line)
   }
   colourByDifficulty.push(unratedColour)
 
@@ -251,22 +253,36 @@ export function addRouteLayers(map, markerData, lineOpacity) {
     id: 'route-casing',
     type: 'line',
     source: 'route-highlight',
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    // A dark edge under the bright heat line, so it reads on satellite photos and the light map
     paint: {
-      'line-color': '#fff7e9',
-      'line-width': ['interpolate', ['linear'], ['zoom'], 0, 2, 8, 6],
-      'line-opacity': lineOpacity,
-      'line-opacity-transition': { duration: 1200 },
+      'line-color': '#101814',
+      'line-width': ['interpolate', ['linear'], ['zoom'], 0, 3.5, 8, 8],
     },
   })
   map.addLayer({
     id: 'route-lines',
     type: 'line',
     source: 'route-highlight',
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
     paint: {
       'line-color': colourByDifficulty,
-      'line-width': ['interpolate', ['linear'], ['zoom'], 0, 1, 8, 3],
-      'line-opacity': lineOpacity,
-      'line-opacity-transition': { duration: 1200 },
+      'line-width': ['interpolate', ['linear'], ['zoom'], 0, 1.5, 8, 4],
+    },
+  })
+  map.addSource('route-walker', {
+    type: 'geojson',
+    data: { type: 'FeatureCollection', features: [] },
+  })
+  map.addLayer({
+    id: 'route-walker',
+    type: 'circle',
+    source: 'route-walker',
+    paint: {
+      'circle-radius': 5.5,
+      'circle-color': '#c2481a',
+      'circle-stroke-color': '#fbfaf7',
+      'circle-stroke-width': 2,
     },
   })
   map.addLayer({
@@ -282,11 +298,34 @@ export function addRouteLayers(map, markerData, lineOpacity) {
   })
 }
 
-export function showRouteLines(map) {
-  for (const layerId of ['route-casing', 'route-lines']) {
-    if (map.getLayer(layerId)) {
-      map.setPaintProperty(layerId, 'line-opacity', 1)
-    }
+// Walks a dot along the longest part of a route's line, over and over. Returns a function that
+// stops it and removes the dot.
+export function walkRoute(map, geometry) {
+  const line = lineParts(geometry).reduce((longest, part) =>
+    part.length > longest.length ? part : longest,
+  )
+  const walkMs = 9000
+  const started = performance.now()
+  let frame
+
+  function step(now) {
+    // The first frame's time can be slightly before `started`, which would be a negative index
+    const position = ((Math.max(0, now - started) % walkMs) / walkMs) * (line.length - 1)
+    const index = Math.floor(position)
+    const from = line[index]
+    const to = line[index + 1] ?? from
+    const t = position - index
+    map.getSource('route-walker').setData({
+      type: 'Point',
+      coordinates: [from[0] + (to[0] - from[0]) * t, from[1] + (to[1] - from[1]) * t],
+    })
+    frame = requestAnimationFrame(step)
+  }
+  frame = requestAnimationFrame(step)
+
+  return () => {
+    cancelAnimationFrame(frame)
+    map.getSource('route-walker').setData({ type: 'FeatureCollection', features: [] })
   }
 }
 

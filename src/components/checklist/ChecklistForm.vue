@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useChecklistStore } from '@/controller/checklistStore'
+import { maxNameLength, maxReasonLength } from '@/lib/checklistRules'
 
 const props = defineProps({
   item: { type: Object, default: null }, // null = add mode
@@ -60,6 +61,7 @@ async function submit() {
                 <input
                     id="cl-label"
                     v-model="form.label"
+                    :maxlength="maxNameLength"
                     class="checklist-form-input"
                     data-testid="item-label-input"
                 />
@@ -96,6 +98,7 @@ async function submit() {
                 <input
                     id="cl-reason"
                     v-model="form.reason"
+                    :maxlength="maxReasonLength"
                     class="checklist-form-input"
                     data-testid="item-reason-input"
                 />
