@@ -1,13 +1,15 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'motion-v'
-import { fetchRouteTiles } from '../controller/routesController'
+import { useRouter } from 'vue-router'
+import { fetchRouteTiles, preloadRoute } from '../controller/routesController'
 import { tripType } from '@/lib/matching'
 import { GRADES, gradeOf } from '@/lib/difficultyStyle'
 import DifficultyMark from '@/components/common/DifficultyMark.vue'
 import FilterDropdown from '@/components/routes/FilterDropdown.vue'
 import RangeFilter from '@/components/routes/RangeFilter.vue'
 import RouteTile from '@/components/routes/RouteTile.vue'
+import RouteTransitionScreen from '@/components/routes/RouteTransitionScreen.vue'
 import RoutesLoading from '@/components/routes/RoutesLoading.vue'
 import cairnPhoto from '@/assets/img/cairn1.jpg'
 import cairnMask from '@/assets/img/cairn1-mask.png'
@@ -311,6 +313,26 @@ function photoFor(route, index) {
 
 // Banner parallax: the sky, the title and the mountain move at different speeds
 const reduceMotion = useReducedMotion()
+const router = useRouter()
+
+// The route being opened, shown on the transition screen while its details load ahead
+const openingRoute = ref(null)
+let openingRouteLoaded
+
+function openRoutePage(routeId) {
+  router.push({ name: 'route-detail', params: { id: routeId } })
+}
+
+function openRoute(route) {
+  if (reduceMotion.value) {
+    openRoutePage(route.id)
+    return
+  }
+  if (!openingRoute.value) {
+    openingRouteLoaded = preloadRoute(route.id)
+    openingRoute.value = route
+  }
+}
 const { scrollY } = useScroll()
 const skyY = useTransform(scrollY, (y) => (reduceMotion.value ? 0 : y * 0.6))
 const titleY = useTransform(scrollY, (y) => (reduceMotion.value ? 0 : y * 0.45))
@@ -582,7 +604,7 @@ onBeforeUnmount(() => stickObserver?.disconnect())
             :exit="{ opacity: 0, transition: { duration: 0.15 } }"
             :transition="{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }"
           >
-            <RouteTile :route="route" :photo="photoFor(route, index)" />
+            <RouteTile :route="route" :photo="photoFor(route, index)" @open="openRoute" />
           </motion.div>
         </AnimatePresence>
 
@@ -591,6 +613,13 @@ onBeforeUnmount(() => stickObserver?.disconnect())
         </div>
       </section>
     </template>
+
+    <RouteTransitionScreen
+      v-if="openingRoute"
+      :route-name="openingRoute.name"
+      :route-loaded="openingRouteLoaded"
+      @done="openRoutePage(openingRoute.id)"
+    />
   </div>
 </template>
 

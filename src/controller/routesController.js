@@ -64,13 +64,18 @@ export async function fetchRouteById(id) {
 // A route fetched ahead of its page opening, so the page can show it straight away with no
 // loading message. If this fails the page fetches the route itself and shows any error.
 let preloadedRoute = null
+const preloadWaitMs = 8000
 
-export async function preloadRoute(id) {
-  try {
-    preloadedRoute = await fetchRouteById(id)
-  } catch {
-    preloadedRoute = null
-  }
+// Settles once the route has loaded or failed, or after a few seconds on a slow connection
+export function preloadRoute(id) {
+  const loaded = fetchRouteById(id)
+    .then((route) => {
+      preloadedRoute = route
+    })
+    .catch(() => {
+      preloadedRoute = null
+    })
+  return Promise.race([loaded, new Promise((resolve) => setTimeout(resolve, preloadWaitMs))])
 }
 
 // Used once: a later visit to the same page fetches a fresh copy

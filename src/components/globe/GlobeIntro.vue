@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { motion, useReducedMotion } from 'motion-v'
-import CairnLoader from './CairnLoader.vue'
+import CairnLoader from '@/components/common/CairnLoader.vue'
 import TrailPlank from './TrailPlank.vue'
 
 // Title screen over the globe: a cairn built stone by stone while the globe and routes load

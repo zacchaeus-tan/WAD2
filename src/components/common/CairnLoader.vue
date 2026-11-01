@@ -49,7 +49,7 @@ const placedStones = computed(() =>
       />
     </svg>
 
-    <p v-if="message" class="cairn-loader-text" role="status" data-testid="globe-loading">
+    <p v-if="message" class="cairn-loader-text" role="status" data-testid="cairn-loading">
       <span>{{ message }}</span>
       <!-- The progress bar already gives the number, so screen readers don't hear every change -->
       <span class="cairn-data" aria-hidden="true">{{ progress }}%</span>

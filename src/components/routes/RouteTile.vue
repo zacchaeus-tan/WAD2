@@ -10,6 +10,8 @@ const props = defineProps({
   photo: { type: String, required: true }, // stock photo for now; real route photos come later
 })
 
+const emit = defineEmits(['open'])
+
 const grade = computed(() => gradeOf(props.route))
 const lineColor = computed(() => GRADES[grade.value]?.line ?? '#f2efea')
 const adjusted = computed(() => isCommunityAdjusted(props.route))
@@ -36,34 +38,39 @@ function formatDays(value) {
 </script>
 
 <template>
-  <RouterLink class="route-tile" :to="{ name: 'route-detail', params: { id: route.id } }">
-    <span class="route-tile-field">
-      <img class="route-tile-photo" :src="photo" alt="" loading="lazy" />
-      <span class="route-tile-line"><RouteLine :path="route.line_svg" :geometry="route.geometry" :color="lineColor" /></span>
-      <span v-if="route.country" class="route-tile-country">{{ route.country }}</span>
-      <span class="route-tile-grade">
-        <DifficultyMark :grade="grade" />
-        <span
-          v-if="adjusted"
-          class="route-tile-adjusted cairn-data"
-          :title="`Community-adjusted from official ${GRADES[route.official_difficulty]?.label ?? 'grade'}`"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="9" cy="8" r="3" />
-            <path d="M3.5 19a5.5 5.5 0 0 1 11 0" />
-            <circle cx="17" cy="9" r="2.4" />
-            <path d="M15.5 14.2A4.5 4.5 0 0 1 21 18.5" />
-          </svg>
-          <span class="cairn-visually-hidden">Community-adjusted</span>
-          {{ Number(route.effective_difficulty).toFixed(2) }}
+  <!-- A real link, so opening it in a new tab still works; a plain click is left to the page -->
+  <RouterLink v-slot="{ href }" custom :to="{ name: 'route-detail', params: { id: route.id } }">
+    <a class="route-tile" :href="href" @click.exact.prevent="emit('open', route)">
+      <span class="route-tile-field">
+        <img class="route-tile-photo" :src="photo" alt="" loading="lazy" />
+        <span class="route-tile-line"
+          ><RouteLine :path="route.line_svg" :geometry="route.geometry" :color="lineColor"
+        /></span>
+        <span v-if="route.country" class="route-tile-country">{{ route.country }}</span>
+        <span class="route-tile-grade">
+          <DifficultyMark :grade="grade" />
+          <span
+            v-if="adjusted"
+            class="route-tile-adjusted cairn-data"
+            :title="`Community-adjusted from official ${GRADES[route.official_difficulty]?.label ?? 'grade'}`"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="9" cy="8" r="3" />
+              <path d="M3.5 19a5.5 5.5 0 0 1 11 0" />
+              <circle cx="17" cy="9" r="2.4" />
+              <path d="M15.5 14.2A4.5 4.5 0 0 1 21 18.5" />
+            </svg>
+            <span class="cairn-visually-hidden">Community-adjusted</span>
+            {{ Number(route.effective_difficulty).toFixed(2) }}
+          </span>
         </span>
       </span>
-    </span>
-    <h2 class="route-tile-name">{{ route.name }}</h2>
-    <p class="route-tile-facts cairn-data">
-      {{ formatDistance(route.distance_km) }} · {{ formatClimb(route.elevation_gain_m) }} ·
-      {{ formatDays(route.duration_days) }}
-    </p>
+      <h2 class="route-tile-name">{{ route.name }}</h2>
+      <p class="route-tile-facts cairn-data">
+        {{ formatDistance(route.distance_km) }} · {{ formatClimb(route.elevation_gain_m) }} ·
+        {{ formatDays(route.duration_days) }}
+      </p>
+    </a>
   </RouterLink>
 </template>
 

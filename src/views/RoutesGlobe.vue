@@ -3,19 +3,19 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 // MapLibre GL JS (https://maplibre.org, BSD-3-Clause) draws the 3D globe; see src/lib/globe/globeMap.js
 import { Map as MapLibreMap, Marker, Popup, ScaleControl } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { animate, motion, useReducedMotion } from 'motion-v'
+import { motion, useReducedMotion } from 'motion-v'
 import { useRouter } from 'vue-router'
 import {
   fetchRouteGeometry,
   fetchRouteSummaries,
   preloadRoute,
 } from '../controller/routesController'
-import CairnLoader from '@/components/globe/CairnLoader.vue'
 import GlobeContours from '@/components/globe/GlobeContours.vue'
 import GlobeIntro from '@/components/globe/GlobeIntro.vue'
 import GlobePanel from '@/components/globe/GlobePanel.vue'
 import RouteCard from '@/components/globe/RouteCard.vue'
 import RoutePill from '@/components/globe/RoutePill.vue'
+import RouteTransitionScreen from '@/components/routes/RouteTransitionScreen.vue'
 import {
   addCloudLayer,
   addGlobeBaseLayers,
@@ -44,16 +44,10 @@ const exploreView = { center: [119, 4], zoom: 2.6 }
 const navHeightPx = 65
 const indexPanelPx = 342
 const introMinimumMs = 2200
-// How long the camera takes to dive onto a route, the longest it then waits for the satellite
-// photos to sharpen, how long the transition screen takes to fade in, the least time it takes to
-// build its cairn, how long the last stone takes to land, and the longest it waits for the route's
-// details on a slow connection
+// How long the camera takes to dive onto a route, and the longest it then waits for the satellite
+// photos to sharpen
 const routeDiveMs = 2400
 const routeTileWaitMs = 8000
-const routeScreenFadeMs = 600
-const routeScreenMs = 1800
-const routeLastStoneMs = 450
-const routeLoadWaitMs = 8000
 const spinDegreesPerMs = 360 / 150000
 // How many map tiles can fail in one view before the user is told about it
 const tileFailuresBeforeWarning = 20
@@ -90,10 +84,10 @@ const mapReady = ref(false)
 const satelliteView = ref(savedView?.satellite ?? true)
 // A returning visitor has already seen the title animation, so there's nothing to wait for
 const introTimeDone = ref(Boolean(savedView))
-// Name of the route being opened, shown while the globe dives onto it
-const openingRouteName = ref('')
+// The route being opened, shown while the globe dives onto it, and its details loading ahead
+const openingRoute = ref(null)
 const routeScreenShowing = ref(false)
-const routeScreenProgress = ref(0)
+let openingRouteLoaded
 // What the hover card and the clicked card show. Vue renders both cards into the hidden holder
 // in the template, and the map popups display those same elements (see addRouteCardPopup).
 const hoverCardRoute = ref(null)
@@ -112,7 +106,6 @@ const scaleHost = ref(null)
 const reduceMotion = useReducedMotion()
 let introTimer
 let routeDiveTimer
-let routeProgressAnimation
 let spinFrame
 let lastSpinTime
 let touchStartY
@@ -137,7 +130,7 @@ let routeInteractionReady = false
 // The outdoor map's own layers drawn under the satellite photos (land, water, hillshade, contours)
 let layersUnderSatellite = []
 
-const pillsVisible = computed(() => phase.value === 'explore' && !openingRouteName.value)
+const pillsVisible = computed(() => phase.value === 'explore' && !openingRoute.value)
 // The globe is dim and spinning behind the title, then clears for exploring. 'none' at the end,
 // as a filter left on the map, even one that changes nothing, slows down every frame.
 const dimGlobe = 'brightness(0.45) saturate(0.6)'
@@ -240,7 +233,7 @@ async function showRouteGeometry(routeId) {
   // Only the pinned route gets a hiker, and not during the dive onto it
   stopWalker?.()
   stopWalker = null
-  const shouldWalk = line && routeId === pinnedRouteId && !openingRouteName.value
+  const shouldWalk = line && routeId === pinnedRouteId && !openingRoute.value
   if (shouldWalk && !reduceMotion.value) {
     stopWalker = walkRoute(globeView, line)
   }
@@ -381,22 +374,18 @@ function movePillNearTop(lngLat, offsetY = 0) {
 
 // Flies the camera down onto the route, shows the transition screen, then opens its details page
 async function openRouteDetails(properties, lngLat) {
-  if (openingRouteName.value) {
+  if (openingRoute.value) {
     return
   }
 
-  const detailsPage = { name: 'route-detail', params: { id: properties.routeId } }
   if (!globeView || reduceMotion.value) {
-    router.push(detailsPage)
+    openRoutePage(properties.routeId)
     return
   }
 
-  openingRouteName.value = properties.name
+  openingRoute.value = properties
   // Started now, so the details are usually ready by the time the dive ends
-  const routeLoaded = Promise.race([
-    preloadRoute(properties.routeId),
-    new Promise((resolve) => setTimeout(resolve, routeLoadWaitMs)),
-  ])
+  openingRouteLoaded = preloadRoute(properties.routeId)
   setMapInteraction(globeView, false)
   hideHoverPopup()
   // Closing the card unpins its line, so pin it again to keep it drawn during the dive
@@ -426,7 +415,7 @@ async function openRouteDetails(properties, lngLat) {
     duration: routeDiveMs,
     essential: true,
   })
-  globeView.once('moveend', () => showScreenWhenSharp(detailsPage, routeLoaded))
+  globeView.once('moveend', showScreenWhenSharp)
 }
 
 function openClickedRoute() {
@@ -439,29 +428,11 @@ function closeClickedCard() {
 }
 
 // Waits on the route until its satellite photos have finished loading (or for a few seconds
-// on a slow connection), then shows the transition screen until the route's details have loaded
-// and opens the details page. The screen stays up while the page's code downloads too, as the
-// router only leaves this page once that's done. The details are the one thing being loaded here,
-// so the cairn's progress runs to 80% on its own (four stones) and the last stone waits for them.
-function showScreenWhenSharp(detailsPage, routeLoaded) {
-  let screenShown = false
-  async function showScreen() {
-    if (screenShown) {
-      return
-    }
-    screenShown = true
+// on a slow connection), then shows the transition screen
+function showScreenWhenSharp() {
+  function showScreen() {
     clearTimeout(routeDiveTimer)
     routeScreenShowing.value = true
-    await animateRouteProgress(80, routeScreenMs)
-    await routeLoaded
-    // The user may have gone back while the details were loading
-    if (!globeView) {
-      return
-    }
-    await animateRouteProgress(100, routeLastStoneMs)
-    if (globeView) {
-      router.push(detailsPage)
-    }
   }
 
   // 'idle' fires once every tile on screen has loaded and faded in
@@ -469,15 +440,8 @@ function showScreenWhenSharp(detailsPage, routeLoaded) {
   routeDiveTimer = setTimeout(showScreen, routeTileWaitMs)
 }
 
-function animateRouteProgress(target, durationMs) {
-  routeProgressAnimation = animate(routeScreenProgress.value, target, {
-    duration: durationMs / 1000,
-    ease: 'linear',
-    onUpdate: (value) => {
-      routeScreenProgress.value = Math.round(value)
-    },
-  })
-  return routeProgressAnimation
+function openRoutePage(routeId) {
+  router.push({ name: 'route-detail', params: { id: routeId } })
 }
 
 function onPillEnter(pill) {
@@ -594,7 +558,7 @@ watch(satelliteView, (showSatellite) => {
 
 function saveView() {
   // Not during the dive, so coming back lands where the user clicked rather than zoomed in on the route
-  if (phase.value !== 'explore' || openingRouteName.value) {
+  if (phase.value !== 'explore' || openingRoute.value) {
     return
   }
 
@@ -858,7 +822,6 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   clearTimeout(introTimer)
   clearTimeout(routeDiveTimer)
-  routeProgressAnimation?.stop()
   stopSpinning()
   window.removeEventListener('keydown', onKeydown)
   stopWalker?.()
@@ -1014,33 +977,14 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <!-- Covers the globe during the dive so nothing can be clicked, then the transition screen
-         fades in over it -->
-    <div v-if="openingRouteName" class="globe-route-dive">
-      <motion.div
-        class="cairn globe-route-screen"
-        role="status"
-        :initial="{ opacity: 0 }"
-        :animate="{ opacity: routeScreenShowing ? 1 : 0 }"
-        :transition="{ duration: routeScreenFadeMs / 1000, ease: [0.16, 1, 0.3, 1] }"
-      >
-        <p class="cairn-label">Heading to the trailhead</p>
-        <p class="globe-route-screen-name">{{ openingRouteName }}</p>
-        <svg
-          class="globe-route-screen-trail"
-          viewBox="0 0 400 20"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-        >
-          <path d="M4 12C70 2 120 18 190 10S320 4 396 12" />
-        </svg>
-        <CairnLoader
-          class="globe-route-screen-cairn"
-          :progress="routeScreenProgress"
-          message="Loading route"
-        />
-      </motion.div>
-    </div>
+    <!-- Covers the globe during the dive so nothing can be clicked, then fades in over it -->
+    <RouteTransitionScreen
+      v-if="openingRoute"
+      :route-name="openingRoute.name"
+      :route-loaded="openingRouteLoaded"
+      :showing="routeScreenShowing"
+      @done="openRoutePage(openingRoute.routeId)"
+    />
   </div>
 </template>
 
@@ -1182,58 +1126,6 @@ onBeforeUnmount(() => {
   color: var(--lichen);
   font: 600 10px var(--font-data);
   white-space: nowrap;
-}
-
-/* Above the navbar (z-index 20 in SiteNav.vue), as the screen covers the whole page */
-.globe-route-dive {
-  position: absolute;
-  inset: 0;
-  z-index: 30;
-}
-
-/* Fades its opacity rather than its colour, so the browser can blend it without repainting
-   the whole screen on every frame */
-.globe-route-screen {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-content: center;
-  justify-items: center;
-  gap: 12px;
-  padding: 0 var(--gutter);
-  background: var(--night);
-  color: var(--ground);
-  text-align: center;
-}
-
-.globe-route-screen .cairn-label {
-  color: var(--lichen);
-}
-
-.globe-route-screen-name {
-  max-width: 14ch;
-  font-size: clamp(36px, 6vw, 88px);
-  font-weight: 900;
-  line-height: 0.95;
-  letter-spacing: -0.03em;
-  text-wrap: balance;
-}
-
-.globe-route-screen-trail {
-  width: min(420px, 80vw);
-  height: 20px;
-}
-
-.globe-route-screen-trail path {
-  fill: none;
-  stroke: var(--wood-light);
-  stroke-width: 3;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-}
-
-.globe-route-screen-cairn {
-  margin-top: 28px;
 }
 
 /* On phones the route index is a bar along the bottom, so the camera buttons and the map's
