@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { motion, useReducedMotion } from 'motion-v'
+import CairnLoader from './CairnLoader.vue'
 import TrailPlank from './TrailPlank.vue'
 
 // Title screen over the globe: a cairn built stone by stone while the globe and routes load
@@ -19,15 +20,6 @@ const reduceMotion = useReducedMotion()
 
 const titleLetters = 'CAIRN'.split('')
 
-// The cairn from its biggest stone at the bottom up to the smallest
-const stones = [
-  { cx: 60, cy: 84, rx: 46, ry: 11, fill: '#8d8f88' },
-  { cx: 58, cy: 66, rx: 33, ry: 10, fill: '#a8a89f' },
-  { cx: 62, cy: 49, rx: 24, ry: 9, fill: '#969890' },
-  { cx: 59, cy: 33, rx: 16, ry: 7.5, fill: '#bcbbb1' },
-  { cx: 60, cy: 20, rx: 9, ry: 5.5, fill: '#d3d1c6' },
-]
-
 const loadingProgress = computed(() => {
   const doneCount = props.loadingSteps.filter((step) => step.done).length
   return Math.round((doneCount / props.loadingSteps.length) * 100)
@@ -37,11 +29,6 @@ const loadingMessage = computed(() => {
   const nextStep = props.loadingSteps.find((step) => !step.done)
   return nextStep ? nextStep.label : props.readyMessage
 })
-
-// The first stone goes down as soon as loading makes any progress
-const placedStones = computed(() =>
-  stones.slice(0, Math.ceil((loadingProgress.value / 100) * stones.length)),
-)
 </script>
 
 <template>
@@ -84,42 +71,9 @@ const placedStones = computed(() =>
     </motion.p>
 
     <div class="globe-way">
-      <svg
-        class="globe-cairn"
-        viewBox="0 0 120 96"
-        role="progressbar"
-        aria-label="Loading routes"
-        :aria-hidden="phase !== 'intro'"
-        :aria-valuenow="loadingProgress"
-        aria-valuemin="0"
-        aria-valuemax="100"
-      >
-        <!-- Each stone drops into place -->
-        <motion.ellipse
-          v-for="(stone, index) in placedStones"
-          :key="index"
-          :cx="stone.cx"
-          :cy="stone.cy"
-          :rx="stone.rx"
-          :ry="stone.ry"
-          :fill="stone.fill"
-          :initial="{ opacity: 0, y: -16 }"
-          :animate="{ opacity: 1, y: 0 }"
-          :transition="{ duration: reduceMotion ? 0 : 0.45, ease: [0.16, 1, 0.3, 1] }"
-        />
-      </svg>
-
-      <p
-        v-if="phase === 'intro'"
-        class="globe-loading-text"
-        role="status"
-        data-testid="globe-loading"
-      >
-        <span>{{ loadingMessage }}</span>
-        <span class="cairn-data">{{ loadingProgress }}%</span>
-      </p>
+      <CairnLoader :progress="loadingProgress" :message="phase === 'intro' ? loadingMessage : ''" />
       <motion.div
-        v-else
+        v-if="phase !== 'intro'"
         class="globe-sign"
         :initial="{ opacity: 0, y: '0.25em' }"
         :animate="{ opacity: 1, y: 0 }"
@@ -179,28 +133,6 @@ const placedStones = computed(() =>
   gap: 8px;
   min-height: 180px;
   margin-top: 8px;
-}
-
-.globe-cairn {
-  width: 110px;
-  height: 88px;
-  overflow: visible;
-}
-
-.globe-loading-text {
-  display: flex;
-  gap: 10px;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1.3;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--lichen);
-}
-
-.globe-loading-text .cairn-data {
-  font-weight: 600;
-  letter-spacing: 0;
 }
 
 /* drop-shadow follows the plank's point, which a box-shadow couldn't */

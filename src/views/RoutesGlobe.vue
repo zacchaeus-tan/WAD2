@@ -3,13 +3,14 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 // MapLibre GL JS (https://maplibre.org, BSD-3-Clause) draws the 3D globe; see src/lib/globe/globeMap.js
 import { Map as MapLibreMap, Marker, Popup, ScaleControl } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { motion, useReducedMotion } from 'motion-v'
+import { animate, motion, useReducedMotion } from 'motion-v'
 import { useRouter } from 'vue-router'
 import {
   fetchRouteGeometry,
   fetchRouteSummaries,
   preloadRoute,
 } from '../controller/routesController'
+import CairnLoader from '@/components/globe/CairnLoader.vue'
 import GlobeContours from '@/components/globe/GlobeContours.vue'
 import GlobeIntro from '@/components/globe/GlobeIntro.vue'
 import GlobePanel from '@/components/globe/GlobePanel.vue'
@@ -44,12 +45,14 @@ const navHeightPx = 65
 const indexPanelPx = 342
 const introMinimumMs = 2200
 // How long the camera takes to dive onto a route, the longest it then waits for the satellite
-// photos to sharpen, how long the transition screen takes to fade in, the least time it stays up,
-// and the longest it waits for the route's details on a slow connection
+// photos to sharpen, how long the transition screen takes to fade in, the least time it takes to
+// build its cairn, how long the last stone takes to land, and the longest it waits for the route's
+// details on a slow connection
 const routeDiveMs = 2400
 const routeTileWaitMs = 8000
 const routeScreenFadeMs = 600
 const routeScreenMs = 1800
+const routeLastStoneMs = 450
 const routeLoadWaitMs = 8000
 const spinDegreesPerMs = 360 / 150000
 // How many map tiles can fail in one view before the user is told about it
@@ -90,6 +93,7 @@ const introTimeDone = ref(Boolean(savedView))
 // Name of the route being opened, shown while the globe dives onto it
 const openingRouteName = ref('')
 const routeScreenShowing = ref(false)
+const routeScreenProgress = ref(0)
 // What the hover card and the clicked card show. Vue renders both cards into the hidden holder
 // in the template, and the map popups display those same elements (see addRouteCardPopup).
 const hoverCardRoute = ref(null)
@@ -108,6 +112,7 @@ const scaleHost = ref(null)
 const reduceMotion = useReducedMotion()
 let introTimer
 let routeDiveTimer
+let routeProgressAnimation
 let spinFrame
 let lastSpinTime
 let touchStartY
@@ -436,28 +441,43 @@ function closeClickedCard() {
 // Waits on the route until its satellite photos have finished loading (or for a few seconds
 // on a slow connection), then shows the transition screen until the route's details have loaded
 // and opens the details page. The screen stays up while the page's code downloads too, as the
-// router only leaves this page once that's done.
+// router only leaves this page once that's done. The details are the one thing being loaded here,
+// so the cairn's progress runs to 80% on its own (four stones) and the last stone waits for them.
 function showScreenWhenSharp(detailsPage, routeLoaded) {
   let screenShown = false
-  function showScreen() {
+  async function showScreen() {
     if (screenShown) {
       return
     }
     screenShown = true
     clearTimeout(routeDiveTimer)
     routeScreenShowing.value = true
-    routeDiveTimer = setTimeout(async () => {
-      await routeLoaded
-      // The user may have gone back while the details were loading
-      if (globeView) {
-        router.push(detailsPage)
-      }
-    }, routeScreenMs)
+    await animateRouteProgress(80, routeScreenMs)
+    await routeLoaded
+    // The user may have gone back while the details were loading
+    if (!globeView) {
+      return
+    }
+    await animateRouteProgress(100, routeLastStoneMs)
+    if (globeView) {
+      router.push(detailsPage)
+    }
   }
 
   // 'idle' fires once every tile on screen has loaded and faded in
   globeView.once('idle', showScreen)
   routeDiveTimer = setTimeout(showScreen, routeTileWaitMs)
+}
+
+function animateRouteProgress(target, durationMs) {
+  routeProgressAnimation = animate(routeScreenProgress.value, target, {
+    duration: durationMs / 1000,
+    ease: 'linear',
+    onUpdate: (value) => {
+      routeScreenProgress.value = Math.round(value)
+    },
+  })
+  return routeProgressAnimation
 }
 
 function onPillEnter(pill) {
@@ -838,6 +858,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   clearTimeout(introTimer)
   clearTimeout(routeDiveTimer)
+  routeProgressAnimation?.stop()
   stopSpinning()
   window.removeEventListener('keydown', onKeydown)
   stopWalker?.()
@@ -1013,6 +1034,11 @@ onBeforeUnmount(() => {
         >
           <path d="M4 12C70 2 120 18 190 10S320 4 396 12" />
         </svg>
+        <CairnLoader
+          class="globe-route-screen-cairn"
+          :progress="routeScreenProgress"
+          message="Loading route"
+        />
       </motion.div>
     </div>
   </div>
@@ -1204,6 +1230,10 @@ onBeforeUnmount(() => {
   stroke-width: 3;
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
+}
+
+.globe-route-screen-cairn {
+  margin-top: 28px;
 }
 
 /* On phones the route index is a bar along the bottom, so the camera buttons and the map's
